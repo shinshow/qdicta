@@ -1,5 +1,6 @@
 """Floating overlay panel for recording/transcribing state."""
 
+import os
 import random
 import time
 
@@ -24,8 +25,16 @@ from AppKit import (
     NSProgressIndicatorSpinningStyle,
     NSCenterTextAlignment,
     NSAppearance,
+    NSWorkspace,
+    NSEvent,
 )
 from Foundation import NSMakeRect
+from Quartz import (
+    CGWindowListCopyWindowInfo,
+    kCGWindowListOptionOnScreenOnly,
+    kCGWindowListExcludeDesktopElements,
+    kCGNullWindowID,
+)
 
 # Panel dimensions
 W = 220
@@ -56,6 +65,8 @@ class OverlayController(NSObject):
         self._update_timer = None
         self._current_level = 0.0
         self._level_history = [0.0] * 8
+        self._tick_count = 0
+        self._reposition_timer = None
         self._setup_panel()
         return self
 
@@ -162,8 +173,83 @@ class OverlayController(NSObject):
         self._status_label.setHidden_(True)
         self._panel.contentView().addSubview_(self._status_label)
 
+    def _find_active_screen(self):
+        """Return the NSScreen the user is most likely looking at.
+
+        Fallback chain: frontmost app window → mouse cursor → main screen.
+        """
+        screen = self._screen_from_frontmost_window()
+        if screen is not None:
+            return screen
+
+        screen = self._screen_from_mouse()
+        if screen is not None:
+            return screen
+
+        return NSScreen.mainScreen()
+
+    def _screen_from_frontmost_window(self):
+        """Find the screen containing the frontmost app's key window."""
+        frontmost = NSWorkspace.sharedWorkspace().frontmostApplication()
+        if frontmost is None:
+            return None
+
+        pid = frontmost.processIdentifier()
+
+        # Exclude vvrite's own windows (Settings, Onboarding)
+        if pid == os.getpid():
+            return None
+
+        window_list = CGWindowListCopyWindowInfo(
+            kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements,
+            kCGNullWindowID,
+        )
+        if window_list is None:
+            return None
+
+        for win in window_list:
+            if win.get("kCGWindowOwnerPID") != pid:
+                continue
+            if win.get("kCGWindowLayer", -1) != 0:
+                continue
+            bounds = win.get("kCGWindowBounds")
+            if not bounds:
+                continue
+            w = bounds.get("Width", 0)
+            h = bounds.get("Height", 0)
+            if w <= 0 or h <= 0:
+                continue
+
+            # Convert Quartz coords (origin top-left) to Cocoa (origin bottom-left)
+            primary = NSScreen.screens()[0].frame()
+            cg_x = bounds["X"]
+            cg_y = bounds["Y"]
+            cocoa_x = cg_x
+            cocoa_y = primary.size.height - cg_y - h
+
+            # Find the screen containing the center of this window
+            center_x = cocoa_x + w / 2
+            center_y = cocoa_y + h / 2
+            for s in NSScreen.screens():
+                f = s.frame()
+                if (f.origin.x <= center_x < f.origin.x + f.size.width
+                        and f.origin.y <= center_y < f.origin.y + f.size.height):
+                    return s
+            return None
+        return None
+
+    def _screen_from_mouse(self):
+        """Find the screen containing the mouse cursor."""
+        mouse = NSEvent.mouseLocation()
+        for s in NSScreen.screens():
+            f = s.frame()
+            if (f.origin.x <= mouse.x < f.origin.x + f.size.width
+                    and f.origin.y <= mouse.y < f.origin.y + f.size.height):
+                return s
+        return None
+
     def _position_panel(self):
-        screen = NSScreen.mainScreen()
+        screen = self._find_active_screen()
         if screen is None:
             return
         screen_frame = screen.visibleFrame()
@@ -171,6 +257,9 @@ class OverlayController(NSObject):
         x = screen_frame.origin.x + (screen_frame.size.width - panel_frame.size.width) / 2
         y = screen_frame.origin.y + 60
         self._panel.setFrameOrigin_((x, y))
+        # Re-order front to trigger MoveToActiveSpace when Space changes
+        if self._panel.alphaValue() > 0:
+            self._panel.orderFront_(None)
 
     def _show_recording_elements(self, show: bool):
         self._dot.setHidden_(not show)
@@ -180,6 +269,10 @@ class OverlayController(NSObject):
 
     def showRecording(self):
         self._record_start_time = time.time()
+        self._tick_count = 0
+        if self._reposition_timer:
+            self._reposition_timer.invalidate()
+            self._reposition_timer = None
         self._show_recording_elements(True)
         self._status_label.setHidden_(True)
         self._spinner.setHidden_(True)
@@ -202,12 +295,19 @@ class OverlayController(NSObject):
         self._status_label.setHidden_(False)
         self._spinner.setHidden_(False)
         self._spinner.startAnimation_(None)
+        self._position_panel()
+        self._reposition_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
+            1.0, self, "repositionPanel:", None, True
+        )
 
     @objc.typedSelector(b"v@:@")
     def showError_(self, message):
         if self._update_timer:
             self._update_timer.invalidate()
             self._update_timer = None
+        if self._reposition_timer:
+            self._reposition_timer.invalidate()
+            self._reposition_timer = None
         self._show_recording_elements(False)
         self._spinner.setHidden_(True)
         self._spinner.stopAnimation_(None)
@@ -245,11 +345,23 @@ class OverlayController(NSObject):
                 bar_height,
             ))
 
+        # Reposition every ~0.5s (every 10 ticks at 50ms interval)
+        self._tick_count += 1
+        if self._tick_count % 10 == 0:
+            self._position_panel()
+
+    @objc.typedSelector(b"v@:@")
+    def repositionPanel_(self, timer):
+        self._position_panel()
+
     @objc.typedSelector(b"v@:@")
     def dismiss_(self, _=None):
         if self._update_timer:
             self._update_timer.invalidate()
             self._update_timer = None
+        if self._reposition_timer:
+            self._reposition_timer.invalidate()
+            self._reposition_timer = None
         self._panel.setAlphaValue_(0.0)
         self._panel.orderOut_(None)
 
