@@ -2,7 +2,6 @@
 
 import os
 import sys
-import tempfile
 import time
 import threading
 
@@ -391,34 +390,7 @@ class AppDelegate(NSObject):
         alert.addButtonWithTitle_("Later")
         response = alert.runModal()
         if response == NSAlertFirstButtonReturn:
-            asset = updater.find_dmg_asset(release)
-            if asset:
-                threading.Thread(
-                    target=self._download_update, args=(asset,), daemon=True
-                ).start()
-            else:
-                # No downloadable asset — open release page in browser
-                self._open_external_url(updater.release_page_url(release))
-
-    def _download_update(self, asset):
-        """Background: download asset to temp dir, then open it."""
-        name = asset.get("name", "vvrite-update.dmg")
-        url = asset.get("browser_download_url", "")
-        if not url:
-            return
-        dest = os.path.join(tempfile.gettempdir(), name)
-        try:
-            updater.download_asset(url, dest)
-            self.performSelectorOnMainThread_withObject_waitUntilDone_(
-                "updateDownloadComplete:", dest, False
-            )
-        except Exception as e:
-            NSLog(f"Update download failed: {e}")
-            release = self._available_update[1] if self._available_update else None
-            fallback_url = updater.release_page_url(release)
-            self.performSelectorOnMainThread_withObject_waitUntilDone_(
-                "openExternalURL:", fallback_url, False
-            )
+            self._open_external_url(updater.release_page_url(release))
 
     def _open_external_url(self, url: str) -> bool:
         if not url:
@@ -427,12 +399,6 @@ class AppDelegate(NSObject):
         if ns_url is None:
             return False
         return bool(NSWorkspace.sharedWorkspace().openURL_(ns_url))
-
-    @objc.typedSelector(b"v@:@")
-    def updateDownloadComplete_(self, path):
-        """Main thread: open downloaded .dmg/.zip in Finder."""
-        url = NSURL.fileURLWithPath_(str(path))
-        NSWorkspace.sharedWorkspace().openURL_(url)
 
     @objc.typedSelector(b"v@:@")
     def openExternalURL_(self, url):
@@ -449,7 +415,7 @@ class AppDelegate(NSObject):
 
 def main():
     # Single-instance check: exit immediately if already running
-    from AppKit import NSRunningApplication, NSWorkspace
+    from AppKit import NSRunningApplication
     running = NSRunningApplication.runningApplicationsWithBundleIdentifier_(
         APP_BUNDLE_IDENTIFIER
     )
