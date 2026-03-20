@@ -39,6 +39,7 @@ Everything runs on-device using [MLX](https://github.com/ml-explore/mlx). No aud
 
 - macOS 13+ on Apple Silicon (M1/M2/M3/M4)
 - ~2 GB disk space for the ASR model
+- `ffmpeg` installed when running from source
 - Microphone permission
 - Accessibility permission (for global hotkey)
 
@@ -48,11 +49,12 @@ Everything runs on-device using [MLX](https://github.com/ml-explore/mlx). No aud
 
 ```bash
 # Clone
-git clone https://github.com/user/vvrite.git
+git clone https://github.com/shaircast/vvrite.git
 cd vvrite
 
 # Install dependencies
 pip install -r requirements.txt
+brew install ffmpeg
 
 # Run
 python -m vvrite
@@ -61,10 +63,12 @@ python -m vvrite
 ### Build as .app
 
 ```bash
-pip install pyinstaller
-pyinstaller vvrite.spec
-open dist/vvrite.app
+pip install -r requirements.txt
+./scripts/build.sh
+open dist/vvrite.dmg
 ```
+
+`./scripts/build.sh` is the supported build path. It performs the PyInstaller build, code signing, notarization, stapling, and DMG creation. It requires a configured Apple Developer signing identity and `notarytool` profile.
 
 ## Usage
 

@@ -1,7 +1,6 @@
 """Settings window for hotkey, microphone, permissions, and launch at login."""
 
 import objc
-import sounddevice as sd
 import ApplicationServices
 from AppKit import (
     NSObject,
@@ -24,6 +23,11 @@ from AppKit import (
 from Foundation import NSLog, NSURL, NSTimer
 
 from vvrite import launch_at_login
+from vvrite.audio_devices import (
+    get_default_input_device,
+    list_input_devices,
+    resolve_input_device,
+)
 from vvrite.preferences import Preferences
 from vvrite.widgets import ShortcutField
 
@@ -40,6 +44,7 @@ class SettingsWindowController(NSObject):
         self._mic_label = None
         self._shortcut_field = None
         self._mic_popup = None
+        self._mic_device_ids = [None]
         self._login_checkbox = None
         self._custom_words_field = None
         self._build_window()
@@ -191,18 +196,23 @@ class SettingsWindowController(NSObject):
 
     def _populate_mics(self):
         self._mic_popup.removeAllItems()
-        self._mic_popup.addItemWithTitle_("System Default")
+        devices = list_input_devices()
+        default_device = get_default_input_device(devices)
+        default_label = "System Default"
+        if default_device is not None:
+            default_label = f"System Default ({default_device.name})"
+        self._mic_popup.addItemWithTitle_(default_label)
 
-        devices = sd.query_devices()
+        self._mic_device_ids = [None]
         current = self._prefs.mic_device
         selected_idx = 0
+        selected_device = resolve_input_device(current, devices)
 
-        for i, d in enumerate(devices):
-            if d["max_input_channels"] > 0:
-                name = d["name"]
-                self._mic_popup.addItemWithTitle_(name)
-                if current and current in name:
-                    selected_idx = self._mic_popup.numberOfItems() - 1
+        for device in devices:
+            self._mic_popup.addItemWithTitle_(device.display_name)
+            self._mic_device_ids.append(device.device_id)
+            if selected_device is not None and selected_device.device_id == device.device_id:
+                selected_idx = self._mic_popup.numberOfItems() - 1
 
         self._mic_popup.selectItemAtIndex_(selected_idx)
 
@@ -214,6 +224,7 @@ class SettingsWindowController(NSObject):
         self._mic_label.setStringValue_("Microphone: ✅ Granted")
 
     def showWindow_(self, sender):
+        self._populate_mics()
         self._window.makeKeyAndOrderFront_(sender)
         self._permission_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
             2.0, self, "pollPermissions:", None, True
@@ -243,11 +254,11 @@ class SettingsWindowController(NSObject):
 
     @objc.typedSelector(b"v@:@")
     def micChanged_(self, sender):
-        title = self._mic_popup.titleOfSelectedItem()
-        if title == "System Default":
+        index = sender.indexOfSelectedItem()
+        if index <= 0:
             self._prefs.mic_device = None
         else:
-            self._prefs.mic_device = title
+            self._prefs.mic_device = self._mic_device_ids[index]
 
     @objc.typedSelector(b"v@:@")
     def loginToggled_(self, sender):

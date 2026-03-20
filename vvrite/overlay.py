@@ -270,6 +270,8 @@ class OverlayController(NSObject):
     def showRecording(self):
         self._record_start_time = time.time()
         self._tick_count = 0
+        self._current_level = 0.0
+        self._level_history = [0.0] * len(self._level_bars)
         if self._reposition_timer:
             self._reposition_timer.invalidate()
             self._reposition_timer = None

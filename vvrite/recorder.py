@@ -8,7 +8,8 @@ import numpy as np
 import sounddevice as sd
 import soundfile as sf
 
-from vvrite.preferences import SAMPLE_RATE, CHANNELS
+from vvrite.audio_devices import get_preferred_input_device, refresh_portaudio_device_list
+from vvrite.preferences import CHANNELS
 
 
 def _compute_rms(data: np.ndarray) -> float:
@@ -22,36 +23,46 @@ class Recorder:
     def __init__(self):
         self._frames: list[np.ndarray] = []
         self._stream = None
+        self._stream_samplerate = None
         self._level_callback: Callable[[float], None] | None = None
 
     def start(self, device=None, level_callback=None):
         """Start recording from the specified microphone.
 
         Args:
-            device: Device name string or None for system default.
+            device: Saved device identifier or None for the system default.
             level_callback: Called with RMS level (0.0-1.0) per audio chunk.
         """
         self._frames = []
+        self._stream_samplerate = None
         self._level_callback = level_callback
 
-        device_idx = None
-        if device is not None:
-            devices = sd.query_devices()
-            for i, d in enumerate(devices):
-                if device in d["name"] and d["max_input_channels"] > 0:
-                    device_idx = i
-                    break
-            if device_idx is None:
-                raise RuntimeError(f"Microphone not found: {device}")
+        last_error = None
+        for refresh in (False, True):
+            if refresh:
+                refresh_portaudio_device_list()
 
-        self._stream = sd.InputStream(
-            samplerate=SAMPLE_RATE,
-            channels=CHANNELS,
-            dtype="int16",
-            device=device_idx,
-            callback=self._callback,
-        )
-        self._stream.start()
+            preferred_device = get_preferred_input_device(device)
+            if preferred_device is None:
+                continue
+
+            try:
+                self._stream_samplerate = preferred_device.default_samplerate
+                self._stream = sd.InputStream(
+                    samplerate=self._stream_samplerate,
+                    channels=CHANNELS,
+                    dtype="int16",
+                    device=preferred_device.index,
+                    callback=self._callback,
+                )
+                self._stream.start()
+                return
+            except Exception as exc:
+                last_error = exc
+                self._stream = None
+                self._stream_samplerate = None
+
+        raise RuntimeError("No usable microphone input device found") from last_error
 
     def _callback(self, indata, frames, time_info, status):
         self._frames.append(indata.copy())
@@ -74,5 +85,5 @@ class Recorder:
         audio = np.concatenate(self._frames, axis=0)
         fd, path = tempfile.mkstemp(suffix=".wav")
         os.close(fd)
-        sf.write(path, audio, SAMPLE_RATE, subtype="PCM_16")
+        sf.write(path, audio, self._stream_samplerate, subtype="PCM_16")
         return path

@@ -198,7 +198,9 @@ class AppDelegate(NSObject):
         )
 
         def level_cb(level):
-            self._overlay._current_level = float(level)
+            self.performSelectorOnMainThread_withObject_waitUntilDone_(
+                "updateRecordingLevel:", float(level), False
+            )
 
         try:
             self._recorder.start(
@@ -263,6 +265,10 @@ class AppDelegate(NSObject):
         self._overlay.showRecording()
         self._status_bar.setStatus_("Recording...")
         self._status_bar.setRecording_(True)
+
+    @objc.typedSelector(b"v@:@")
+    def updateRecordingLevel_(self, level):
+        self._overlay._current_level = float(level)
 
     @objc.typedSelector(b"v@:@")
     def showTranscribingUI_(self, _):
