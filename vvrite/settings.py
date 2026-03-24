@@ -20,6 +20,7 @@ from AppKit import (
     NSApp,
     NSBezelStyleRounded,
     NSAlert,
+    NSAlertFirstButtonReturn,
     NSWorkspace,
     NSSlider,
     NSOpenPanel,
@@ -33,6 +34,7 @@ from vvrite.audio_devices import (
     list_input_devices,
     resolve_input_device,
 )
+from vvrite.locales import t, SUPPORTED_LANGUAGES
 from vvrite.preferences import Preferences
 from vvrite.widgets import ShortcutField
 
@@ -61,28 +63,95 @@ class SettingsWindowController(NSObject):
         self._stop_volume_slider = None
         self._start_volume_label = None
         self._stop_volume_label = None
+        self._ui_lang_popup = None
+        self._asr_lang_popup = None
         self._build_window()
         return self
 
     def _build_window(self):
-        frame = NSMakeRect(0, 0, 400, 706)
+        frame = NSMakeRect(0, 0, 400, 806)
         self._window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
             frame,
             NSWindowStyleMaskTitled | NSWindowStyleMaskClosable,
             NSBackingStoreBuffered,
             False,
         )
-        self._window.setTitle_("Settings")
+        self._window.setTitle_(t("settings.title"))
         self._window.setReleasedWhenClosed_(False)
         self._window.center()
         self._window.setDelegate_(self)
 
         content = self._window.contentView()
-        y = 692
+        y = 792
+
+        # --- Language ---
+        y -= 30
+        label = NSTextField.labelWithString_(t("settings.language.title"))
+        label.setFrame_(NSMakeRect(20, y, 360, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        content.addSubview_(label)
+
+        y -= 30
+        ui_lang_label = NSTextField.labelWithString_(t("settings.language.ui_language"))
+        ui_lang_label.setFrame_(NSMakeRect(20, y, 130, 20))
+        ui_lang_label.setAlignment_(2)  # NSTextAlignmentRight
+        ui_lang_label.setTextColor_(NSColor.secondaryLabelColor())
+        ui_lang_label.setFont_(NSFont.systemFontOfSize_(12.0))
+        content.addSubview_(ui_lang_label)
+
+        self._ui_lang_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(156, y, 224, 24), False
+        )
+        self._ui_lang_popup.addItemWithTitle_(t("common.system_default"))
+        for code, native_name in SUPPORTED_LANGUAGES:
+            self._ui_lang_popup.addItemWithTitle_(native_name)
+        # Select current value
+        current_ui = self._prefs.ui_language
+        if current_ui is None:
+            self._ui_lang_popup.selectItemAtIndex_(0)
+        else:
+            selected = 0
+            for i, (code, _) in enumerate(SUPPORTED_LANGUAGES):
+                if code == current_ui:
+                    selected = i + 1
+                    break
+            self._ui_lang_popup.selectItemAtIndex_(selected)
+        self._ui_lang_popup.setTarget_(self)
+        self._ui_lang_popup.setAction_("uiLanguageChanged:")
+        content.addSubview_(self._ui_lang_popup)
+
+        y -= 30
+        asr_lang_label = NSTextField.labelWithString_(t("settings.language.asr_language"))
+        asr_lang_label.setFrame_(NSMakeRect(20, y, 130, 20))
+        asr_lang_label.setAlignment_(2)  # NSTextAlignmentRight
+        asr_lang_label.setTextColor_(NSColor.secondaryLabelColor())
+        asr_lang_label.setFont_(NSFont.systemFontOfSize_(12.0))
+        content.addSubview_(asr_lang_label)
+
+        self._asr_lang_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(156, y, 224, 24), False
+        )
+        self._asr_lang_popup.addItemWithTitle_(t("common.automatic"))
+        for code, native_name in SUPPORTED_LANGUAGES:
+            self._asr_lang_popup.addItemWithTitle_(native_name)
+        # Select current value
+        current_asr = self._prefs.asr_language
+        if current_asr == "auto":
+            self._asr_lang_popup.selectItemAtIndex_(0)
+        else:
+            selected = 0
+            for i, (code, _) in enumerate(SUPPORTED_LANGUAGES):
+                if code == current_asr:
+                    selected = i + 1
+                    break
+            self._asr_lang_popup.selectItemAtIndex_(selected)
+        self._asr_lang_popup.setTarget_(self)
+        self._asr_lang_popup.setAction_("asrLanguageChanged:")
+        content.addSubview_(self._asr_lang_popup)
 
         # --- Shortcut ---
-        y -= 30
-        label = NSTextField.labelWithString_("Shortcut")
+        y -= 40
+        label = NSTextField.labelWithString_(t("settings.shortcut.title"))
         label.setFrame_(NSMakeRect(20, y, 360, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
@@ -94,7 +163,7 @@ class SettingsWindowController(NSObject):
         content.addSubview_(self._shortcut_field)
 
         change_btn = NSButton.alloc().initWithFrame_(NSMakeRect(310, y, 80, 24))
-        change_btn.setTitle_("Change")
+        change_btn.setTitle_(t("common.change"))
         change_btn.setBezelStyle_(NSBezelStyleRounded)
         change_btn.setTarget_(self)
         change_btn.setAction_("changeShortcut:")
@@ -102,7 +171,7 @@ class SettingsWindowController(NSObject):
 
         # --- Correction ---
         y -= 40
-        label = NSTextField.labelWithString_("Correction")
+        label = NSTextField.labelWithString_(t("settings.correction.title"))
         label.setFrame_(NSMakeRect(20, y, 360, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
@@ -110,7 +179,7 @@ class SettingsWindowController(NSObject):
         y -= 30
         self._retract_checkbox = NSButton.alloc().initWithFrame_(NSMakeRect(20, y, 360, 20))
         self._retract_checkbox.setButtonType_(NSButtonTypeSwitch)
-        self._retract_checkbox.setTitle_("Enable retract last dictation shortcut")
+        self._retract_checkbox.setTitle_(t("settings.correction.enable"))
         self._retract_checkbox.setState_(
             1 if self._prefs.retract_last_dictation_enabled else 0
         )
@@ -130,7 +199,7 @@ class SettingsWindowController(NSObject):
         content.addSubview_(self._retract_shortcut_field)
 
         self._retract_change_btn = NSButton.alloc().initWithFrame_(NSMakeRect(310, y, 80, 24))
-        self._retract_change_btn.setTitle_("Change")
+        self._retract_change_btn.setTitle_(t("common.change"))
         self._retract_change_btn.setBezelStyle_(NSBezelStyleRounded)
         self._retract_change_btn.setTarget_(self)
         self._retract_change_btn.setAction_("changeRetractShortcut:")
@@ -138,7 +207,7 @@ class SettingsWindowController(NSObject):
 
         y -= 20
         hint = NSTextField.labelWithString_(
-            "방금 붙여넣은 받아쓰기 결과를 Delete로 지웁니다"
+            t("settings.correction.hint")
         )
         hint.setFrame_(NSMakeRect(20, y, 360, 16))
         hint.setFont_(NSFont.systemFontOfSize_(11.0))
@@ -147,7 +216,7 @@ class SettingsWindowController(NSObject):
 
         # --- Microphone ---
         y -= 40
-        label = NSTextField.labelWithString_("Microphone")
+        label = NSTextField.labelWithString_(t("settings.microphone.title"))
         label.setFrame_(NSMakeRect(20, y, 360, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
@@ -163,7 +232,7 @@ class SettingsWindowController(NSObject):
 
         # --- Model ---
         y -= 40
-        label = NSTextField.labelWithString_("Model")
+        label = NSTextField.labelWithString_(t("settings.model.title"))
         label.setFrame_(NSMakeRect(20, y, 360, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
@@ -176,7 +245,7 @@ class SettingsWindowController(NSObject):
 
         # --- Custom Words ---
         y -= 40
-        label = NSTextField.labelWithString_("Custom Words")
+        label = NSTextField.labelWithString_(t("settings.custom_words.title"))
         label.setFrame_(NSMakeRect(20, y, 360, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
@@ -186,13 +255,13 @@ class SettingsWindowController(NSObject):
             NSMakeRect(20, y, 360, 24)
         )
         self._custom_words_field.setStringValue_(self._prefs.custom_words)
-        self._custom_words_field.setPlaceholderString_("MLX, Qwen, vvrite")
+        self._custom_words_field.setPlaceholderString_(t("settings.custom_words.placeholder"))
         self._custom_words_field.setDelegate_(self)
         content.addSubview_(self._custom_words_field)
 
         y -= 20
         hint = NSTextField.labelWithString_(
-            "인식이 잘 안 되는 단어를 쉼표로 구분해서 입력하세요"
+            t("settings.custom_words.hint")
         )
         hint.setFrame_(NSMakeRect(20, y, 360, 16))
         hint.setFont_(NSFont.systemFontOfSize_(11.0))
@@ -201,14 +270,14 @@ class SettingsWindowController(NSObject):
 
         # --- Sound ---
         y -= 40
-        label = NSTextField.labelWithString_("Sound")
+        label = NSTextField.labelWithString_(t("settings.sound.title"))
         label.setFrame_(NSMakeRect(20, y, 360, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
 
         # Start sound row
         y -= 30
-        start_label = NSTextField.labelWithString_("Start")
+        start_label = NSTextField.labelWithString_(t("settings.sound.start"))
         start_label.setFrame_(NSMakeRect(20, y, 50, 20))
         start_label.setAlignment_(2)  # NSTextAlignmentRight
         start_label.setTextColor_(NSColor.secondaryLabelColor())
@@ -243,7 +312,7 @@ class SettingsWindowController(NSObject):
 
         # Stop sound row
         y -= 30
-        stop_label = NSTextField.labelWithString_("Stop")
+        stop_label = NSTextField.labelWithString_(t("settings.sound.stop"))
         stop_label.setFrame_(NSMakeRect(20, y, 50, 20))
         stop_label.setAlignment_(2)  # NSTextAlignmentRight
         stop_label.setTextColor_(NSColor.secondaryLabelColor())
@@ -278,7 +347,7 @@ class SettingsWindowController(NSObject):
 
         y -= 20
         hint = NSTextField.labelWithString_(
-            "슬라이더를 조절하면 선택된 소리가 자동으로 재생됩니다"
+            t("settings.sound.hint")
         )
         hint.setFrame_(NSMakeRect(76, y, 310, 16))
         hint.setFont_(NSFont.systemFontOfSize_(11.0))
@@ -289,18 +358,18 @@ class SettingsWindowController(NSObject):
 
         # --- Permissions ---
         y -= 40
-        label = NSTextField.labelWithString_("Permissions")
+        label = NSTextField.labelWithString_(t("settings.permissions.title"))
         label.setFrame_(NSMakeRect(20, y, 360, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
 
         y -= 26
-        self._acc_label = NSTextField.labelWithString_("Accessibility: checking...")
+        self._acc_label = NSTextField.labelWithString_(t("settings.permissions.accessibility_checking"))
         self._acc_label.setFrame_(NSMakeRect(20, y, 250, 20))
         content.addSubview_(self._acc_label)
 
         acc_btn = NSButton.alloc().initWithFrame_(NSMakeRect(310, y, 70, 24))
-        acc_btn.setTitle_("Open")
+        acc_btn.setTitle_(t("common.open"))
         acc_btn.setBezelStyle_(NSBezelStyleRounded)
         acc_btn.setTarget_(self)
         acc_btn.setAction_("openAccessibility:")
@@ -312,7 +381,7 @@ class SettingsWindowController(NSObject):
         content.addSubview_(self._mic_label)
 
         mic_perm_btn = NSButton.alloc().initWithFrame_(NSMakeRect(310, y, 70, 24))
-        mic_perm_btn.setTitle_("Open")
+        mic_perm_btn.setTitle_(t("common.open"))
         mic_perm_btn.setBezelStyle_(NSBezelStyleRounded)
         mic_perm_btn.setTarget_(self)
         mic_perm_btn.setAction_("openMicrophonePrivacy:")
@@ -322,7 +391,7 @@ class SettingsWindowController(NSObject):
         y -= 40
         self._login_checkbox = NSButton.alloc().initWithFrame_(NSMakeRect(20, y, 360, 20))
         self._login_checkbox.setButtonType_(NSButtonTypeSwitch)
-        self._login_checkbox.setTitle_("Launch at login")
+        self._login_checkbox.setTitle_(t("settings.login.title"))
         self._login_checkbox.setState_(1 if self._prefs.launch_at_login else 0)
         self._login_checkbox.setTarget_(self)
         self._login_checkbox.setAction_("loginToggled:")
@@ -332,7 +401,7 @@ class SettingsWindowController(NSObject):
         y -= 34
         self._update_checkbox = NSButton.alloc().initWithFrame_(NSMakeRect(20, y, 360, 20))
         self._update_checkbox.setButtonType_(NSButtonTypeSwitch)
-        self._update_checkbox.setTitle_("Automatically check for updates")
+        self._update_checkbox.setTitle_(t("settings.update.title"))
         self._update_checkbox.setState_(1 if self._prefs.auto_update_check else 0)
         self._update_checkbox.setTarget_(self)
         self._update_checkbox.setAction_("updateCheckToggled:")
@@ -353,7 +422,7 @@ class SettingsWindowController(NSObject):
             for name in system_sounds:
                 popup.addItemWithTitle_(name)
             popup.menu().addItem_(NSMenuItem.separatorItem())
-            popup.addItemWithTitle_("Custom...")
+            popup.addItemWithTitle_(t("settings.sound.custom"))
 
             # Select current value
             if sounds.is_custom_path(pref_value):
@@ -370,9 +439,9 @@ class SettingsWindowController(NSObject):
         self._mic_popup.removeAllItems()
         devices = list_input_devices()
         default_device = get_default_input_device(devices)
-        default_label = "System Default"
+        default_label = t("common.system_default")
         if default_device is not None:
-            default_label = f"System Default ({default_device.name})"
+            default_label = f"{t('common.system_default')} ({default_device.name})"
         self._mic_popup.addItemWithTitle_(default_label)
 
         self._mic_device_ids = [None]
@@ -390,10 +459,11 @@ class SettingsWindowController(NSObject):
 
     def _update_permissions(self):
         trusted = ApplicationServices.AXIsProcessTrusted()
-        self._acc_label.setStringValue_(
-            f"Accessibility: {'✅ Granted' if trusted else '❌ Not Granted'}"
-        )
-        self._mic_label.setStringValue_("Microphone: ✅ Granted")
+        if trusted:
+            self._acc_label.setStringValue_(t("settings.permissions.accessibility_granted"))
+        else:
+            self._acc_label.setStringValue_(t("settings.permissions.accessibility_not_granted"))
+        self._mic_label.setStringValue_(t("settings.permissions.microphone_granted"))
 
     def showWindow_(self, sender):
         self._populate_mics()
@@ -441,6 +511,46 @@ class SettingsWindowController(NSObject):
             self._prefs.mic_device = None
         else:
             self._prefs.mic_device = self._mic_device_ids[index]
+
+    @objc.typedSelector(b"v@:@")
+    def uiLanguageChanged_(self, sender):
+        index = sender.indexOfSelectedItem()
+        if index == 0:
+            self._prefs.ui_language = None
+        else:
+            code = SUPPORTED_LANGUAGES[index - 1][0]
+            self._prefs.ui_language = code
+
+        # Show restart dialog
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_(t("settings.language.restart_message"))
+        alert.addButtonWithTitle_(t("settings.language.restart_now"))
+        alert.addButtonWithTitle_(t("common.later"))
+        response = alert.runModal()
+
+        # Close this window and invalidate cached settings window
+        self._window.close()
+        from AppKit import NSApp
+        delegate = NSApp.delegate()
+        if hasattr(delegate, 'invalidateSettingsWindow'):
+            delegate.invalidateSettingsWindow()
+
+        if response == NSAlertFirstButtonReturn:
+            # Restart the app
+            import subprocess
+            from Foundation import NSBundle
+            bundle = NSBundle.mainBundle().bundlePath()
+            subprocess.Popen(["/usr/bin/open", "-n", bundle])
+            NSApp.terminate_(None)
+
+    @objc.typedSelector(b"v@:@")
+    def asrLanguageChanged_(self, sender):
+        index = sender.indexOfSelectedItem()
+        if index == 0:
+            self._prefs.asr_language = "auto"
+        else:
+            code = SUPPORTED_LANGUAGES[index - 1][0]
+            self._prefs.asr_language = code
 
     @objc.typedSelector(b"v@:@")
     def loginToggled_(self, sender):
@@ -504,7 +614,7 @@ class SettingsWindowController(NSObject):
     @objc.typedSelector(b"v@:@")
     def startSoundChanged_(self, sender):
         title = sender.titleOfSelectedItem()
-        if title == "Custom...":
+        if title == t("settings.sound.custom"):
             self._open_custom_sound_panel(for_start=True)
             return
         # If re-selecting the custom file entry, keep the full path
@@ -518,7 +628,7 @@ class SettingsWindowController(NSObject):
     @objc.typedSelector(b"v@:@")
     def stopSoundChanged_(self, sender):
         title = sender.titleOfSelectedItem()
-        if title == "Custom...":
+        if title == t("settings.sound.custom"):
             self._open_custom_sound_panel(for_start=False)
             return
         # If re-selecting the custom file entry, keep the full path
@@ -560,7 +670,7 @@ class SettingsWindowController(NSObject):
         panel.setCanChooseFiles_(True)
         panel.setCanChooseDirectories_(False)
         panel.setAllowsMultipleSelection_(False)
-        panel.setTitle_("Choose a sound file")
+        panel.setTitle_(t("settings.sound.choose_file"))
 
         if panel.runModal() == 1:  # NSModalResponseOK
             path = str(panel.URL().path())
@@ -577,6 +687,6 @@ class SettingsWindowController(NSObject):
 
     def _show_launch_at_login_error(self, message):
         alert = NSAlert.alloc().init()
-        alert.setMessageText_("Launch at login could not be updated")
+        alert.setMessageText_(t("settings.login.error"))
         alert.setInformativeText_(message)
         alert.runModal()
