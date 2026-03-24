@@ -272,5 +272,40 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
         self.assertIn("press_shortcut", strings["widgets"])
 
 
+class TestAllLocales(unittest.TestCase):
+    def setUp(self):
+        from vvrite.locales import _clear_cache
+
+        _clear_cache()
+
+    def test_all_supported_locales_load(self):
+        from vvrite.locales import SUPPORTED_LANGUAGES, set_locale, t
+        for code, _ in SUPPORTED_LANGUAGES:
+            set_locale(code)
+            result = t("common.retry")
+            self.assertNotEqual(result, "common.retry", f"Locale {code} missing common.retry")
+
+    def test_all_locales_have_same_keys_as_english(self):
+        from vvrite.locales import SUPPORTED_LANGUAGES, _load_strings
+
+        def collect_keys(d, prefix=""):
+            keys = set()
+            for k, v in d.items():
+                full = f"{prefix}.{k}" if prefix else k
+                if isinstance(v, dict):
+                    keys.update(collect_keys(v, full))
+                else:
+                    keys.add(full)
+            return keys
+
+        en_keys = collect_keys(_load_strings("en"))
+        for code, _ in SUPPORTED_LANGUAGES:
+            if code == "en":
+                continue
+            locale_keys = collect_keys(_load_strings(code))
+            missing = en_keys - locale_keys
+            self.assertEqual(missing, set(), f"Locale {code} missing keys: {missing}")
+
+
 if __name__ == "__main__":
     unittest.main()
