@@ -507,6 +507,11 @@ class SettingsWindowController(NSObject):
         if title == "Custom...":
             self._open_custom_sound_panel(for_start=True)
             return
+        # If re-selecting the custom file entry, keep the full path
+        current = self._prefs.sound_start
+        if sounds.is_custom_path(current) and os.path.basename(current) == title:
+            sounds.play(current, self._prefs.start_volume)
+            return
         self._prefs.sound_start = title
         sounds.play(title, self._prefs.start_volume)
 
@@ -515,6 +520,11 @@ class SettingsWindowController(NSObject):
         title = sender.titleOfSelectedItem()
         if title == "Custom...":
             self._open_custom_sound_panel(for_start=False)
+            return
+        # If re-selecting the custom file entry, keep the full path
+        current = self._prefs.sound_stop
+        if sounds.is_custom_path(current) and os.path.basename(current) == title:
+            sounds.play(current, self._prefs.stop_volume)
             return
         self._prefs.sound_stop = title
         sounds.play(title, self._prefs.stop_volume)
