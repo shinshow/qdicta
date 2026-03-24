@@ -376,7 +376,7 @@ class SettingsWindowController(NSObject):
         content.addSubview_(acc_btn)
 
         y -= 26
-        self._mic_label = NSTextField.labelWithString_("Microphone: checking...")
+        self._mic_label = NSTextField.labelWithString_(t("settings.permissions.microphone_checking"))
         self._mic_label.setFrame_(NSMakeRect(20, y, 250, 20))
         content.addSubview_(self._mic_label)
 

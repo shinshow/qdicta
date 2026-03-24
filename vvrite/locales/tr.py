@@ -101,6 +101,7 @@ strings = {
         "permissions": {
             "title": "İzinler",
             "accessibility_checking": "Erişilebilirlik: kontrol ediliyor...",
+            "microphone_checking": "Mikrofon: kontrol ediliyor...",
             "accessibility_granted": "Erişilebilirlik: ✅ Verildi",
             "accessibility_not_granted": "Erişilebilirlik: ❌ Verilmedi",
             "microphone_granted": "Mikrofon: ✅ Verildi",

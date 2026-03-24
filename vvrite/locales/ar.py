@@ -101,6 +101,7 @@ strings = {
         "permissions": {
             "title": "الأذونات",
             "accessibility_checking": "إمكانية الوصول: جارٍ التحقق...",
+            "microphone_checking": "الميكروفون: جارٍ التحقق...",
             "accessibility_granted": "إمكانية الوصول: ✅ ممنوح",
             "accessibility_not_granted": "إمكانية الوصول: ❌ غير ممنوح",
             "microphone_granted": "الميكروفون: ✅ ممنوح",

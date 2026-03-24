@@ -101,6 +101,7 @@ strings = {
         "permissions": {
             "title": "अनुमतियाँ",
             "accessibility_checking": "एक्सेसिबिलिटी: जाँच हो रही है...",
+            "microphone_checking": "माइक्रोफ़ोन: जाँच हो रही है...",
             "accessibility_granted": "एक्सेसिबिलिटी: ✅ अनुमति दी गई",
             "accessibility_not_granted": "एक्सेसिबिलिटी: ❌ अनुमति नहीं दी गई",
             "microphone_granted": "माइक्रोफ़ोन: ✅ अनुमति दी गई",

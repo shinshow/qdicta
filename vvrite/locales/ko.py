@@ -101,6 +101,7 @@ strings = {
         "permissions": {
             "title": "권한",
             "accessibility_checking": "손쉬운 사용: 확인 중...",
+            "microphone_checking": "마이크: 확인 중...",
             "accessibility_granted": "손쉬운 사용: ✅ 허용됨",
             "accessibility_not_granted": "손쉬운 사용: ❌ 허용되지 않음",
             "microphone_granted": "마이크: ✅ 허용됨",

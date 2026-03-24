@@ -101,6 +101,7 @@ strings = {
         "permissions": {
             "title": "Разрешения",
             "accessibility_checking": "Универсальный доступ: проверка...",
+            "microphone_checking": "Микрофон: проверка...",
             "accessibility_granted": "Универсальный доступ: ✅ Разрешено",
             "accessibility_not_granted": "Универсальный доступ: ❌ Не разрешено",
             "microphone_granted": "Микрофон: ✅ Разрешено",

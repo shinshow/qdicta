@@ -101,6 +101,7 @@ strings = {
         "permissions": {
             "title": "Permisos",
             "accessibility_checking": "Accesibilidad: verificando...",
+            "microphone_checking": "Micrófono: verificando...",
             "accessibility_granted": "Accesibilidad: ✅ Concedido",
             "accessibility_not_granted": "Accesibilidad: ❌ No concedido",
             "microphone_granted": "Micrófono: ✅ Concedido",

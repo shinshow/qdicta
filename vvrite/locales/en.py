@@ -101,6 +101,7 @@ strings = {
         "permissions": {
             "title": "Permissions",
             "accessibility_checking": "Accessibility: checking...",
+            "microphone_checking": "Microphone: checking...",
             "accessibility_granted": "Accessibility: \u2705 Granted",
             "accessibility_not_granted": "Accessibility: \u274c Not Granted",
             "microphone_granted": "Microphone: \u2705 Granted",

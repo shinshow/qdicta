@@ -101,6 +101,7 @@ strings = {
         "permissions": {
             "title": "权限",
             "accessibility_checking": "辅助功能：检查中...",
+            "microphone_checking": "麦克风：检查中...",
             "accessibility_granted": "辅助功能：✅ 已授权",
             "accessibility_not_granted": "辅助功能：❌ 未授权",
             "microphone_granted": "麦克风：✅ 已授权",
