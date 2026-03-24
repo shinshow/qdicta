@@ -22,6 +22,7 @@ from Foundation import NSLog, NSURL
 import ApplicationServices
 
 from vvrite import __version__, APP_BUNDLE_IDENTIFIER
+from vvrite.locales import t
 from vvrite.preferences import Preferences
 from vvrite.status_bar import StatusBarController
 from vvrite.hotkey import HotkeyManager
@@ -52,6 +53,13 @@ class AppDelegate(NSObject):
         return self
 
     def applicationDidFinishLaunching_(self, notification):
+        # Initialize locale before any UI construction
+        from vvrite.locales import set_locale, resolve_system_locale
+        ui_lang = self._prefs.ui_language
+        if ui_lang is None:
+            ui_lang = resolve_system_locale()
+        set_locale(ui_lang)
+
         self._status_bar = StatusBarController.alloc().initWithDelegate_(self)
         self._overlay = OverlayController.alloc().init()
 
@@ -95,18 +103,16 @@ class AppDelegate(NSObject):
         # Build permission prompt
         missing = []
         if not ax_ok:
-            missing.append("• Accessibility (for global hotkey)")
+            missing.append(t("alerts.permissions_required.accessibility"))
         if not mic_ok:
-            missing.append("• Microphone (for voice recording)")
+            missing.append(t("alerts.permissions_required.microphone"))
 
         alert = NSAlert.alloc().init()
-        alert.setMessageText_("Permissions Required")
+        alert.setMessageText_(t("alerts.permissions_required.title"))
         alert.setInformativeText_(
-            "vvrite needs the following permissions:\n\n"
-            + "\n".join(missing)
-            + "\n\nClick 'Grant' to open each permission dialog."
+            t("alerts.permissions_required.message", permissions="\n".join(missing))
         )
-        alert.addButtonWithTitle_("Grant")
+        alert.addButtonWithTitle_(t("common.grant"))
         alert.runModal()
 
         # Request accessibility first if needed
@@ -165,10 +171,10 @@ class AppDelegate(NSObject):
             self._status_bar.setStatus_("error_model")
             return
         alert = NSAlert.alloc().init()
-        alert.setMessageText_("Model Loading Failed")
+        alert.setMessageText_(t("alerts.model_failed.title"))
         alert.setInformativeText_(str(error_msg))
-        alert.addButtonWithTitle_("Retry")
-        alert.addButtonWithTitle_("Dismiss")
+        alert.addButtonWithTitle_(t("common.retry"))
+        alert.addButtonWithTitle_(t("common.dismiss"))
         response = alert.runModal()
         if response == NSAlertFirstButtonReturn:
             threading.Thread(target=self._load_model, daemon=True).start()
@@ -374,9 +380,9 @@ class AppDelegate(NSObject):
     @objc.typedSelector(b"v@:@")
     def showUpToDate_(self, _):
         alert = NSAlert.alloc().init()
-        alert.setMessageText_("No Updates Available")
-        alert.setInformativeText_(f"vvrite {__version__} is the latest version.")
-        alert.addButtonWithTitle_("OK")
+        alert.setMessageText_(t("alerts.no_updates.title"))
+        alert.setInformativeText_(t("alerts.no_updates.message", version=__version__))
+        alert.addButtonWithTitle_(t("common.ok"))
         alert.runModal()
 
     def checkForUpdates(self):
@@ -396,12 +402,13 @@ class AppDelegate(NSObject):
             body = body[:500] + "..."
 
         alert = NSAlert.alloc().init()
-        alert.setMessageText_(f"vvrite {tag} is available")
-        alert.setInformativeText_(
-            f"You are currently running {__version__}.\n\n{body}"
-        )
-        alert.addButtonWithTitle_("Download")
-        alert.addButtonWithTitle_("Later")
+        alert.setMessageText_(t("alerts.update_available.title", version=tag))
+        info = t("alerts.update_available.message", current_version=__version__)
+        if body:
+            info += f"\n\n{body}"
+        alert.setInformativeText_(info)
+        alert.addButtonWithTitle_(t("common.download"))
+        alert.addButtonWithTitle_(t("common.later"))
         response = alert.runModal()
         if response == NSAlertFirstButtonReturn:
             self._open_external_url(updater.release_page_url(release))
@@ -425,6 +432,10 @@ class AppDelegate(NSObject):
         self._settings_wc.showWindow_(None)
         self._settings_wc.window().makeKeyAndOrderFront_(None)
         NSApp.activateIgnoringOtherApps_(True)
+
+    def invalidateSettingsWindow(self):
+        """Force settings window to be recreated (after language change)."""
+        self._settings_wc = None
 
 
 def main():
