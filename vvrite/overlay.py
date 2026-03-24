@@ -5,6 +5,7 @@ import random
 import time
 
 import objc
+from vvrite.locales import t
 from AppKit import (
     NSObject,
     NSMakeRect,
@@ -292,7 +293,7 @@ class OverlayController(NSObject):
             self._update_timer.invalidate()
             self._update_timer = None
         self._show_recording_elements(False)
-        self._status_label.setStringValue_("Transcribing...")
+        self._status_label.setStringValue_(t("overlay.transcribing"))
         self._status_label.setTextColor_(NSColor.whiteColor())
         self._status_label.setHidden_(False)
         self._spinner.setHidden_(False)

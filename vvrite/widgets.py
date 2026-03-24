@@ -1,6 +1,7 @@
 """Shared UI widgets."""
 
 import objc
+from vvrite.locales import t
 from AppKit import (
     NSTextField,
     NSFont,
@@ -80,7 +81,7 @@ class ShortcutField(NSTextField):
 
     def _update_display(self):
         if self._capturing:
-            self.setStringValue_("Press shortcut...")
+            self.setStringValue_(t("widgets.press_shortcut"))
         else:
             keycode = getattr(self._prefs, self._keycode_key)
             modifiers = getattr(self._prefs, self._modifiers_key)
