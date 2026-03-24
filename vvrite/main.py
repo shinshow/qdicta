@@ -72,7 +72,7 @@ class AppDelegate(NSObject):
     def _onboarding_finished(self):
         """Called when onboarding wizard completes."""
         self._hotkey = HotkeyManager(self)
-        self._status_bar.setStatus_("Ready")
+        self._status_bar.setStatus_("ready")
         NSLog("vvrite ready.")
         self._maybe_check_for_updates()
 
@@ -122,7 +122,7 @@ class AppDelegate(NSObject):
             )
 
         # Poll until all permissions granted
-        self._status_bar.setStatus_("Waiting for permissions...")
+        self._status_bar.setStatus_("waiting_permissions")
         NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
             2.0, self, "pollPermissions:", None, True
         )
@@ -141,7 +141,7 @@ class AppDelegate(NSObject):
             self._all_permissions_granted()
 
     def _all_permissions_granted(self):
-        self._status_bar.setStatus_("Loading model...")
+        self._status_bar.setStatus_("loading_model")
         threading.Thread(target=self._load_model, daemon=True).start()
 
     def _load_model(self):
@@ -162,7 +162,7 @@ class AppDelegate(NSObject):
     def showModelError_(self, error_msg):
         self._load_retries += 1
         if self._load_retries > 3:
-            self._status_bar.setStatus_("Error: model failed")
+            self._status_bar.setStatus_("error_model")
             return
         alert = NSAlert.alloc().init()
         alert.setMessageText_("Model Loading Failed")
@@ -173,12 +173,12 @@ class AppDelegate(NSObject):
         if response == NSAlertFirstButtonReturn:
             threading.Thread(target=self._load_model, daemon=True).start()
         else:
-            self._status_bar.setStatus_("Error: model failed")
+            self._status_bar.setStatus_("error_model")
 
     @objc.typedSelector(b"v@:@")
     def modelDidLoad_(self, _):
         self._hotkey = HotkeyManager(self)
-        self._status_bar.setStatus_("Ready")
+        self._status_bar.setStatus_("ready")
         NSLog("vvrite ready.")
         self._maybe_check_for_updates()
 
@@ -264,7 +264,7 @@ class AppDelegate(NSObject):
     @objc.typedSelector(b"v@:@")
     def showRecordingUI_(self, _):
         self._overlay.showRecording()
-        self._status_bar.setStatus_("Recording...")
+        self._status_bar.setStatus_("recording")
         self._status_bar.setRecording_(True)
 
     @objc.typedSelector(b"v@:@")
@@ -274,19 +274,19 @@ class AppDelegate(NSObject):
     @objc.typedSelector(b"v@:@")
     def showTranscribingUI_(self, _):
         self._overlay.showTranscribing()
-        self._status_bar.setStatus_("Transcribing...")
+        self._status_bar.setStatus_("transcribing")
         self._status_bar.setRecording_(False)
 
     @objc.typedSelector(b"v@:@")
     def showErrorUI_(self, message):
         self._overlay.showError_(str(message))
-        self._status_bar.setStatus_("Ready")
+        self._status_bar.setStatus_("ready")
         self._status_bar.setRecording_(False)
 
     @objc.typedSelector(b"v@:@")
     def transcriptionComplete_(self, text):
         self._overlay.dismiss()
-        self._status_bar.setStatus_("Ready")
+        self._status_bar.setStatus_("ready")
 
     def cancelRecording(self):
         """Cancel recording: stop mic, discard audio, dismiss overlay."""
@@ -312,7 +312,7 @@ class AppDelegate(NSObject):
     @objc.typedSelector(b"v@:@")
     def dismissAndResetUI_(self, _):
         self._overlay.dismiss()
-        self._status_bar.setStatus_("Ready")
+        self._status_bar.setStatus_("ready")
         self._status_bar.setRecording_(False)
 
     def retractLastDictation(self):

@@ -12,6 +12,10 @@ from AppKit import (
     NSColor,
 )
 
+from vvrite.locales import t
+
+_READY_STATES = {"ready", "recording", "transcribing"}
+
 
 class StatusBarController(NSObject):
     def initWithDelegate_(self, delegate):
@@ -44,23 +48,24 @@ class StatusBarController(NSObject):
 
         # Status
         self._status_menu_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "● Ready", None, ""
+            "", None, ""
         )
         self._status_menu_item.setEnabled_(False)
         self._menu.addItem_(self._status_menu_item)
+        self.setStatus_("ready")
 
         self._menu.addItem_(NSMenuItem.separatorItem())
 
         # Hotkey display
         self._hotkey_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "Hotkey: ⌥Space", None, ""
+            t("menu.hotkey", hotkey="⌥Space"), None, ""
         )
         self._hotkey_item.setEnabled_(False)
         self._menu.addItem_(self._hotkey_item)
 
         # Mic display
         self._mic_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "Microphone: System Default", None, ""
+            t("menu.microphone", microphone=t("common.system_default")), None, ""
         )
         self._mic_item.setEnabled_(False)
         self._menu.addItem_(self._mic_item)
@@ -69,14 +74,14 @@ class StatusBarController(NSObject):
 
         # Settings
         settings_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "Settings...", "openSettings:", ","
+            t("menu.settings"), "openSettings:", ","
         )
         settings_item.setTarget_(self)
         self._menu.addItem_(settings_item)
 
         # Check for Updates
         self._update_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "Check for Updates...", "checkForUpdates:", ""
+            t("menu.check_updates"), "checkForUpdates:", ""
         )
         self._update_item.setTarget_(self)
         self._menu.addItem_(self._update_item)
@@ -85,7 +90,7 @@ class StatusBarController(NSObject):
 
         # Quit
         quit_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "Quit vvrite", "terminate:", "q"
+            t("menu.quit"), "terminate:", "q"
         )
         self._menu.addItem_(quit_item)
 
@@ -101,9 +106,11 @@ class StatusBarController(NSObject):
         else:
             button.setImage_(self._sf_symbol("exclamationmark.triangle"))
 
-    def setStatus_(self, status: str):
-        self._status_menu_item.setTitle_(f"● {status}")
-        self._update_icon(status in ("Ready", "Recording...", "Transcribing..."))
+    def setStatus_(self, status_key: str):
+        """Set status using a key (e.g. 'ready', 'recording'). Translates internally."""
+        display_text = t(f"status.{status_key}")
+        self._status_menu_item.setTitle_(f"● {display_text}")
+        self._update_icon(status_key in _READY_STATES)
 
     def setRecording_(self, recording: bool):
         self._recording = recording
@@ -118,7 +125,14 @@ class StatusBarController(NSObject):
 
     def setUpdateAvailable_(self, version: str):
         """Update menu item text when an update is available."""
-        self._update_item.setTitle_(f"Update Available ({version})")
+        self._update_item.setTitle_(t("menu.update_available", version=version))
+
+    def setHotkeyDisplay_(self, hotkey_str: str):
+        self._hotkey_item.setTitle_(t("menu.hotkey", hotkey=hotkey_str))
+
+    def setMicDisplay_(self, device_name: str | None):
+        display = device_name or t("common.system_default")
+        self._mic_item.setTitle_(t("menu.microphone", microphone=display))
 
     @objc.typedSelector(b"v@:@")
     def openSettings_(self, sender):
