@@ -72,6 +72,7 @@ class ShortcutField(NSTextField):
         self._keycode_key = str(keycode_key)
         self._modifiers_key = str(modifiers_key)
         self._capturing = False
+        self._on_change = None
         self.setEditable_(False)
         self.setSelectable_(False)
         self.setBezeled_(True)
@@ -92,9 +93,9 @@ class ShortcutField(NSTextField):
         self._update_display()
         self.window().makeFirstResponder_(self)
 
-    def keyDown_(self, event):
+    def _capture_shortcut_event(self, event) -> bool:
         if not self._capturing:
-            return
+            return False
 
         keycode = event.keyCode()
         ns_flags = event.modifierFlags()
@@ -102,7 +103,7 @@ class ShortcutField(NSTextField):
         if keycode == 0x35:
             self._capturing = False
             self._update_display()
-            return
+            return True
 
         cg_flags = 0
         if ns_flags & NSEventModifierFlagCommand:
@@ -115,12 +116,22 @@ class ShortcutField(NSTextField):
             cg_flags |= kCGEventFlagMaskAlternate
 
         if not cg_flags:
-            return
+            return False
 
         setattr(self._prefs, self._keycode_key, keycode)
         setattr(self._prefs, self._modifiers_key, int(cg_flags))
         self._capturing = False
         self._update_display()
+        if self._on_change:
+            self._on_change()
+        return True
+
+    def keyDown_(self, event):
+        self._capture_shortcut_event(event)
+
+    def performKeyEquivalent_(self, event):
+        # AppKit routes command shortcuts through key equivalents before keyDown_.
+        return self._capture_shortcut_event(event)
 
     def acceptsFirstResponder(self):
         return True

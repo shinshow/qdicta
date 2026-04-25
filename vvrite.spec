@@ -1,6 +1,8 @@
 """PyInstaller spec for vvrite macOS app."""
+import importlib.util
 import os
 import sys
+import sysconfig
 
 ROOT_DIR = os.path.abspath(os.getcwd())
 if ROOT_DIR not in sys.path:
@@ -11,9 +13,11 @@ from vvrite import APP_BUNDLE_IDENTIFIER
 
 block_cipher = None
 
-site_packages = os.path.join(
-    os.path.dirname(os.__file__), "site-packages"
-)
+site_packages = sysconfig.get_paths()["purelib"]
+mlx_spec = importlib.util.find_spec("mlx")
+if mlx_spec is None or not mlx_spec.submodule_search_locations:
+    raise RuntimeError("Unable to locate mlx package for PyInstaller datas")
+mlx_package_dir = mlx_spec.submodule_search_locations[0]
 
 # PyObjC bridge modules need all submodules collected
 pyobjc_hiddenimports = (
@@ -36,7 +40,7 @@ a = Analysis(
         # soundfile needs libsndfile
         (os.path.join(site_packages, "_soundfile_data"), "_soundfile_data"),
         # MLX Metal shaders and native libs
-        (os.path.join(site_packages, "mlx", "lib"), os.path.join("mlx", "lib")),
+        (os.path.join(mlx_package_dir, "lib"), os.path.join("mlx", "lib")),
     ],
     hiddenimports=pyobjc_hiddenimports + [
         # Locale modules (dynamically imported by vvrite.locales)
@@ -119,8 +123,8 @@ app = BUNDLE(
     bundle_identifier=APP_BUNDLE_IDENTIFIER,
     info_plist={
         "CFBundleName": "vvrite",
-        "CFBundleShortVersionString": "1.0.5",  # keep in sync with vvrite/__init__.__version__
-        "CFBundleVersion": "5",
+        "CFBundleShortVersionString": "1.0.6",  # keep in sync with vvrite/__init__.__version__
+        "CFBundleVersion": "6",
         "LSUIElement": True,
         "NSMicrophoneUsageDescription": (
             "vvrite needs microphone access to record and transcribe your speech."
