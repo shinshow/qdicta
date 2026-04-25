@@ -2,7 +2,12 @@
 
 from importlib import import_module
 
-from vvrite.asr_models import BACKEND_QWEN_MLX, get_model
+from vvrite.asr_models import (
+    BACKEND_QWEN_MLX,
+    BACKEND_WHISPER_CPP,
+    get_model,
+    is_output_mode_supported,
+)
 from vvrite.preferences import Preferences
 
 _loaded_model_key = None
@@ -10,6 +15,10 @@ _loaded_model_key = None
 
 def _qwen_backend():
     return import_module("vvrite.asr_backends.qwen")
+
+
+def _whisper_backend():
+    return import_module("vvrite.asr_backends.whisper_cpp")
 
 
 def _selected_model(prefs: Preferences | None = None):
@@ -26,6 +35,8 @@ def is_model_cached(model_id_or_key: str) -> bool:
     model = get_model(model_id_or_key)
     if model.backend == BACKEND_QWEN_MLX:
         return _qwen_backend().is_cached(model.model_id)
+    if model.backend == BACKEND_WHISPER_CPP:
+        return _whisper_backend().is_cached(model)
     raise RuntimeError(f"Unsupported backend before Whisper task: {model.backend}")
 
 
@@ -33,6 +44,8 @@ def get_model_size(model_id_or_key: str) -> int:
     model = get_model(model_id_or_key)
     if model.backend == BACKEND_QWEN_MLX:
         return _qwen_backend().get_size(model.model_id)
+    if model.backend == BACKEND_WHISPER_CPP:
+        return _whisper_backend().get_size(model)
     return 0
 
 
@@ -40,6 +53,8 @@ def download_model(model_id_or_key: str) -> str:
     model = get_model(model_id_or_key)
     if model.backend == BACKEND_QWEN_MLX:
         return _qwen_backend().download(model.model_id)
+    if model.backend == BACKEND_WHISPER_CPP:
+        return _whisper_backend().download(model)
     raise RuntimeError(f"Unsupported backend before Whisper task: {model.backend}")
 
 
@@ -48,6 +63,9 @@ def load_from_local(local_path: str, prefs: Preferences = None):
     model = _selected_model(prefs)
     if model.backend == BACKEND_QWEN_MLX:
         _qwen_backend().load_from_local(local_path)
+        _loaded_model_key = model.key
+        return
+    if model.backend == BACKEND_WHISPER_CPP:
         _loaded_model_key = model.key
         return
     raise RuntimeError(f"Unsupported backend before Whisper task: {model.backend}")
@@ -64,6 +82,12 @@ def load(prefs: Preferences = None):
         _loaded_model_key = model.key
         print("Model loaded.")
         return
+    if model.backend == BACKEND_WHISPER_CPP:
+        if not _whisper_backend().is_cached(model):
+            raise RuntimeError(f"{model.display_name} is not downloaded")
+        _loaded_model_key = model.key
+        print("Model ready.")
+        return
     raise RuntimeError(f"Unsupported backend before Whisper task: {model.backend}")
 
 
@@ -73,6 +97,8 @@ def unload():
         model = get_model(_loaded_model_key)
         if model.backend == BACKEND_QWEN_MLX:
             _qwen_backend().unload()
+        elif model.backend == BACKEND_WHISPER_CPP:
+            _whisper_backend().unload()
     _loaded_model_key = None
 
 
@@ -88,6 +114,12 @@ def transcribe(raw_wav_path: str, prefs: Preferences = None) -> str:
     if prefs is None:
         prefs = Preferences()
     model = _selected_model(prefs)
+    if not is_output_mode_supported(model.key, prefs.output_mode):
+        raise RuntimeError(
+            f"{model.display_name} does not support output mode {prefs.output_mode}"
+        )
     if model.backend == BACKEND_QWEN_MLX:
         return _qwen_backend().transcribe(raw_wav_path, prefs)
+    if model.backend == BACKEND_WHISPER_CPP:
+        return _whisper_backend().transcribe(raw_wav_path, model, prefs)
     raise RuntimeError(f"Unsupported backend before Whisper task: {model.backend}")

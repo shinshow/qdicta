@@ -6,6 +6,12 @@ from unittest.mock import MagicMock, patch
 
 class _Prefs:
     asr_model_key = "qwen3_asr_1_7b_8bit"
+    output_mode = "transcribe"
+
+
+class _WhisperPrefs:
+    asr_model_key = "whisper_large_v3"
+    output_mode = "transcribe"
 
 
 class TestTranscriberRouter(unittest.TestCase):
@@ -76,6 +82,32 @@ class TestTranscriberRouter(unittest.TestCase):
         result = transcribe("/tmp/audio.wav", _Prefs())
 
         self.assertEqual(result, "hello")
+        backend.transcribe.assert_called_once()
+
+    @patch("vvrite.transcriber._whisper_backend")
+    def test_download_model_routes_to_whisper_backend(self, mock_whisper_backend):
+        backend = MagicMock()
+        backend.download.return_value = "/models/ggml-large-v3.bin"
+        mock_whisper_backend.return_value = backend
+
+        from vvrite.transcriber import download_model
+
+        path = download_model("whisper_large_v3")
+
+        self.assertEqual(path, "/models/ggml-large-v3.bin")
+        backend.download.assert_called_once()
+
+    @patch("vvrite.transcriber._whisper_backend")
+    def test_transcribe_routes_to_whisper_backend(self, mock_whisper_backend):
+        backend = MagicMock()
+        backend.transcribe.return_value = "translated text"
+        mock_whisper_backend.return_value = backend
+
+        from vvrite.transcriber import transcribe
+
+        result = transcribe("/tmp/audio.wav", _WhisperPrefs())
+
+        self.assertEqual(result, "translated text")
         backend.transcribe.assert_called_once()
 
 
