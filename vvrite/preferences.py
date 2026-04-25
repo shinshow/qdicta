@@ -8,6 +8,11 @@ from Quartz import (
 )
 
 from vvrite import APP_BUNDLE_IDENTIFIER
+from vvrite.asr_models import (
+    DEFAULT_ASR_MODEL_KEY,
+    OUTPUT_MODE_TRANSCRIBE,
+    get_model,
+)
 
 APP_DEFAULTS_DOMAIN = APP_BUNDLE_IDENTIFIER
 _LEGACY_DEFAULTS_DOMAINS = ("com.vvrite.app", "python3", "python")
@@ -20,6 +25,8 @@ _DEFAULTS = {
     "retract_hotkey_modifiers": int(kCGEventFlagMaskAlternate | kCGEventFlagMaskShift),
     # mic_device intentionally omitted — None/absent means system default
     "model_id": "mlx-community/Qwen3-ASR-1.7B-8bit",
+    "asr_model_key": DEFAULT_ASR_MODEL_KEY,
+    "output_mode": OUTPUT_MODE_TRANSCRIBE,
     "max_tokens": 128000,
     "launch_at_login": False,
     "sound_start": "Glass",
@@ -160,11 +167,29 @@ class Preferences:
 
     @property
     def model_id(self) -> str:
-        return str(self._get("model_id"))
+        return get_model(self.asr_model_key).model_id
 
     @model_id.setter
     def model_id(self, value: str):
         self._set("model_id", value)
+        if value == "mlx-community/Qwen3-ASR-1.7B-8bit":
+            self._set("asr_model_key", DEFAULT_ASR_MODEL_KEY)
+
+    @property
+    def asr_model_key(self) -> str:
+        return str(self._get("asr_model_key"))
+
+    @asr_model_key.setter
+    def asr_model_key(self, value: str):
+        self._set("asr_model_key", value)
+
+    @property
+    def output_mode(self) -> str:
+        return str(self._get("output_mode"))
+
+    @output_mode.setter
+    def output_mode(self, value: str):
+        self._set("output_mode", value)
 
     @property
     def max_tokens(self) -> int:
