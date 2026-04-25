@@ -84,6 +84,18 @@ strings = {
         },
         "model": {
             "title": "मॉडल",
+            "selected_model": "ASR मॉडल",
+            "output_mode": "आउटपुट",
+            "download": "चयनित मॉडल डाउनलोड करें",
+            "delete": "चयनित मॉडल हटाएँ",
+            "delete_confirm_title": "डाउनलोड किया गया मॉडल हटाएँ?",
+            "delete_confirm_message": "यह चयनित मॉडल को vvrite के Application Support फ़ोल्डर से हटाता है। आप इसे बाद में फिर से डाउनलोड कर सकते हैं।",
+            "downloaded": "डाउनलोड हो गया",
+            "not_downloaded": "डाउनलोड नहीं हुआ",
+            "delete_current_model_blocked": "वर्तमान में लोड मॉडल हटाने से पहले vvrite बंद करें या मॉडल बदलें।",
+            "translation_unsupported": "अंग्रेज़ी अनुवाद के लिए Whisper large-v3 चाहिए।",
+            "mode_transcribe": "बोली गई भाषा में ट्रांसक्राइब करें",
+            "mode_translate_to_english": "अंग्रेज़ी में अनुवाद करें",
         },
         "custom_words": {
             "title": "कस्टम शब्द",

@@ -84,6 +84,18 @@ strings = {
         },
         "model": {
             "title": "モデル",
+            "selected_model": "ASRモデル",
+            "output_mode": "出力",
+            "download": "選択したモデルをダウンロード",
+            "delete": "選択したモデルを削除",
+            "delete_confirm_title": "ダウンロード済みモデルを削除しますか？",
+            "delete_confirm_message": "選択したモデルをvvriteのApplication Supportフォルダから削除します。後で再ダウンロードできます。",
+            "downloaded": "ダウンロード済み",
+            "not_downloaded": "未ダウンロード",
+            "delete_current_model_blocked": "現在読み込まれているモデルを削除する前に、vvriteを終了するかモデルを切り替えてください。",
+            "translation_unsupported": "英語翻訳にはWhisper large-v3が必要です。",
+            "mode_transcribe": "話した言語で文字起こし",
+            "mode_translate_to_english": "英語に翻訳",
         },
         "custom_words": {
             "title": "カスタムワード",

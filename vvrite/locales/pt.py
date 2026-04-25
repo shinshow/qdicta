@@ -84,6 +84,18 @@ strings = {
         },
         "model": {
             "title": "Modelo",
+            "selected_model": "Modelo ASR",
+            "output_mode": "Saída",
+            "download": "Baixar modelo selecionado",
+            "delete": "Excluir modelo selecionado",
+            "delete_confirm_title": "Excluir modelo baixado?",
+            "delete_confirm_message": "Isso remove o modelo selecionado da pasta Application Support do vvrite. Você pode baixá-lo novamente depois.",
+            "downloaded": "Baixado",
+            "not_downloaded": "Não baixado",
+            "delete_current_model_blocked": "Encerre o vvrite ou troque de modelo antes de excluir o modelo carregado atualmente.",
+            "translation_unsupported": "A tradução para inglês requer Whisper large-v3.",
+            "mode_transcribe": "Transcrever no idioma falado",
+            "mode_translate_to_english": "Traduzir para inglês",
         },
         "custom_words": {
             "title": "Palavras personalizadas",

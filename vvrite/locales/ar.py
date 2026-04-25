@@ -84,6 +84,18 @@ strings = {
         },
         "model": {
             "title": "النموذج",
+            "selected_model": "نموذج ASR",
+            "output_mode": "الإخراج",
+            "download": "تنزيل النموذج المحدد",
+            "delete": "حذف النموذج المحدد",
+            "delete_confirm_title": "حذف النموذج الذي تم تنزيله؟",
+            "delete_confirm_message": "سيؤدي هذا إلى إزالة النموذج المحدد من مجلد Application Support الخاص بـ vvrite. يمكنك تنزيله مرة أخرى لاحقاً.",
+            "downloaded": "تم التنزيل",
+            "not_downloaded": "لم يتم التنزيل",
+            "delete_current_model_blocked": "أغلق vvrite أو بدّل النموذج قبل حذف النموذج المحمل حالياً.",
+            "translation_unsupported": "تتطلب الترجمة إلى الإنجليزية Whisper large-v3.",
+            "mode_transcribe": "تفريغ باللغة المنطوقة",
+            "mode_translate_to_english": "ترجمة إلى الإنجليزية",
         },
         "custom_words": {
             "title": "كلمات مخصصة",

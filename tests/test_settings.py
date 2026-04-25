@@ -92,5 +92,60 @@ class TestSoundPopupActions(unittest.TestCase):
         mock_schedule.assert_called_once_with("openStopCustomSoundPanel:", None, 0.0)
 
 
+class TestAsrModelSettingsActions(unittest.TestCase):
+    def setUp(self):
+        self.controller = SettingsWindowController.alloc().init()
+        self.controller._prefs = MagicMock()
+        self.controller._output_mode_popup = MagicMock()
+        self.translation_item = MagicMock()
+        self.controller._output_mode_popup.itemAtIndex_.return_value = self.translation_item
+        self.is_cached_patcher = patch(
+            "vvrite.settings.transcriber.is_model_cached", return_value=False
+        )
+        self.is_cached_patcher.start()
+        self.addCleanup(self.is_cached_patcher.stop)
+
+    @patch("vvrite.settings.transcriber.unload")
+    def test_asr_model_changed_updates_pref_and_resets_unsupported_translation(
+        self, mock_unload
+    ):
+        self.controller._prefs.asr_model_key = "whisper_large_v3"
+        self.controller._prefs.output_mode = "translate_to_english"
+        sender = MagicMock()
+        sender.indexOfSelectedItem.return_value = 2  # Whisper large-v3-turbo
+
+        self.controller.asrModelChanged_(sender)
+
+        self.assertEqual(self.controller._prefs.asr_model_key, "whisper_large_v3_turbo")
+        self.assertEqual(self.controller._prefs.output_mode, "transcribe")
+        self.controller._output_mode_popup.selectItemAtIndex_.assert_called_once_with(0)
+        self.translation_item.setEnabled_.assert_called_once_with(False)
+        mock_unload.assert_called_once_with()
+
+    def test_output_mode_changed_rejects_unsupported_translation(self):
+        self.controller._prefs.asr_model_key = "qwen3_asr_1_7b_8bit"
+        self.controller._prefs.output_mode = "transcribe"
+        sender = MagicMock()
+        sender.indexOfSelectedItem.return_value = 1
+
+        self.controller.outputModeChanged_(sender)
+
+        self.assertEqual(self.controller._prefs.output_mode, "transcribe")
+        sender.selectItemAtIndex_.assert_called_once_with(0)
+        self.translation_item.setEnabled_.assert_called_once_with(False)
+
+    def test_output_mode_changed_accepts_large_v3_translation(self):
+        self.controller._prefs.asr_model_key = "whisper_large_v3"
+        self.controller._prefs.output_mode = "transcribe"
+        sender = MagicMock()
+        sender.indexOfSelectedItem.return_value = 1
+
+        self.controller.outputModeChanged_(sender)
+
+        self.assertEqual(self.controller._prefs.output_mode, "translate_to_english")
+        sender.selectItemAtIndex_.assert_not_called()
+        self.translation_item.setEnabled_.assert_called_once_with(True)
+
+
 if __name__ == "__main__":
     unittest.main()

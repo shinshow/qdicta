@@ -84,6 +84,18 @@ strings = {
         },
         "model": {
             "title": "Model",
+            "selected_model": "ASR model",
+            "output_mode": "Output",
+            "download": "Download selected model",
+            "delete": "Delete selected model",
+            "delete_confirm_title": "Delete downloaded model?",
+            "delete_confirm_message": "This removes the selected model from vvrite's Application Support folder. You can download it again later.",
+            "downloaded": "Downloaded",
+            "not_downloaded": "Not downloaded",
+            "delete_current_model_blocked": "Quit vvrite or switch models before deleting the currently loaded model.",
+            "translation_unsupported": "English translation requires Whisper large-v3.",
+            "mode_transcribe": "Transcribe in spoken language",
+            "mode_translate_to_english": "Translate to English",
         },
         "custom_words": {
             "title": "Custom Words",

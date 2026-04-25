@@ -84,6 +84,18 @@ strings = {
         },
         "model": {
             "title": "模型",
+            "selected_model": "ASR 模型",
+            "output_mode": "输出",
+            "download": "下载所选模型",
+            "delete": "删除所选模型",
+            "delete_confirm_title": "删除已下载的模型？",
+            "delete_confirm_message": "这会从 vvrite 的 Application Support 文件夹中移除所选模型。你之后可以重新下载。",
+            "downloaded": "已下载",
+            "not_downloaded": "未下载",
+            "delete_current_model_blocked": "删除当前已加载的模型前，请退出 vvrite 或切换模型。",
+            "translation_unsupported": "英文翻译需要 Whisper large-v3。",
+            "mode_transcribe": "按原语言转写",
+            "mode_translate_to_english": "翻译成英文",
         },
         "custom_words": {
             "title": "自定义词汇",

@@ -3,6 +3,7 @@
 import objc
 import ApplicationServices
 import os
+import threading
 
 from AppKit import (
     NSObject,
@@ -28,7 +29,14 @@ from AppKit import (
 )
 from Foundation import NSLog, NSURL, NSTimer
 
-from vvrite import launch_at_login, sounds
+from vvrite import launch_at_login, sounds, transcriber
+from vvrite.asr_models import (
+    ASR_MODELS,
+    OUTPUT_MODE_TRANSCRIBE,
+    OUTPUT_MODE_TRANSLATE_TO_ENGLISH,
+    get_model,
+    is_output_mode_supported,
+)
 from vvrite.audio_devices import (
     get_default_input_device,
     list_input_devices,
@@ -65,6 +73,11 @@ class SettingsWindowController(NSObject):
         self._stop_volume_label = None
         self._ui_lang_popup = None
         self._asr_lang_popup = None
+        self._model_popup = None
+        self._output_mode_popup = None
+        self._model_status_label = None
+        self._download_model_btn = None
+        self._delete_model_btn = None
         self._build_window()
         return self
 
@@ -238,11 +251,76 @@ class SettingsWindowController(NSObject):
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
 
-        y -= 26
-        model_label = NSTextField.labelWithString_(self._prefs.model_id)
-        model_label.setFrame_(NSMakeRect(20, y, 360, 20))
+        y -= 30
+        model_label = NSTextField.labelWithString_(t("settings.model.selected_model"))
+        model_label.setFrame_(NSMakeRect(20, y, 130, 20))
+        model_label.setAlignment_(2)
         model_label.setTextColor_(NSColor.secondaryLabelColor())
+        model_label.setFont_(NSFont.systemFontOfSize_(12.0))
         content.addSubview_(model_label)
+
+        self._model_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(156, y, 224, 24), False
+        )
+        for model in ASR_MODELS.values():
+            self._model_popup.addItemWithTitle_(model.display_name)
+        current_model = get_model(self._prefs.asr_model_key)
+        for i, model in enumerate(ASR_MODELS.values()):
+            if model.key == current_model.key:
+                self._model_popup.selectItemAtIndex_(i)
+                break
+        self._model_popup.setTarget_(self)
+        self._model_popup.setAction_("asrModelChanged:")
+        content.addSubview_(self._model_popup)
+
+        y -= 30
+        output_label = NSTextField.labelWithString_(t("settings.model.output_mode"))
+        output_label.setFrame_(NSMakeRect(20, y, 130, 20))
+        output_label.setAlignment_(2)
+        output_label.setTextColor_(NSColor.secondaryLabelColor())
+        output_label.setFont_(NSFont.systemFontOfSize_(12.0))
+        content.addSubview_(output_label)
+
+        self._output_mode_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(156, y, 224, 24), False
+        )
+        self._output_mode_popup.addItemWithTitle_(t("settings.model.mode_transcribe"))
+        self._output_mode_popup.addItemWithTitle_(
+            t("settings.model.mode_translate_to_english")
+        )
+        self._output_mode_popup.selectItemAtIndex_(
+            1 if self._prefs.output_mode == OUTPUT_MODE_TRANSLATE_TO_ENGLISH else 0
+        )
+        self._output_mode_popup.setTarget_(self)
+        self._output_mode_popup.setAction_("outputModeChanged:")
+        content.addSubview_(self._output_mode_popup)
+
+        y -= 30
+        self._model_status_label = NSTextField.labelWithString_("")
+        self._model_status_label.setFrame_(NSMakeRect(20, y, 170, 20))
+        self._model_status_label.setTextColor_(NSColor.secondaryLabelColor())
+        self._model_status_label.setFont_(NSFont.systemFontOfSize_(11.0))
+        content.addSubview_(self._model_status_label)
+
+        self._download_model_btn = NSButton.alloc().initWithFrame_(
+            NSMakeRect(200, y - 2, 82, 24)
+        )
+        self._download_model_btn.setTitle_(t("common.download"))
+        self._download_model_btn.setBezelStyle_(NSBezelStyleRounded)
+        self._download_model_btn.setTarget_(self)
+        self._download_model_btn.setAction_("downloadSelectedModel:")
+        content.addSubview_(self._download_model_btn)
+
+        self._delete_model_btn = NSButton.alloc().initWithFrame_(
+            NSMakeRect(292, y - 2, 88, 24)
+        )
+        self._delete_model_btn.setTitle_(t("settings.model.delete"))
+        self._delete_model_btn.setBezelStyle_(NSBezelStyleRounded)
+        self._delete_model_btn.setTarget_(self)
+        self._delete_model_btn.setAction_("deleteSelectedModel:")
+        content.addSubview_(self._delete_model_btn)
+
+        self._refresh_model_controls()
 
         # --- Custom Words ---
         y -= 40
@@ -561,6 +639,99 @@ class SettingsWindowController(NSObject):
         else:
             code = SUPPORTED_LANGUAGES[index - 1][0]
             self._prefs.asr_language = code
+
+    @objc.typedSelector(b"v@:@")
+    def asrModelChanged_(self, sender):
+        selected_index = sender.indexOfSelectedItem()
+        model = list(ASR_MODELS.values())[selected_index]
+        old_key = self._prefs.asr_model_key
+        self._prefs.asr_model_key = model.key
+        if not is_output_mode_supported(model.key, self._prefs.output_mode):
+            self._prefs.output_mode = OUTPUT_MODE_TRANSCRIBE
+            if self._output_mode_popup is not None:
+                self._output_mode_popup.selectItemAtIndex_(0)
+        if old_key != model.key:
+            transcriber.unload()
+        self._refresh_model_controls()
+
+    @objc.typedSelector(b"v@:@")
+    def outputModeChanged_(self, sender):
+        selected_index = sender.indexOfSelectedItem()
+        requested = (
+            OUTPUT_MODE_TRANSLATE_TO_ENGLISH
+            if selected_index == 1
+            else OUTPUT_MODE_TRANSCRIBE
+        )
+        if is_output_mode_supported(self._prefs.asr_model_key, requested):
+            self._prefs.output_mode = requested
+        else:
+            self._prefs.output_mode = OUTPUT_MODE_TRANSCRIBE
+            sender.selectItemAtIndex_(0)
+        self._refresh_model_controls()
+
+    def _refresh_model_controls(self):
+        model = get_model(self._prefs.asr_model_key)
+        translation_supported = is_output_mode_supported(
+            model.key, OUTPUT_MODE_TRANSLATE_TO_ENGLISH
+        )
+        downloaded = transcriber.is_model_cached(model.key)
+
+        output_mode_popup = getattr(self, "_output_mode_popup", None)
+        model_status_label = getattr(self, "_model_status_label", None)
+        download_model_btn = getattr(self, "_download_model_btn", None)
+        delete_model_btn = getattr(self, "_delete_model_btn", None)
+
+        if output_mode_popup is not None:
+            output_mode_popup.itemAtIndex_(1).setEnabled_(translation_supported)
+        if model_status_label is not None:
+            status = (
+                t("settings.model.downloaded")
+                if downloaded
+                else t("settings.model.not_downloaded")
+            )
+            model_status_label.setStringValue_(f"{status} ({model.size_hint})")
+        if download_model_btn is not None:
+            download_model_btn.setEnabled_(not downloaded)
+        if delete_model_btn is not None:
+            delete_model_btn.setEnabled_(downloaded)
+
+    @objc.typedSelector(b"v@:@")
+    def downloadSelectedModel_(self, sender):
+        if self._download_model_btn is not None:
+            self._download_model_btn.setEnabled_(False)
+        threading.Thread(target=self._download_selected_model, daemon=True).start()
+
+    def _download_selected_model(self):
+        try:
+            transcriber.download_model(self._prefs.asr_model_key)
+        finally:
+            self.performSelectorOnMainThread_withObject_waitUntilDone_(
+                "modelDownloadStateChanged:", None, False
+            )
+
+    @objc.typedSelector(b"v@:@")
+    def deleteSelectedModel_(self, sender):
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_(t("settings.model.delete_confirm_title"))
+        alert.setInformativeText_(t("settings.model.delete_confirm_message"))
+        alert.addButtonWithTitle_(t("settings.model.delete"))
+        alert.addButtonWithTitle_(t("common.dismiss"))
+        response = alert.runModal()
+        if response != NSAlertFirstButtonReturn:
+            return
+        threading.Thread(target=self._delete_selected_model, daemon=True).start()
+
+    def _delete_selected_model(self):
+        try:
+            transcriber.delete_model(self._prefs.asr_model_key)
+        finally:
+            self.performSelectorOnMainThread_withObject_waitUntilDone_(
+                "modelDownloadStateChanged:", None, False
+            )
+
+    @objc.typedSelector(b"v@:@")
+    def modelDownloadStateChanged_(self, _):
+        self._refresh_model_controls()
 
     @objc.typedSelector(b"v@:@")
     def loginToggled_(self, sender):

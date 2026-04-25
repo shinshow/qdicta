@@ -84,6 +84,18 @@ strings = {
         },
         "model": {
             "title": "Model",
+            "selected_model": "ASR modeli",
+            "output_mode": "Çıktı",
+            "download": "Seçili modeli indir",
+            "delete": "Seçili modeli sil",
+            "delete_confirm_title": "İndirilen model silinsin mi?",
+            "delete_confirm_message": "Bu, seçili modeli vvrite'ın Application Support klasöründen kaldırır. Daha sonra tekrar indirebilirsiniz.",
+            "downloaded": "İndirildi",
+            "not_downloaded": "İndirilmedi",
+            "delete_current_model_blocked": "Şu anda yüklü modeli silmeden önce vvrite'ı kapatın veya modeli değiştirin.",
+            "translation_unsupported": "İngilizce çeviri için Whisper large-v3 gerekir.",
+            "mode_transcribe": "Konuşulan dilde yazıya dök",
+            "mode_translate_to_english": "İngilizceye çevir",
         },
         "custom_words": {
             "title": "Özel Kelimeler",
