@@ -10,8 +10,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/platform-macOS_(Apple_Silicon)-blue" alt="macOS">
-  <img src="https://img.shields.io/badge/model-Qwen3--ASR--1.7B--8bit-green" alt="Model">
-  <img src="https://img.shields.io/badge/runtime-MLX-orange" alt="MLX">
+  <img src="https://img.shields.io/badge/models-Qwen3--ASR_%2B_Whisper-green" alt="Models">
+  <img src="https://img.shields.io/badge/runtime-MLX_%2B_whisper.cpp-orange" alt="Runtime">
 </p>
 
 <p align="center">
@@ -27,13 +27,15 @@
 3. Press the hotkey again to stop
 4. Your speech is transcribed locally and pasted into the active text field
 
-Everything runs on-device using [MLX](https://github.com/ml-explore/mlx). No audio leaves your Mac.
-The default model also brings strong multilingual ASR support, so supported languages such as Korean, English, Japanese, Chinese, Cantonese, French, German, and Spanish work out of the box.
+Everything runs on-device using [MLX](https://github.com/ml-explore/mlx) or a bundled [whisper.cpp](https://github.com/ggml-org/whisper.cpp) sidecar. No audio leaves your Mac.
+The default Qwen3-ASR model and optional Whisper models support multilingual dictation, including Korean and English mixed in one recording.
 
 ## Features
 
-- **On-device transcription** — Qwen3-ASR running via mlx-audio, no cloud API needed
-- **Multilingual-ready** — the default Qwen3-ASR model supports language identification and transcription across 30 languages and 22 Chinese dialects, and vvrite does not lock transcription to a single language
+- **On-device transcription** — Qwen3-ASR via mlx-audio or Whisper via whisper.cpp, no cloud API needed
+- **Selectable ASR models** — switch between Qwen3-ASR 1.7B 8-bit, Whisper large-v3, and Whisper large-v3-turbo in Settings
+- **Multilingual-ready** — Korean, English, and mixed Korean/English dictation are supported by the local models
+- **English translation mode** — Whisper large-v3 can translate spoken Korean or multilingual speech to English text
 - **Global hotkey** — trigger from any app, configurable in Settings
 - **Menu bar app** — lives quietly in your status bar
 - **Recording overlay** — visual feedback with audio level bars and timer
@@ -41,16 +43,33 @@ The default model also brings strong multilingual ASR support, so supported lang
 - **Auto-paste** — transcribed text is pasted directly into the active field
 - **Guided onboarding** — first launch walks you through permissions and model download
 
+## ASR Models
+
+| Model | Best for | Approx. disk use | English translation |
+|---|---|---:|---|
+| Qwen3-ASR 1.7B 8-bit | Default multilingual dictation | ~2.5 GB | No |
+| Whisper large-v3 | Accuracy and Korean-to-English translation | ~2.9 GiB | Yes |
+| Whisper large-v3-turbo | Faster multilingual dictation | ~1.5 GiB | No in vvrite |
+
+Qwen3-ASR runs in-process through mlx-audio. Whisper models run as a short-lived whisper.cpp subprocess and exit after each transcription, so idle menu-bar usage does not keep Whisper weights in memory.
+
+## Model Storage
+
+Downloaded models are stored under `~/Library/Application Support/vvrite/models/`.
+Deleting `/Applications/vvrite.app` does not automatically delete downloaded models.
+Use Settings > Model > Delete selected model to reclaim disk space, or remove model folders manually.
+Older vvrite builds may also have cached Qwen files under `~/.cache/huggingface/hub/`.
+
 ## Language Support
 
-vvrite uses [`mlx-community/Qwen3-ASR-1.7B-8bit`](https://huggingface.co/mlx-community/Qwen3-ASR-1.7B-8bit), which is an MLX conversion of [`Qwen/Qwen3-ASR-1.7B`](https://huggingface.co/Qwen/Qwen3-ASR-1.7B). According to the official Qwen model card, Qwen3-ASR-1.7B supports language identification and speech recognition for 30 languages and 22 Chinese dialects.
+The default [`mlx-community/Qwen3-ASR-1.7B-8bit`](https://huggingface.co/mlx-community/Qwen3-ASR-1.7B-8bit) model is an MLX conversion of [`Qwen/Qwen3-ASR-1.7B`](https://huggingface.co/Qwen/Qwen3-ASR-1.7B). According to the official Qwen model card, Qwen3-ASR-1.7B supports language identification and speech recognition for 30 languages and 22 Chinese dialects.
 
-That includes Korean, English, Japanese, Chinese, Cantonese, Arabic, German, French, Spanish, Portuguese, Indonesian, Italian, Russian, Thai, Vietnamese, Turkish, Hindi, Malay, Dutch, Swedish, Danish, Finnish, Polish, Czech, Filipino, Persian, Greek, Hungarian, Macedonian, and Romanian, plus regional Chinese dialect support. Because vvrite uses that checkpoint directly through mlx-audio and does not force a fixed recognition language, multilingual dictation works well for the model's supported languages.
+Whisper large-v3 and large-v3-turbo add widely used Whisper-family transcription options. For Korean plus English code-switching, use transcription mode. For Korean or multilingual speech translated into English output, choose Whisper large-v3 and English translation mode.
 
 ## Requirements
 
 - macOS 13+ on Apple Silicon (M1/M2/M3/M4)
-- ~2 GB disk space for the ASR model
+- ~2.5 GB disk space for the default model, or ~7 GB if all selectable models are installed
 - `ffmpeg` installed when running from source
 - Microphone permission
 - Accessibility permission (for global hotkey)
@@ -93,15 +112,15 @@ open dist/vvrite.dmg
 On first launch, the onboarding wizard will guide you through:
 1. Granting microphone and accessibility permissions
 2. Setting your preferred hotkey
-3. Downloading the ASR model (~1.7 GB)
+3. Downloading the default ASR model
 
 ## Tech Stack
 
 | Component | Technology |
 |---|---|
 | UI | PyObjC (AppKit, Quartz) |
-| ASR Model | [Qwen3-ASR-1.7B-8bit](https://huggingface.co/mlx-community/Qwen3-ASR-1.7B-8bit) |
-| Inference | [mlx-audio](https://github.com/ml-explore/mlx-audio) on Apple Silicon GPU |
+| ASR Models | [Qwen3-ASR-1.7B-8bit](https://huggingface.co/mlx-community/Qwen3-ASR-1.7B-8bit), [Whisper large-v3 / turbo](https://huggingface.co/ggerganov/whisper.cpp) |
+| Inference | [mlx-audio](https://github.com/ml-explore/mlx-audio) and [whisper.cpp](https://github.com/ggml-org/whisper.cpp) on Apple Silicon |
 | Audio | sounddevice + ffmpeg |
 | Packaging | PyInstaller |
 
@@ -109,4 +128,4 @@ On first launch, the onboarding wizard will guide you through:
 
 MIT — see [LICENSE](LICENSE) for details.
 
-This application bundles [ffmpeg](https://ffmpeg.org/), which is licensed under the [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html). The ffmpeg source code is available at https://ffmpeg.org/download.html. The ASR model [Qwen3-ASR-1.7B-8bit](https://huggingface.co/mlx-community/Qwen3-ASR-1.7B-8bit) is licensed under Apache 2.0.
+This application bundles [ffmpeg](https://ffmpeg.org/), which is licensed under the [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html). The ffmpeg source code is available at https://ffmpeg.org/download.html. whisper.cpp is MIT licensed. Whisper model weights are distributed through the [ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp) Hugging Face repository. The Qwen3-ASR model remains Apache 2.0 licensed.
