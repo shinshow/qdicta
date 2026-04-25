@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> · 한국어 · <a href="README.ja.md">日本語</a> · <a href="README.zh-Hans.md">简体中文</a> · <a href="README.zh-Hant.md">繁體中文</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a>
+  <a href="README.md">English</a> · 한국어 · <a href="README.ja.md">日本語</a> · <a href="README.zh-Hans.md">简体中文</a> · <a href="README.zh-Hant.md">繁體中文</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <a href="CHANGELOG.md">변경이력</a>
 </p>
 
 ---
@@ -51,7 +51,7 @@
 | Whisper large-v3 | 정확도와 한국어→영어 번역 | 약 2.9 GiB | 예 |
 | Whisper large-v3-turbo | 더 빠른 다국어 받아쓰기 | 약 1.5 GiB | vvrite에서는 아니오 |
 
-Qwen3-ASR은 mlx-audio를 통해 앱 프로세스 안에서 실행됩니다. Whisper 모델은 전사할 때만 짧게 실행되는 whisper.cpp subprocess로 동작하고 전사가 끝나면 종료되므로, 메뉴 막대에서 대기 중일 때 Whisper 가중치를 메모리에 계속 올려두지 않습니다.
+Qwen3-ASR은 mlx-audio를 통해 앱 프로세스 안에서 실행됩니다. Whisper 모델은 번들된 whisper.cpp 런타임을 사용하며, 준비된 뒤에는 선택한 모델을 로드한 상태로 유지해 받아쓰기마다 반복되는 모델 시작 비용을 줄입니다.
 
 ## 모델 저장 위치
 
@@ -80,7 +80,7 @@ Whisper large-v3와 large-v3-turbo는 널리 쓰이는 Whisper 계열 전사 옵
 
 ```bash
 # 복제
-git clone https://github.com/shaircast/vvrite.git
+git clone https://github.com/shinshow/vvrite.git
 cd vvrite
 
 # 의존성 설치

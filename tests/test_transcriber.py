@@ -1,12 +1,18 @@
 """Tests for ASR transcriber router."""
 
 import unittest
+import sys
+import threading
+import types
 from unittest.mock import MagicMock, patch
 
 
 class _Prefs:
     asr_model_key = "qwen3_asr_1_7b_8bit"
     output_mode = "transcribe"
+    max_tokens = 256
+    custom_words = ""
+    asr_language = "auto"
 
 
 class _WhisperPrefs:
@@ -15,6 +21,16 @@ class _WhisperPrefs:
 
 
 class TestTranscriberRouter(unittest.TestCase):
+    def setUp(self):
+        from vvrite import transcriber
+
+        transcriber._loaded_model_key = None
+
+    def tearDown(self):
+        from vvrite import transcriber
+
+        transcriber._loaded_model_key = None
+
     def test_importing_transcriber_does_not_load_qwen_backend(self):
         import vvrite.transcriber as transcriber
 
@@ -44,7 +60,10 @@ class TestTranscriberRouter(unittest.TestCase):
         path = download_model("qwen3_asr_1_7b_8bit")
 
         self.assertEqual(path, "/fake/path")
-        backend.download.assert_called_once_with("mlx-community/Qwen3-ASR-1.7B-8bit")
+        backend.download.assert_called_once_with(
+            "mlx-community/Qwen3-ASR-1.7B-8bit",
+            progress_callback=None,
+        )
 
     @patch("vvrite.transcriber._qwen_backend")
     def test_load_from_local_routes_to_selected_backend(self, mock_qwen_backend):
@@ -98,6 +117,22 @@ class TestTranscriberRouter(unittest.TestCase):
         backend.download.assert_called_once()
 
     @patch("vvrite.transcriber._whisper_backend")
+    def test_download_model_passes_progress_callback_to_backend(
+        self, mock_whisper_backend
+    ):
+        backend = MagicMock()
+        backend.download.return_value = "/models/ggml-large-v3.bin"
+        mock_whisper_backend.return_value = backend
+
+        from vvrite.transcriber import download_model
+
+        callback = MagicMock()
+        download_model("whisper_large_v3", progress_callback=callback)
+
+        backend.download.assert_called_once()
+        self.assertIs(backend.download.call_args.kwargs["progress_callback"], callback)
+
+    @patch("vvrite.transcriber._whisper_backend")
     def test_transcribe_routes_to_whisper_backend(self, mock_whisper_backend):
         backend = MagicMock()
         backend.transcribe.return_value = "translated text"
@@ -109,6 +144,71 @@ class TestTranscriberRouter(unittest.TestCase):
 
         self.assertEqual(result, "translated text")
         backend.transcribe.assert_called_once()
+
+    @patch("vvrite.transcriber._whisper_backend")
+    def test_load_initializes_whisper_backend(self, mock_whisper_backend):
+        backend = MagicMock()
+        backend.is_cached.return_value = True
+        mock_whisper_backend.return_value = backend
+
+        from vvrite import transcriber
+
+        transcriber.load(_WhisperPrefs())
+
+        backend.load.assert_called_once()
+        self.assertEqual(backend.load.call_args.args[0].key, "whisper_large_v3")
+        self.assertTrue(transcriber.is_model_loaded())
+
+    @patch("vvrite.transcriber._whisper_backend")
+    @patch("vvrite.transcriber._qwen_backend")
+    def test_transcribe_switches_to_selected_qwen_before_routing(
+        self, mock_qwen_backend, mock_whisper_backend
+    ):
+        qwen_backend = MagicMock()
+        qwen_backend.is_cached.return_value = True
+        qwen_backend.transcribe.return_value = "hello"
+        mock_qwen_backend.return_value = qwen_backend
+        whisper_backend = MagicMock()
+        mock_whisper_backend.return_value = whisper_backend
+
+        from vvrite import transcriber
+
+        transcriber._loaded_model_key = "whisper_large_v3_turbo"
+        result = transcriber.transcribe("/tmp/audio.wav", _Prefs())
+
+        self.assertEqual(result, "hello")
+        whisper_backend.unload.assert_called_once_with()
+        qwen_backend.load.assert_called_once_with("mlx-community/Qwen3-ASR-1.7B-8bit")
+        qwen_backend.transcribe.assert_called_once()
+
+    @patch("vvrite.transcriber._whisper_backend")
+    @patch("vvrite.transcriber._qwen_backend")
+    def test_prepare_model_downloads_missing_selected_model_before_loading(
+        self, mock_qwen_backend, mock_whisper_backend
+    ):
+        qwen_backend = MagicMock()
+        qwen_backend.is_cached.return_value = False
+        qwen_backend.download.return_value = "/models/qwen"
+        mock_qwen_backend.return_value = qwen_backend
+        whisper_backend = MagicMock()
+        mock_whisper_backend.return_value = whisper_backend
+
+        from vvrite import transcriber
+
+        transcriber._loaded_model_key = "whisper_large_v3_turbo"
+        callback = MagicMock()
+        transcriber.prepare_model(
+            "qwen3_asr_1_7b_8bit",
+            progress_callback=callback,
+        )
+
+        qwen_backend.download.assert_called_once_with(
+            "mlx-community/Qwen3-ASR-1.7B-8bit",
+            progress_callback=callback,
+        )
+        whisper_backend.unload.assert_called_once_with()
+        qwen_backend.load.assert_called_once_with("mlx-community/Qwen3-ASR-1.7B-8bit")
+        self.assertTrue(transcriber.is_model_loaded())
 
 
 class TestQwenBackend(unittest.TestCase):
@@ -125,6 +225,94 @@ class TestQwenBackend(unittest.TestCase):
             local_dir="/tmp/qwen",
             local_files_only=True,
         )
+
+    @patch("vvrite.asr_backends.qwen.safe_warm_up")
+    @patch("vvrite.asr_backends.qwen.model_store.model_dir", return_value="/tmp/qwen")
+    def test_qwen_load_uses_app_managed_model_dir(
+        self, mock_model_dir, mock_safe_warm_up
+    ):
+        from vvrite.asr_backends import qwen
+
+        fake_load_model = MagicMock()
+        fake_utils = types.ModuleType("mlx_audio.stt.utils")
+        fake_utils.load_model = fake_load_model
+        fake_stt = types.ModuleType("mlx_audio.stt")
+        fake_audio = types.ModuleType("mlx_audio")
+
+        with patch.dict(
+            sys.modules,
+            {
+                "mlx_audio": fake_audio,
+                "mlx_audio.stt": fake_stt,
+                "mlx_audio.stt.utils": fake_utils,
+            },
+        ):
+            qwen.load("mlx-community/Qwen3-ASR-1.7B-8bit")
+
+        fake_load_model.assert_called_once_with("/tmp/qwen")
+
+    @patch("vvrite.asr_backends.qwen.os.unlink")
+    @patch("vvrite.asr_backends.qwen.audio_utils.normalize", return_value="/tmp/normalized.wav")
+    @patch("vvrite.asr_backends.qwen.safe_warm_up")
+    @patch("vvrite.asr_backends.qwen.model_store.model_dir", return_value="/tmp/qwen")
+    def test_qwen_load_and_transcribe_run_on_same_worker_thread(
+        self, mock_model_dir, mock_safe_warm_up, mock_normalize, mock_unlink
+    ):
+        from vvrite.asr_backends import qwen
+
+        thread_ids = []
+
+        class _Result:
+            text = "hello"
+
+        class _Model:
+            def generate(self, *_args, **_kwargs):
+                thread_ids.append(threading.get_ident())
+                return _Result()
+
+        def fake_load_model(_path):
+            thread_ids.append(threading.get_ident())
+            return _Model()
+
+        fake_utils = types.ModuleType("mlx_audio.stt.utils")
+        fake_utils.load_model = fake_load_model
+        fake_stt = types.ModuleType("mlx_audio.stt")
+        fake_audio = types.ModuleType("mlx_audio")
+
+        with patch.dict(
+            sys.modules,
+            {
+                "mlx_audio": fake_audio,
+                "mlx_audio.stt": fake_stt,
+                "mlx_audio.stt.utils": fake_utils,
+            },
+        ):
+            qwen.unload()
+            loaded = threading.Event()
+            release_load_thread = threading.Event()
+
+            def load_and_wait():
+                qwen.load("mlx-community/Qwen3-ASR-1.7B-8bit")
+                loaded.set()
+                release_load_thread.wait(timeout=5)
+
+            load_thread = threading.Thread(target=load_and_wait)
+            load_thread.start()
+            self.assertTrue(loaded.wait(timeout=5))
+
+            result = []
+            transcribe_thread = threading.Thread(
+                target=lambda: result.append(qwen.transcribe("/tmp/audio.wav", _Prefs()))
+            )
+            transcribe_thread.start()
+            transcribe_thread.join()
+            release_load_thread.set()
+            load_thread.join()
+
+        self.assertEqual(result, ["hello"])
+
+        self.assertEqual(len(thread_ids), 2)
+        self.assertEqual(thread_ids[0], thread_ids[1])
 
 
 if __name__ == "__main__":

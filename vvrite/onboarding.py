@@ -33,7 +33,8 @@ from AppKit import (
 from Foundation import NSLog, NSURL, NSTimer
 
 from vvrite.locales import t, set_locale, SUPPORTED_LANGUAGES
-from vvrite.asr_models import get_model
+from vvrite.asr_models import ASR_MODELS, get_model
+from vvrite.download_progress import format_progress
 from vvrite.widgets import ShortcutField
 from vvrite import transcriber
 
@@ -75,6 +76,7 @@ class OnboardingWindowController(NSObject):
         self._error_label = None
         self._retry_btn = None
         self._download_btn = None
+        self._model_popup = None
         self._load_retries = 0
         self._local_model_path = None
         self._lang_popup = None
@@ -559,13 +561,20 @@ class OnboardingWindowController(NSObject):
         title.setAlignment_(1)
         area.addSubview_(title)
 
-        # Model name
-        model = get_model(self._prefs.asr_model_key)
-        name_label = NSTextField.labelWithString_(model.display_name)
-        name_label.setFrame_(NSMakeRect(20, 138, w - 40, 20))
-        name_label.setFont_(NSFont.systemFontOfSize_(12.0))
-        name_label.setAlignment_(1)
-        area.addSubview_(name_label)
+        self._model_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(60, 136, w - 120, 26),
+            False,
+        )
+        for model in ASR_MODELS.values():
+            self._model_popup.addItemWithTitle_(model.display_name)
+        current_model = get_model(self._prefs.asr_model_key)
+        for i, model in enumerate(ASR_MODELS.values()):
+            if model.key == current_model.key:
+                self._model_popup.selectItemAtIndex_(i)
+                break
+        self._model_popup.setTarget_(self)
+        self._model_popup.setAction_("modelChanged:")
+        area.addSubview_(self._model_popup)
 
         # Size label
         self._size_label = NSTextField.labelWithString_(t("onboarding.model.checking_size"))
@@ -643,7 +652,19 @@ class OnboardingWindowController(NSObject):
             self._size_label.setStringValue_(t("onboarding.model.size_unknown"))
 
     @objc.typedSelector(b"v@:@")
+    def modelChanged_(self, sender):
+        selected_index = sender.indexOfSelectedItem()
+        model = list(ASR_MODELS.values())[selected_index]
+        self._prefs.asr_model_key = model.key
+        self._size_label.setStringValue_(t("onboarding.model.checking_size"))
+        self._error_label.setHidden_(True)
+        threading.Thread(target=self._fetch_model_size, daemon=True).start()
+
+    @objc.typedSelector(b"v@:@")
     def downloadClicked_(self, sender):
+        model_key = self._prefs.asr_model_key
+        if self._model_popup is not None:
+            self._model_popup.setEnabled_(False)
         self._download_btn.setHidden_(True)
         self._retry_btn.setHidden_(True)
         self._error_label.setHidden_(True)
@@ -652,11 +673,25 @@ class OnboardingWindowController(NSObject):
         self._progress_bar.startAnimation_(None)
         self._progress_label.setHidden_(False)
         self._progress_label.setStringValue_(t("onboarding.model.downloading"))
-        threading.Thread(target=self._do_download, daemon=True).start()
+        threading.Thread(
+            target=self._do_download,
+            args=(model_key,),
+            daemon=True,
+        ).start()
 
-    def _do_download(self):
+    def _do_download(self, model_key: str):
         try:
-            local_path = transcriber.download_model(self._prefs.asr_model_key)
+            def progress(downloaded: int, total: int):
+                self.performSelectorOnMainThread_withObject_waitUntilDone_(
+                    "downloadProgress:",
+                    f"{downloaded}:{total}",
+                    False,
+                )
+
+            local_path = transcriber.download_model(
+                model_key,
+                progress_callback=progress,
+            )
         except Exception as e:
             self.performSelectorOnMainThread_withObject_waitUntilDone_(
                 "downloadFailed:", str(e), False
@@ -675,7 +710,30 @@ class OnboardingWindowController(NSObject):
         self._error_label.setHidden_(False)
         self._retry_btn.setAction_("downloadClicked:")
         self._retry_btn.setHidden_(False)
+        if self._model_popup is not None:
+            self._model_popup.setEnabled_(True)
         self._status_bar.setDownloadProgress_(-1)
+
+    @objc.typedSelector(b"v@:@")
+    def downloadProgress_(self, payload):
+        downloaded_str, total_str = str(payload).split(":", 1)
+        downloaded = int(downloaded_str)
+        total = int(total_str)
+        self._progress_label.setStringValue_(
+            t(
+                "settings.model.downloading_progress",
+                progress=format_progress(downloaded, total),
+            )
+        )
+        if total > 0:
+            percent = min(100, int((downloaded / total) * 100))
+            self._progress_bar.setIndeterminate_(False)
+            self._progress_bar.stopAnimation_(None)
+            self._progress_bar.setDoubleValue_(float(percent))
+            self._status_bar.setDownloadProgress_(percent)
+        else:
+            self._progress_bar.setIndeterminate_(True)
+            self._progress_bar.startAnimation_(None)
 
     @objc.typedSelector(b"v@:@")
     def downloadComplete_(self, local_path):
@@ -709,6 +767,8 @@ class OnboardingWindowController(NSObject):
             self._progress_label.setHidden_(True)
             self._error_label.setStringValue_(t("onboarding.model.failed_after_retries"))
             self._error_label.setHidden_(False)
+            if self._model_popup is not None:
+                self._model_popup.setEnabled_(True)
             return
         self._progress_bar.setHidden_(True)
         self._progress_label.setHidden_(True)
@@ -716,6 +776,8 @@ class OnboardingWindowController(NSObject):
         self._error_label.setHidden_(False)
         self._retry_btn.setAction_("retryLoad:")
         self._retry_btn.setHidden_(False)
+        if self._model_popup is not None:
+            self._model_popup.setEnabled_(True)
 
     @objc.typedSelector(b"v@:@")
     def retryLoad_(self, sender):
@@ -740,4 +802,6 @@ class OnboardingWindowController(NSObject):
         self._progress_bar.stopAnimation_(None)
         self._progress_bar.setDoubleValue_(100.0)
         self._progress_label.setStringValue_(t("onboarding.model.ready"))
+        if self._model_popup is not None:
+            self._model_popup.setEnabled_(False)
         self._update_buttons()

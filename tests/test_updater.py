@@ -8,6 +8,15 @@ from unittest.mock import patch, MagicMock
 from vvrite import updater
 
 
+class TestRepositoryConfig(unittest.TestCase):
+    def test_update_checker_uses_fork_repository(self):
+        self.assertEqual(updater.REPOSITORY_URL, "https://github.com/shinshow/vvrite")
+        self.assertEqual(
+            updater.GITHUB_API_URL,
+            "https://api.github.com/repos/shinshow/vvrite/releases/latest",
+        )
+
+
 class TestParseVersion(unittest.TestCase):
     def test_with_v_prefix(self):
         self.assertEqual(updater.parse_version("v1.2.3"), (1, 2, 3))
@@ -104,10 +113,10 @@ class TestFindDmgAsset(unittest.TestCase):
 
 class TestReleasePageUrl(unittest.TestCase):
     def test_uses_release_html_url(self):
-        release = {"html_url": "https://github.com/shaircast/vvrite/releases/tag/v1.2.3"}
+        release = {"html_url": "https://github.com/shinshow/vvrite/releases/tag/v1.2.3"}
         self.assertEqual(
             updater.release_page_url(release),
-            "https://github.com/shaircast/vvrite/releases/tag/v1.2.3",
+            "https://github.com/shinshow/vvrite/releases/tag/v1.2.3",
         )
 
     def test_falls_back_to_repo_when_missing(self):

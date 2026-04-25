@@ -97,6 +97,9 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         self.controller = SettingsWindowController.alloc().init()
         self.controller._prefs = MagicMock()
         self.controller._output_mode_popup = MagicMock()
+        self.controller._model_downloading = False
+        self.controller._download_progress_bar = None
+        self.controller._download_progress_label = None
         self.translation_item = MagicMock()
         self.controller._output_mode_popup.itemAtIndex_.return_value = self.translation_item
         self.is_cached_patcher = patch(
@@ -105,9 +108,9 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         self.is_cached_patcher.start()
         self.addCleanup(self.is_cached_patcher.stop)
 
-    @patch("vvrite.settings.transcriber.unload")
-    def test_asr_model_changed_updates_pref_and_resets_unsupported_translation(
-        self, mock_unload
+    @patch("vvrite.settings.threading.Thread")
+    def test_asr_model_changed_updates_pref_resets_translation_and_prepares_model(
+        self, mock_thread
     ):
         self.controller._prefs.asr_model_key = "whisper_large_v3"
         self.controller._prefs.output_mode = "translate_to_english"
@@ -120,7 +123,30 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         self.assertEqual(self.controller._prefs.output_mode, "transcribe")
         self.controller._output_mode_popup.selectItemAtIndex_.assert_called_once_with(0)
         self.translation_item.setEnabled_.assert_called_once_with(False)
-        mock_unload.assert_called_once_with()
+        self.assertTrue(self.controller._model_downloading)
+        mock_thread.assert_called_once()
+        self.assertEqual(
+            mock_thread.call_args.kwargs["target"],
+            self.controller._prepare_selected_model,
+        )
+        self.assertEqual(mock_thread.call_args.kwargs["args"], ("whisper_large_v3_turbo",))
+        self.assertTrue(mock_thread.call_args.kwargs["daemon"])
+        mock_thread.return_value.start.assert_called_once_with()
+
+    @patch("vvrite.settings.transcriber.prepare_model")
+    def test_prepare_selected_model_prepares_model_and_refreshes_state(
+        self, mock_prepare_model
+    ):
+        self.controller.performSelectorOnMainThread_withObject_waitUntilDone_ = MagicMock()
+
+        self.controller._prepare_selected_model("qwen3_asr_1_7b_8bit")
+
+        mock_prepare_model.assert_called_once()
+        self.assertEqual(mock_prepare_model.call_args.args[0], "qwen3_asr_1_7b_8bit")
+        self.assertIn("progress_callback", mock_prepare_model.call_args.kwargs)
+        self.controller.performSelectorOnMainThread_withObject_waitUntilDone_.assert_any_call(
+            "modelDownloadStateChanged:", None, False
+        )
 
     def test_output_mode_changed_rejects_unsupported_translation(self):
         self.controller._prefs.asr_model_key = "qwen3_asr_1_7b_8bit"

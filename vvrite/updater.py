@@ -5,8 +5,8 @@ import re
 import urllib.request
 import urllib.error
 
-GITHUB_API_URL = "https://api.github.com/repos/shaircast/vvrite/releases/latest"
-REPOSITORY_URL = "https://github.com/shaircast/vvrite"
+GITHUB_API_URL = "https://api.github.com/repos/shinshow/vvrite/releases/latest"
+REPOSITORY_URL = "https://github.com/shinshow/vvrite"
 REQUEST_TIMEOUT = 15
 COOLDOWN_SECONDS = 86400  # 24 hours
 

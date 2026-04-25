@@ -18,6 +18,7 @@ from Quartz import (
     kCGEventKeyDown,
     kCGEventTapDisabledByTimeout,
     kCGKeyboardEventKeycode,
+    kCGKeyboardEventAutorepeat,
     kCGEventFlagMaskCommand,
     kCGEventFlagMaskShift,
     kCFRunLoopDefaultMode,
@@ -76,6 +77,8 @@ class HotkeyManager:
             retract_mods = self._prefs.retract_hotkey_modifiers
 
             if keycode == target_keycode and (flags & MODIFIER_MASK) == target_mods:
+                if CGEventGetIntegerValueField(event, kCGKeyboardEventAutorepeat):
+                    return None
                 threading.Thread(
                     target=self._delegate.toggleRecording,
                     daemon=True,

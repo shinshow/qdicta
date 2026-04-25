@@ -2,8 +2,8 @@
 
 import os
 import sys
-import time
 import threading
+import traceback
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -16,6 +16,13 @@ from AppKit import (
     NSAlert,
     NSAlertFirstButtonReturn,
     NSWorkspace,
+    NSMakeRect,
+    NSMakeSize,
+    NSScrollView,
+    NSTextView,
+    NSFont,
+    NSViewWidthSizable,
+    NSViewHeightSizable,
 )
 from AppKit import NSTimer
 from Foundation import NSLog, NSURL
@@ -28,9 +35,47 @@ from vvrite.status_bar import StatusBarController
 from vvrite.hotkey import HotkeyManager
 from vvrite.overlay import OverlayController
 from vvrite.onboarding import OnboardingWindowController
-from vvrite import transcriber, sounds, updater
+from vvrite import transcriber, sounds
 from vvrite.recorder import Recorder
 from vvrite.clipboard import paste_and_restore, retract_text
+
+
+FORK_REPOSITORY_URL = "https://github.com/shinshow/vvrite"
+ORIGINAL_REPOSITORY_URL = "https://github.com/shaircast/vvrite"
+
+
+def _about_message() -> str:
+    return (
+        f"Version {__version__}\n\n"
+        "A macOS menu bar app for on-device voice transcription. "
+        "Audio stays on your Mac and is transcribed with local ASR models.\n\n"
+        f"Fork repository:\n{FORK_REPOSITORY_URL}\n\n"
+        f"Original repository:\n{ORIGINAL_REPOSITORY_URL}"
+    )
+
+
+def _format_exception_for_display(context: str, exc: BaseException) -> str:
+    details = "".join(
+        traceback.format_exception(type(exc), exc, exc.__traceback__)
+    ).strip()
+    if not details:
+        details = f"{type(exc).__name__}: {exc}"
+    if context:
+        return f"{context}\n\n{details}"
+    return details
+
+
+def _short_error_message(message: str, limit: int = 90) -> str:
+    text = str(message).strip()
+    first_line = next(
+        (line.strip() for line in text.splitlines() if line.strip()),
+        "",
+    )
+    if not first_line:
+        first_line = "Error"
+    if len(first_line) > limit:
+        return first_line[: limit - 3] + "..."
+    return first_line
 
 
 class AppDelegate(NSObject):
@@ -48,7 +93,6 @@ class AppDelegate(NSObject):
         self._settings_wc = None
         self._load_retries = 0
         self._onboarding_wc = None
-        self._available_update = None  # (tag, release) tuple when update found
         self._last_dictation_text = None
         return self
 
@@ -82,7 +126,6 @@ class AppDelegate(NSObject):
         self._hotkey = HotkeyManager(self)
         self._status_bar.setStatus_("ready")
         NSLog("vvrite ready.")
-        self._maybe_check_for_updates()
 
     def _check_permissions(self):
         """Check all permissions and prompt user step by step."""
@@ -156,7 +199,9 @@ class AppDelegate(NSObject):
         except Exception as e:
             NSLog(f"Model load failed: {e}")
             self.performSelectorOnMainThread_withObject_waitUntilDone_(
-                "showModelError:", str(e), True
+                "showModelError:",
+                _format_exception_for_display("Model load failed", e),
+                True,
             )
             return
 
@@ -186,7 +231,6 @@ class AppDelegate(NSObject):
         self._hotkey = HotkeyManager(self)
         self._status_bar.setStatus_("ready")
         NSLog("vvrite ready.")
-        self._maybe_check_for_updates()
 
     def toggleRecording(self):
         with self._lock:
@@ -216,7 +260,9 @@ class AppDelegate(NSObject):
         except RuntimeError as e:
             self._recording = False
             self.performSelectorOnMainThread_withObject_waitUntilDone_(
-                "showErrorUI:", str(e), False
+                "showErrorUI:",
+                _format_exception_for_display("Recording failed", e),
+                False,
             )
 
     def _stop_recording(self):
@@ -231,7 +277,9 @@ class AppDelegate(NSObject):
             raw_path = self._recorder.stop()
         except RuntimeError as e:
             self.performSelectorOnMainThread_withObject_waitUntilDone_(
-                "showErrorUI:", str(e), False
+                "showErrorUI:",
+                _format_exception_for_display("Recording failed", e),
+                False,
             )
             return
 
@@ -262,7 +310,9 @@ class AppDelegate(NSObject):
                 )
         except Exception as e:
             self.performSelectorOnMainThread_withObject_waitUntilDone_(
-                "showErrorUI:", str(e), False
+                "showErrorUI:",
+                _format_exception_for_display("Transcription failed", e),
+                False,
             )
 
     # --- UI update selectors (must run on main thread) ---
@@ -285,9 +335,37 @@ class AppDelegate(NSObject):
 
     @objc.typedSelector(b"v@:@")
     def showErrorUI_(self, message):
-        self._overlay.showError_(str(message))
+        message = str(message)
+        self._overlay.showError_(_short_error_message(message))
         self._status_bar.setStatus_("ready")
         self._status_bar.setRecording_(False)
+        self._show_error_alert(message)
+
+    def _show_error_alert(self, message: str):
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_(_short_error_message(message))
+        alert.addButtonWithTitle_(t("common.ok"))
+
+        scroll = NSScrollView.alloc().initWithFrame_(NSMakeRect(0, 0, 620, 260))
+        scroll.setHasVerticalScroller_(True)
+        scroll.setHasHorizontalScroller_(True)
+        scroll.setAutohidesScrollers_(False)
+
+        text_view = NSTextView.alloc().initWithFrame_(NSMakeRect(0, 0, 620, 260))
+        text_view.setString_(str(message))
+        text_view.setEditable_(False)
+        text_view.setSelectable_(True)
+        text_view.setFont_(NSFont.monospacedSystemFontOfSize_weight_(11.0, 0.0))
+        text_view.setHorizontallyResizable_(True)
+        text_view.setVerticallyResizable_(True)
+        text_view.setAutoresizingMask_(NSViewWidthSizable | NSViewHeightSizable)
+        text_view.textContainer().setContainerSize_(NSMakeSize(10000, 10000))
+        text_view.textContainer().setWidthTracksTextView_(False)
+
+        scroll.setDocumentView_(text_view)
+        alert.setAccessoryView_(scroll)
+        NSApp.activateIgnoringOtherApps_(True)
+        alert.runModal()
 
     @objc.typedSelector(b"v@:@")
     def transcriptionComplete_(self, text):
@@ -333,85 +411,19 @@ class AppDelegate(NSObject):
         if retract_text(text):
             self._last_dictation_text = None
 
-    # --- Update check ---
+    # --- About ---
 
-    def _maybe_check_for_updates(self):
-        """Auto-check for updates if enabled and cooldown has passed."""
-        if not self._prefs.auto_update_check:
-            return
-        if not updater.should_check(self._prefs.last_update_check):
-            return
-        threading.Thread(target=self._check_for_updates, daemon=True).start()
-
-    def _check_for_updates(self):
-        """Background: fetch latest release and compare versions."""
-        self._prefs.last_update_check = time.time()
-        release = updater.fetch_latest_release()
-        if release is None:
-            return
-        tag = release.get("tag_name", "")
-        if updater.is_newer(tag, __version__):
-            self._available_update = (tag, release)
-            self.performSelectorOnMainThread_withObject_waitUntilDone_(
-                "updateCheckComplete:", tag, False
-            )
-
-    def _check_for_updates_manual(self):
-        """Background: manual check (no cooldown), shows 'up to date' if none."""
-        self._prefs.last_update_check = time.time()
-        release = updater.fetch_latest_release()
-        if release and updater.is_newer(release.get("tag_name", ""), __version__):
-            tag = release["tag_name"]
-            self._available_update = (tag, release)
-            self.performSelectorOnMainThread_withObject_waitUntilDone_(
-                "updateCheckComplete:", tag, False
-            )
-        else:
-            self.performSelectorOnMainThread_withObject_waitUntilDone_(
-                "showUpToDate:", None, False
-            )
-
-    @objc.typedSelector(b"v@:@")
-    def updateCheckComplete_(self, tag):
-        """Main thread: update menu and show alert."""
-        self._status_bar.setUpdateAvailable_(str(tag))
-        self._show_update_alert()
-
-    @objc.typedSelector(b"v@:@")
-    def showUpToDate_(self, _):
-        alert = NSAlert.alloc().init()
-        alert.setMessageText_(t("alerts.no_updates.title"))
-        alert.setInformativeText_(t("alerts.no_updates.message", version=__version__))
-        alert.addButtonWithTitle_(t("common.ok"))
-        alert.runModal()
-
-    def checkForUpdates(self):
+    def showAbout(self):
         """Called from menu bar item click."""
-        if self._available_update:
-            self._show_update_alert()
-        else:
-            threading.Thread(target=self._check_for_updates_manual, daemon=True).start()
-
-    def _show_update_alert(self):
-        if not self._available_update:
-            return
-        tag, release = self._available_update
-        body = release.get("body", "") or ""
-        # Truncate long release notes
-        if len(body) > 500:
-            body = body[:500] + "..."
-
         alert = NSAlert.alloc().init()
-        alert.setMessageText_(t("alerts.update_available.title", version=tag))
-        info = t("alerts.update_available.message", current_version=__version__)
-        if body:
-            info += f"\n\n{body}"
-        alert.setInformativeText_(info)
-        alert.addButtonWithTitle_(t("common.download"))
-        alert.addButtonWithTitle_(t("common.later"))
+        alert.setMessageText_("vvrite")
+        alert.setInformativeText_(_about_message())
+        alert.addButtonWithTitle_(t("common.open"))
+        alert.addButtonWithTitle_(t("common.dismiss"))
+        NSApp.activateIgnoringOtherApps_(True)
         response = alert.runModal()
         if response == NSAlertFirstButtonReturn:
-            self._open_external_url(updater.release_page_url(release))
+            self._open_external_url(FORK_REPOSITORY_URL)
 
     def _open_external_url(self, url: str) -> bool:
         if not url:

@@ -59,6 +59,8 @@ a = Analysis(
     hiddenimports=pyobjc_hiddenimports + [
         # Locale modules (dynamically imported by vvrite.locales)
         *collect_submodules("vvrite.locales"),
+        # ASR backends (dynamically imported by vvrite.transcriber)
+        *collect_submodules("vvrite.asr_backends"),
         # MLX (namespace package — must be explicit)
         "mlx",
         "mlx._reprlib_fix",
@@ -137,8 +139,8 @@ app = BUNDLE(
     bundle_identifier=APP_BUNDLE_IDENTIFIER,
     info_plist={
         "CFBundleName": "vvrite",
-        "CFBundleShortVersionString": "1.0.6",  # keep in sync with vvrite/__init__.__version__
-        "CFBundleVersion": "6",
+        "CFBundleShortVersionString": "1.1.0",  # keep in sync with vvrite/__init__.__version__
+        "CFBundleVersion": "7",
         "LSUIElement": True,
         "NSMicrophoneUsageDescription": (
             "vvrite needs microphone access to record and transcribe your speech."

@@ -225,6 +225,8 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
             "delete_confirm_message",
             "downloaded",
             "not_downloaded",
+            "downloading_progress",
+            "download_failed",
             "delete_current_model_blocked",
             "translation_unsupported",
             "mode_transcribe",
@@ -258,8 +260,7 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
         from vvrite.locales.en import strings
 
         expected = [
-            "hotkey", "microphone", "settings", "check_updates",
-            "update_available", "quit",
+            "hotkey", "microphone", "settings", "about", "quit",
         ]
         for key in expected:
             self.assertIn(key, strings["menu"], f"Missing menu.{key}")

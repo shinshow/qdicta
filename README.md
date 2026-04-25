@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.zh-Hans.md">简体中文</a> · <a href="README.zh-Hant.md">繁體中文</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a>
+  <a href="README.ko.md">한국어</a> · <a href="README.ja.md">日本語</a> · <a href="README.zh-Hans.md">简体中文</a> · <a href="README.zh-Hant.md">繁體中文</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.de.md">Deutsch</a> · <a href="CHANGELOG.md">Changelog</a>
 </p>
 
 ---
@@ -51,7 +51,7 @@ The default Qwen3-ASR model and optional Whisper models support multilingual dic
 | Whisper large-v3 | Accuracy and Korean-to-English translation | ~2.9 GiB | Yes |
 | Whisper large-v3-turbo | Faster multilingual dictation | ~1.5 GiB | No in vvrite |
 
-Qwen3-ASR runs in-process through mlx-audio. Whisper models run as a short-lived whisper.cpp subprocess and exit after each transcription, so idle menu-bar usage does not keep Whisper weights in memory.
+Qwen3-ASR runs in-process through mlx-audio. Whisper models use a bundled whisper.cpp runtime and keep the selected model loaded after preparation, avoiding repeated model startup cost during dictation.
 
 ## Model Storage
 
@@ -80,7 +80,7 @@ Whisper large-v3 and large-v3-turbo add widely used Whisper-family transcription
 
 ```bash
 # Clone
-git clone https://github.com/shaircast/vvrite.git
+git clone https://github.com/shinshow/vvrite.git
 cd vvrite
 
 # Install dependencies

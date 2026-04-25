@@ -82,12 +82,12 @@ class StatusBarController(NSObject):
         settings_item.setTarget_(self)
         self._menu.addItem_(settings_item)
 
-        # Check for Updates
-        self._update_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            t("menu.check_updates"), "checkForUpdates:", ""
+        # About
+        about_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            t("menu.about"), "showAbout:", ""
         )
-        self._update_item.setTarget_(self)
-        self._menu.addItem_(self._update_item)
+        about_item.setTarget_(self)
+        self._menu.addItem_(about_item)
 
         self._menu.addItem_(NSMenuItem.separatorItem())
 
@@ -126,10 +126,6 @@ class StatusBarController(NSObject):
         else:
             button.setTitle_(f"{percent}%")
 
-    def setUpdateAvailable_(self, version: str):
-        """Update menu item text when an update is available."""
-        self._update_item.setTitle_(t("menu.update_available", version=version))
-
     def setHotkeyDisplay_(self, hotkey_str: str):
         self._hotkey_item.setTitle_(t("menu.hotkey", hotkey=hotkey_str))
 
@@ -142,5 +138,5 @@ class StatusBarController(NSObject):
         self._delegate.openSettings()
 
     @objc.typedSelector(b"v@:@")
-    def checkForUpdates_(self, sender):
-        self._delegate.checkForUpdates()
+    def showAbout_(self, sender):
+        self._delegate.showAbout()

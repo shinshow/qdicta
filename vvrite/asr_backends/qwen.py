@@ -1,7 +1,9 @@
 """Qwen3-ASR backend using mlx-audio."""
 
+import concurrent.futures
 import os
 import tempfile
+import threading
 
 import numpy as np
 import soundfile as sf
@@ -14,16 +16,39 @@ from vvrite.preferences import SAMPLE_RATE
 _MODEL_KEY = "qwen3_asr_1_7b_8bit"
 _model = None
 _warmed_up = False
+_worker_thread_id = None
+
+
+def _worker_initializer():
+    global _worker_thread_id
+    _worker_thread_id = threading.get_ident()
+
+
+_executor = concurrent.futures.ThreadPoolExecutor(
+    max_workers=1,
+    thread_name_prefix="vvrite-qwen-mlx",
+    initializer=_worker_initializer,
+)
+
+
+def _run_on_worker(func, *args, **kwargs):
+    if threading.get_ident() == _worker_thread_id:
+        return func(*args, **kwargs)
+    return _executor.submit(func, *args, **kwargs).result()
 
 
 def is_loaded() -> bool:
     return _model is not None
 
 
-def unload():
+def _unload_impl():
     global _model, _warmed_up
     _model = None
     _warmed_up = False
+
+
+def unload():
+    _run_on_worker(_unload_impl)
 
 
 def is_cached(model_id: str) -> bool:
@@ -43,12 +68,18 @@ def get_size(model_id: str) -> int:
         return 0
 
 
-def download(model_id: str) -> str:
+def download(model_id: str, progress_callback=None) -> str:
     local_dir = model_store.model_dir(_MODEL_KEY)
+    if progress_callback is not None:
+        progress_callback(0, 0)
     return snapshot_download(repo_id=model_id, local_dir=local_dir)
 
 
 def load_from_local(local_path: str):
+    _run_on_worker(_load_from_local_impl, local_path)
+
+
+def _load_from_local_impl(local_path: str):
     from mlx_audio.stt.utils import load_model
 
     global _model, _warmed_up
@@ -58,12 +89,7 @@ def load_from_local(local_path: str):
 
 
 def load(model_id: str):
-    from mlx_audio.stt.utils import load_model
-
-    global _model, _warmed_up
-    _model = load_model(model_id)
-    _warmed_up = False
-    safe_warm_up()
+    load_from_local(model_store.model_dir(_MODEL_KEY))
 
 
 def _create_warmup_audio() -> str:
@@ -97,6 +123,10 @@ def safe_warm_up():
 
 
 def transcribe(raw_wav_path: str, prefs) -> str:
+    return _run_on_worker(_transcribe_impl, raw_wav_path, prefs)
+
+
+def _transcribe_impl(raw_wav_path: str, prefs) -> str:
     if _model is None:
         raise RuntimeError("Qwen3-ASR model is not loaded")
 

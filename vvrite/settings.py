@@ -4,6 +4,7 @@ import objc
 import ApplicationServices
 import os
 import threading
+import traceback
 
 from AppKit import (
     NSObject,
@@ -26,6 +27,8 @@ from AppKit import (
     NSSlider,
     NSOpenPanel,
     NSMenuItem,
+    NSProgressIndicator,
+    NSProgressIndicatorStyleBar,
 )
 from Foundation import NSLog, NSURL, NSTimer
 
@@ -42,6 +45,7 @@ from vvrite.audio_devices import (
     list_input_devices,
     resolve_input_device,
 )
+from vvrite.download_progress import format_progress
 from vvrite.locales import t, SUPPORTED_LANGUAGES
 from vvrite.preferences import Preferences
 from vvrite.widgets import ShortcutField, format_shortcut
@@ -78,11 +82,14 @@ class SettingsWindowController(NSObject):
         self._model_status_label = None
         self._download_model_btn = None
         self._delete_model_btn = None
+        self._download_progress_bar = None
+        self._download_progress_label = None
+        self._model_downloading = False
         self._build_window()
         return self
 
     def _build_window(self):
-        frame = NSMakeRect(0, 0, 400, 806)
+        frame = NSMakeRect(0, 0, 400, 850)
         self._window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
             frame,
             NSWindowStyleMaskTitled | NSWindowStyleMaskClosable,
@@ -95,7 +102,7 @@ class SettingsWindowController(NSObject):
         self._window.setDelegate_(self)
 
         content = self._window.contentView()
-        y = 792
+        y = 836
 
         # --- Language ---
         y -= 30
@@ -320,6 +327,23 @@ class SettingsWindowController(NSObject):
         self._delete_model_btn.setAction_("deleteSelectedModel:")
         content.addSubview_(self._delete_model_btn)
 
+        y -= 24
+        self._download_progress_bar = NSProgressIndicator.alloc().initWithFrame_(
+            NSMakeRect(20, y, 360, 8)
+        )
+        self._download_progress_bar.setStyle_(NSProgressIndicatorStyleBar)
+        self._download_progress_bar.setMinValue_(0.0)
+        self._download_progress_bar.setMaxValue_(100.0)
+        self._download_progress_bar.setHidden_(True)
+        content.addSubview_(self._download_progress_bar)
+
+        y -= 18
+        self._download_progress_label = NSTextField.labelWithString_("")
+        self._download_progress_label.setFrame_(NSMakeRect(20, y, 360, 16))
+        self._download_progress_label.setTextColor_(NSColor.secondaryLabelColor())
+        self._download_progress_label.setFont_(NSFont.systemFontOfSize_(11.0))
+        content.addSubview_(self._download_progress_label)
+
         self._refresh_model_controls()
 
         # --- Custom Words ---
@@ -475,16 +499,6 @@ class SettingsWindowController(NSObject):
         self._login_checkbox.setTarget_(self)
         self._login_checkbox.setAction_("loginToggled:")
         content.addSubview_(self._login_checkbox)
-
-        # --- Automatically check for updates ---
-        y -= 34
-        self._update_checkbox = NSButton.alloc().initWithFrame_(NSMakeRect(20, y, 360, 20))
-        self._update_checkbox.setButtonType_(NSButtonTypeSwitch)
-        self._update_checkbox.setTitle_(t("settings.update.title"))
-        self._update_checkbox.setState_(1 if self._prefs.auto_update_check else 0)
-        self._update_checkbox.setTarget_(self)
-        self._update_checkbox.setAction_("updateCheckToggled:")
-        content.addSubview_(self._update_checkbox)
 
         self._update_permissions()
         self._refresh_login_checkbox()
@@ -651,8 +665,9 @@ class SettingsWindowController(NSObject):
             if self._output_mode_popup is not None:
                 self._output_mode_popup.selectItemAtIndex_(0)
         if old_key != model.key:
-            transcriber.unload()
-        self._refresh_model_controls()
+            self._begin_model_prepare(model.key)
+        else:
+            self._refresh_model_controls()
 
     @objc.typedSelector(b"v@:@")
     def outputModeChanged_(self, sender):
@@ -677,9 +692,11 @@ class SettingsWindowController(NSObject):
         downloaded = transcriber.is_model_cached(model.key)
 
         output_mode_popup = getattr(self, "_output_mode_popup", None)
+        model_popup = getattr(self, "_model_popup", None)
         model_status_label = getattr(self, "_model_status_label", None)
         download_model_btn = getattr(self, "_download_model_btn", None)
         delete_model_btn = getattr(self, "_delete_model_btn", None)
+        model_downloading = getattr(self, "_model_downloading", False)
 
         if output_mode_popup is not None:
             output_mode_popup.itemAtIndex_(1).setEnabled_(translation_supported)
@@ -690,20 +707,57 @@ class SettingsWindowController(NSObject):
                 else t("settings.model.not_downloaded")
             )
             model_status_label.setStringValue_(f"{status} ({model.size_hint})")
+        if model_popup is not None:
+            model_popup.setEnabled_(not model_downloading)
+        if output_mode_popup is not None:
+            output_mode_popup.setEnabled_(not model_downloading)
         if download_model_btn is not None:
-            download_model_btn.setEnabled_(not downloaded)
+            download_model_btn.setEnabled_(
+                (not downloaded) and (not model_downloading)
+            )
         if delete_model_btn is not None:
-            delete_model_btn.setEnabled_(downloaded)
+            delete_model_btn.setEnabled_(downloaded and (not model_downloading))
 
     @objc.typedSelector(b"v@:@")
     def downloadSelectedModel_(self, sender):
-        if self._download_model_btn is not None:
-            self._download_model_btn.setEnabled_(False)
-        threading.Thread(target=self._download_selected_model, daemon=True).start()
+        self._begin_model_prepare(self._prefs.asr_model_key)
 
-    def _download_selected_model(self):
+    def _begin_model_prepare(self, model_key: str):
+        if self._model_downloading:
+            return
+        self._model_downloading = True
+        self._set_model_download_progress(0, 0)
+        self._refresh_model_controls()
+        threading.Thread(
+            target=self._prepare_selected_model,
+            args=(model_key,),
+            daemon=True,
+        ).start()
+
+    def _download_selected_model(self, model_key: str):
+        self._prepare_selected_model(model_key)
+
+    def _prepare_selected_model(self, model_key: str):
         try:
-            transcriber.download_model(self._prefs.asr_model_key)
+            def progress(downloaded: int, total: int):
+                payload = f"{downloaded}:{total}"
+                self.performSelectorOnMainThread_withObject_waitUntilDone_(
+                    "modelDownloadProgress:",
+                    payload,
+                    False,
+                )
+
+            transcriber.prepare_model(model_key, progress_callback=progress)
+        except Exception as e:
+            details = "".join(
+                traceback.format_exception(type(e), e, e.__traceback__)
+            ).strip()
+            self.performSelectorOnMainThread_withObject_waitUntilDone_(
+                "modelDownloadFailed:",
+                details or str(e),
+                False,
+            )
+            return
         finally:
             self.performSelectorOnMainThread_withObject_waitUntilDone_(
                 "modelDownloadStateChanged:", None, False
@@ -731,7 +785,59 @@ class SettingsWindowController(NSObject):
 
     @objc.typedSelector(b"v@:@")
     def modelDownloadStateChanged_(self, _):
+        self._model_downloading = False
+        self._set_model_download_idle()
         self._refresh_model_controls()
+
+    @objc.typedSelector(b"v@:@")
+    def modelDownloadProgress_(self, payload):
+        downloaded_str, total_str = str(payload).split(":", 1)
+        self._set_model_download_progress(
+            int(downloaded_str),
+            int(total_str),
+        )
+
+    @objc.typedSelector(b"v@:@")
+    def modelDownloadFailed_(self, error_msg):
+        self._show_model_download_error(str(error_msg))
+
+    def _set_model_download_progress(self, downloaded: int, total: int):
+        if self._download_progress_bar is None or self._download_progress_label is None:
+            return
+        self._download_progress_bar.setHidden_(False)
+        self._download_progress_label.setHidden_(False)
+        self._download_progress_label.setStringValue_(
+            t(
+                "settings.model.downloading_progress",
+                progress=format_progress(downloaded, total),
+            )
+        )
+        if total > 0:
+            self._download_progress_bar.setIndeterminate_(False)
+            self._download_progress_bar.stopAnimation_(None)
+            self._download_progress_bar.setDoubleValue_(
+                min(100.0, (downloaded / total) * 100.0)
+            )
+        else:
+            self._download_progress_bar.setIndeterminate_(True)
+            self._download_progress_bar.startAnimation_(None)
+
+    def _set_model_download_idle(self):
+        if self._download_progress_bar is not None:
+            self._download_progress_bar.stopAnimation_(None)
+            self._download_progress_bar.setHidden_(True)
+            self._download_progress_bar.setDoubleValue_(0.0)
+        if self._download_progress_label is not None:
+            self._download_progress_label.setStringValue_("")
+            self._download_progress_label.setHidden_(True)
+
+    def _show_model_download_error(self, message: str):
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_(t("settings.model.download_failed"))
+        alert.setInformativeText_(message)
+        alert.addButtonWithTitle_(t("common.ok"))
+        NSApp.activateIgnoringOtherApps_(True)
+        alert.runModal()
 
     @objc.typedSelector(b"v@:@")
     def loginToggled_(self, sender):
@@ -744,10 +850,6 @@ class SettingsWindowController(NSObject):
             self._show_launch_at_login_error(str(e))
         finally:
             self._refresh_login_checkbox()
-
-    @objc.typedSelector(b"v@:@")
-    def updateCheckToggled_(self, sender):
-        self._prefs.auto_update_check = sender.state() == 1
 
     def controlTextDidEndEditing_(self, notification):
         field = notification.object()
