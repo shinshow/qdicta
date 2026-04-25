@@ -43,7 +43,7 @@
 - Qwen may remain in-process as it does today, but switching away from Qwen must release `_model` and reset warm-up state.
 - Model downloads must run on background threads and must not block AppKit.
 - Model switch must not trigger synchronous model load on the main thread.
-- Model deletion must refuse to delete the currently loaded in-process Qwen model until it is unloaded or the app is restarted.
+- Model deletion must unload the currently loaded model before deleting its app-managed model directory.
 - The UI must clearly show that installing all models requires roughly 7 GB of disk space:
   - Qwen3-ASR 8-bit MLX: about 2.5 GB.
   - Whisper large-v3 GGML: about 2.9 GiB.
