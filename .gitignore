@@ -5,6 +5,7 @@ dist/
 __pycache__/
 *.pyc
 .superpowers/
+.worktrees/
 
 # Code signing / notarization (contains team identity)
 scripts/build.sh
