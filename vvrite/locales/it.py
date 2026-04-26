@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "Correzione",
+            "advanced_title": "Correzione avanzata",
             "enable": "Abilita scorciatoia per ritirare l'ultima dettatura",
+            "retract_enable": "Abilita scorciatoia di eliminazione tramite tasti",
             "hint": "Elimina il risultato di dettatura incollato più di recente",
+            "retract_hint": "Scorciatoia per utenti avanzati. Invia pressioni del tasto Delete e funziona in modo sicuro solo subito dopo aver incollato.",
         },
         "microphone": {
             "title": "Microfono",

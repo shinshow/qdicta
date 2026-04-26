@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "Correction",
+            "advanced_title": "Advanced Correction",
             "enable": "Enable retract last dictation shortcut",
+            "retract_enable": "Enable delete-by-keystroke shortcut",
             "hint": "Deletes the most recently pasted dictation result",
+            "retract_hint": "Power-user shortcut. It sends Delete keypresses and only works safely right after pasting.",
         },
         "microphone": {
             "title": "Microphone",

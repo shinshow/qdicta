@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "수정",
+            "advanced_title": "고급 수정",
             "enable": "마지막 받아쓰기 취소 단축키 활성화",
+            "retract_enable": "Delete 키 방식 삭제 단축키 활성화",
             "hint": "가장 최근에 붙여넣은 받아쓰기 결과를 삭제합니다",
+            "retract_hint": "고급 사용자용입니다. Delete 키를 반복 전송하므로 붙여넣은 직후에만 안전하게 동작합니다.",
         },
         "microphone": {
             "title": "마이크",

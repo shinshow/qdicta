@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "Correction",
+            "advanced_title": "Correction avancée",
             "enable": "Activer le raccourci de retrait de la dernière dictée",
+            "retract_enable": "Activer le raccourci de suppression par touches",
             "hint": "Supprime le résultat de dictée collé le plus récemment",
+            "retract_hint": "Raccourci avancé. Il envoie des touches Delete et ne fonctionne sûrement que juste après le collage.",
         },
         "microphone": {
             "title": "Microphone",

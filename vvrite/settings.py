@@ -228,7 +228,7 @@ class SettingsWindowController(NSObject):
 
         # --- Correction ---
         y -= 40
-        label = NSTextField.labelWithString_(t("settings.correction.title"))
+        label = NSTextField.labelWithString_(t("settings.correction.advanced_title"))
         label.setFrame_(NSMakeRect(20, y, 360, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
@@ -236,7 +236,7 @@ class SettingsWindowController(NSObject):
         y -= 30
         self._retract_checkbox = NSButton.alloc().initWithFrame_(NSMakeRect(20, y, 360, 20))
         self._retract_checkbox.setButtonType_(NSButtonTypeSwitch)
-        self._retract_checkbox.setTitle_(t("settings.correction.enable"))
+        self._retract_checkbox.setTitle_(t("settings.correction.retract_enable"))
         self._retract_checkbox.setState_(
             1 if self._prefs.retract_last_dictation_enabled else 0
         )
@@ -264,7 +264,7 @@ class SettingsWindowController(NSObject):
 
         y -= 20
         hint = NSTextField.labelWithString_(
-            t("settings.correction.hint")
+            t("settings.correction.retract_hint")
         )
         hint.setFrame_(NSMakeRect(20, y, 360, 16))
         hint.setFont_(NSFont.systemFontOfSize_(11.0))

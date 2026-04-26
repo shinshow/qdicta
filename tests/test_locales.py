@@ -208,7 +208,14 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
         self.assertIn("title", s["shortcut"])
         # correction
         self.assertIn("correction", s)
-        for key in ["title", "enable", "hint"]:
+        for key in [
+            "title",
+            "advanced_title",
+            "enable",
+            "retract_enable",
+            "hint",
+            "retract_hint",
+        ]:
             self.assertIn(key, s["correction"], f"Missing settings.correction.{key}")
         # microphone
         self.assertIn("microphone", s)

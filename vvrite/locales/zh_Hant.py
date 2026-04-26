@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "更正",
+            "advanced_title": "進階更正",
             "enable": "啟用撤回上次聽寫快捷鍵",
+            "retract_enable": "啟用按鍵刪除快捷鍵",
             "hint": "刪除最近貼上的聽寫結果",
+            "retract_hint": "進階使用者快捷鍵。它會送出 Delete 按鍵，僅在貼上後立即使用時安全。",
         },
         "microphone": {
             "title": "麥克風",

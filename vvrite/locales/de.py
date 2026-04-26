@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "Korrektur",
+            "advanced_title": "Erweiterte Korrektur",
             "enable": "Tastenkürzel zum Widerrufen der letzten Diktierung aktivieren",
+            "retract_enable": "Löschen-per-Taste-Tastenkürzel aktivieren",
             "hint": "Löscht das zuletzt eingefügte Diktierergebnis",
+            "retract_hint": "Tastenkürzel für fortgeschrittene Nutzer. Es sendet Delete-Tastendrücke und funktioniert nur direkt nach dem Einfügen sicher.",
         },
         "microphone": {
             "title": "Mikrofon",

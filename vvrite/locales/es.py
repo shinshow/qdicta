@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "Corrección",
+            "advanced_title": "Corrección avanzada",
             "enable": "Activar atajo para retractar último dictado",
+            "retract_enable": "Activar atajo de borrado por teclas",
             "hint": "Elimina el resultado de dictado pegado más recientemente",
+            "retract_hint": "Atajo para usuarios avanzados. Envía pulsaciones de Delete y solo funciona de forma segura justo después de pegar.",
         },
         "microphone": {
             "title": "Micrófono",

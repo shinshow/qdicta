@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "修正",
+            "advanced_title": "高度な修正",
             "enable": "直前のディクテーション取り消しショートカットを有効にする",
+            "retract_enable": "Deleteキー方式の削除ショートカットを有効にする",
             "hint": "最後に貼り付けたディクテーション結果を削除します",
+            "retract_hint": "上級者向けのショートカットです。Deleteキー入力を送信するため、貼り付け直後のみ安全に動作します。",
         },
         "microphone": {
             "title": "マイク",

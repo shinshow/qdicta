@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "Correção",
+            "advanced_title": "Correção avançada",
             "enable": "Ativar atalho para retroceder último ditado",
+            "retract_enable": "Ativar atalho de exclusão por tecla",
             "hint": "Exclui o resultado de ditado colado mais recentemente",
+            "retract_hint": "Atalho para usuários avançados. Envia teclas Delete e só funciona com segurança logo após colar.",
         },
         "microphone": {
             "title": "Microfone",

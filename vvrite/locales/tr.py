@@ -76,8 +76,11 @@ strings = {
         },
         "correction": {
             "title": "Düzeltme",
+            "advanced_title": "Gelişmiş Düzeltme",
             "enable": "Son dikteyi geri alma kısayolunu etkinleştir",
+            "retract_enable": "Tuş vuruşuyla silme kısayolunu etkinleştir",
             "hint": "En son yapıştırılan dikte sonucunu siler",
+            "retract_hint": "İleri düzey kullanıcı kısayolu. Delete tuş vuruşları gönderir ve yalnızca yapıştırmadan hemen sonra güvenle çalışır.",
         },
         "microphone": {
             "title": "Mikrofon",
