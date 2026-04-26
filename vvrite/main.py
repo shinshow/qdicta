@@ -40,6 +40,7 @@ from vvrite.settings import SettingsWindowController
 from vvrite import transcriber, sounds
 from vvrite.recorder import Recorder
 from vvrite.clipboard import paste_and_restore, retract_text
+from vvrite.text_replacements import apply_replacements, parse_replacements_text
 
 
 FORK_REPOSITORY_URL = "https://github.com/shinshow/vvrite"
@@ -79,6 +80,11 @@ def _short_error_message(message: str, limit: int = 90) -> str:
     if len(first_line) > limit:
         return first_line[: limit - 3] + "..."
     return first_line
+
+
+def _post_process_text(text: str, prefs: Preferences) -> str:
+    rules = parse_replacements_text(getattr(prefs, "replacement_rules", ""))
+    return apply_replacements(text, rules).strip()
 
 
 class AppDelegate(NSObject):
@@ -331,6 +337,7 @@ class AppDelegate(NSObject):
     def _transcribe_and_paste(self, raw_path: str):
         try:
             text = transcriber.transcribe(raw_path, self._prefs)
+            text = _post_process_text(text, self._prefs)
             if text:
                 paste_and_restore(text, async_restore=True)
                 self._last_dictation_text = text

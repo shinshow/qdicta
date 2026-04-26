@@ -108,6 +108,19 @@ class TestRecordingFlow(unittest.TestCase):
 
         mock_paste.assert_called_once_with("hello", async_restore=True)
 
+    @patch("vvrite.main.paste_and_restore")
+    @patch("vvrite.main.transcriber.transcribe", return_value="큐엔 모델")
+    def test_transcribe_and_paste_applies_replacements(
+        self, _mock_transcribe, mock_paste
+    ):
+        delegate = self._delegate()
+        delegate._prefs.replacement_rules = "큐엔 -> Qwen"
+
+        delegate._transcribe_and_paste("/tmp/audio.wav")
+
+        mock_paste.assert_called_once_with("Qwen 모델", async_restore=True)
+        self.assertEqual(delegate._last_dictation_text, "Qwen 모델")
+
 
 if __name__ == "__main__":
     unittest.main()
