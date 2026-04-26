@@ -892,38 +892,350 @@ class SettingsWindowController(NSObject):
 
     def _build_model_panel(self):
         panel, y = self._new_panel()
-        label = NSTextField.labelWithString_(t("settings.categories.model"))
+        label = NSTextField.labelWithString_(t("settings.model.title"))
         label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         panel.addSubview_(label)
+
+        y -= 30
+        model_label = NSTextField.labelWithString_(t("settings.model.selected_model"))
+        model_label.setFrame_(NSMakeRect(20, y, 130, 20))
+        model_label.setAlignment_(2)
+        model_label.setTextColor_(NSColor.secondaryLabelColor())
+        model_label.setFont_(NSFont.systemFontOfSize_(12.0))
+        panel.addSubview_(model_label)
+
+        self._model_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(156, y, 260, 24), False
+        )
+        for model in ASR_MODELS.values():
+            self._model_popup.addItemWithTitle_(model.display_name)
+        current_model = get_model(self._prefs.asr_model_key)
+        for i, model in enumerate(ASR_MODELS.values()):
+            if model.key == current_model.key:
+                self._model_popup.selectItemAtIndex_(i)
+                break
+        self._model_popup.setTarget_(self)
+        self._model_popup.setAction_("asrModelChanged:")
+        panel.addSubview_(self._model_popup)
+
+        y -= 30
+        output_label = NSTextField.labelWithString_(t("settings.model.output_mode"))
+        output_label.setFrame_(NSMakeRect(20, y, 130, 20))
+        output_label.setAlignment_(2)
+        output_label.setTextColor_(NSColor.secondaryLabelColor())
+        output_label.setFont_(NSFont.systemFontOfSize_(12.0))
+        panel.addSubview_(output_label)
+
+        self._output_mode_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(156, y, 260, 24), False
+        )
+        self._output_mode_popup.addItemWithTitle_(t("settings.model.mode_transcribe"))
+        self._output_mode_popup.addItemWithTitle_(
+            t("settings.model.mode_translate_to_english")
+        )
+        self._output_mode_popup.selectItemAtIndex_(
+            1 if self._prefs.output_mode == OUTPUT_MODE_TRANSLATE_TO_ENGLISH else 0
+        )
+        self._output_mode_popup.setTarget_(self)
+        self._output_mode_popup.setAction_("outputModeChanged:")
+        panel.addSubview_(self._output_mode_popup)
+
+        y -= 22
+        self._model_capability_label = NSTextField.labelWithString_("")
+        self._model_capability_label.setFrame_(
+            NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 18)
+        )
+        self._model_capability_label.setTextColor_(NSColor.systemOrangeColor())
+        self._model_capability_label.setFont_(NSFont.systemFontOfSize_(11.0))
+        panel.addSubview_(self._model_capability_label)
+
+        y -= 30
+        self._model_status_label = NSTextField.labelWithString_("")
+        self._model_status_label.setFrame_(NSMakeRect(20, y, 190, 20))
+        self._model_status_label.setTextColor_(NSColor.secondaryLabelColor())
+        self._model_status_label.setFont_(NSFont.systemFontOfSize_(11.0))
+        panel.addSubview_(self._model_status_label)
+
+        self._download_model_btn = NSButton.alloc().initWithFrame_(
+            NSMakeRect(220, y - 2, 86, 24)
+        )
+        self._download_model_btn.setTitle_(t("common.download"))
+        self._download_model_btn.setBezelStyle_(NSBezelStyleRounded)
+        self._download_model_btn.setTarget_(self)
+        self._download_model_btn.setAction_("downloadSelectedModel:")
+        panel.addSubview_(self._download_model_btn)
+
+        self._delete_model_btn = NSButton.alloc().initWithFrame_(
+            NSMakeRect(316, y - 2, 94, 24)
+        )
+        self._delete_model_btn.setTitle_(t("settings.model.delete"))
+        self._delete_model_btn.setBezelStyle_(NSBezelStyleRounded)
+        self._delete_model_btn.setTarget_(self)
+        self._delete_model_btn.setAction_("deleteSelectedModel:")
+        panel.addSubview_(self._delete_model_btn)
+
+        y -= 24
+        self._download_progress_bar = NSProgressIndicator.alloc().initWithFrame_(
+            NSMakeRect(20, y, 390, 8)
+        )
+        self._download_progress_bar.setStyle_(NSProgressIndicatorStyleBar)
+        self._download_progress_bar.setMinValue_(0.0)
+        self._download_progress_bar.setMaxValue_(100.0)
+        self._download_progress_bar.setHidden_(True)
+        panel.addSubview_(self._download_progress_bar)
+
+        y -= 18
+        self._download_progress_label = NSTextField.labelWithString_("")
+        self._download_progress_label.setFrame_(NSMakeRect(20, y, 390, 16))
+        self._download_progress_label.setTextColor_(NSColor.secondaryLabelColor())
+        self._download_progress_label.setFont_(NSFont.systemFontOfSize_(11.0))
+        panel.addSubview_(self._download_progress_label)
+
+        self._refresh_model_controls()
         return panel
 
     def _build_output_panel(self):
-        panel, y = self._new_panel()
-        label = NSTextField.labelWithString_(t("settings.categories.output"))
+        panel, y = self._new_panel(760)
+
+        label = NSTextField.labelWithString_(t("settings.mode.title"))
         label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         panel.addSubview_(label)
+
+        y -= 30
+        self._mode_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(20, y, 390, 24), False
+        )
+        modes = list_modes()
+        for mode in modes:
+            self._mode_popup.addItemWithTitle_(t(mode.title_key))
+        selected_key = get_mode(self._prefs.selected_mode_key).key
+        for index, mode in enumerate(modes):
+            if mode.key == selected_key:
+                self._mode_popup.selectItemAtIndex_(index)
+                break
+        self._mode_popup.setTarget_(self)
+        self._mode_popup.setAction_("modeChanged:")
+        panel.addSubview_(self._mode_popup)
+
+        y -= 44
+        label = NSTextField.labelWithString_(t("settings.custom_words.title"))
+        label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        panel.addSubview_(label)
+
+        y -= 86
+        scroll = NSScrollView.alloc().initWithFrame_(NSMakeRect(20, y, 390, 78))
+        scroll.setHasVerticalScroller_(True)
+        scroll.setAutohidesScrollers_(True)
+        scroll.setBorderType_(1)
+
+        self._custom_words_text_view = NSTextView.alloc().initWithFrame_(
+            NSMakeRect(0, 0, 390, 78)
+        )
+        self._custom_words_text_view.setString_(
+            format_custom_words_for_editor(self._prefs.custom_words)
+        )
+        self._custom_words_text_view.setFont_(NSFont.systemFontOfSize_(12.0))
+        self._custom_words_text_view.setDelegate_(self)
+        scroll.setDocumentView_(self._custom_words_text_view)
+        panel.addSubview_(scroll)
+
+        y -= 30
+        import_btn = NSButton.alloc().initWithFrame_(NSMakeRect(20, y, 90, 24))
+        import_btn.setTitle_(t("settings.custom_words.import"))
+        import_btn.setBezelStyle_(NSBezelStyleRounded)
+        import_btn.setTarget_(self)
+        import_btn.setAction_("importCustomWords:")
+        panel.addSubview_(import_btn)
+
+        export_btn = NSButton.alloc().initWithFrame_(NSMakeRect(120, y, 90, 24))
+        export_btn.setTitle_(t("settings.custom_words.export"))
+        export_btn.setBezelStyle_(NSBezelStyleRounded)
+        export_btn.setTarget_(self)
+        export_btn.setAction_("exportCustomWords:")
+        panel.addSubview_(export_btn)
+
+        y -= 20
+        hint = NSTextField.labelWithString_(t("settings.custom_words.hint"))
+        hint.setFrame_(NSMakeRect(20, y, 390, 16))
+        hint.setFont_(NSFont.systemFontOfSize_(11.0))
+        hint.setTextColor_(NSColor.secondaryLabelColor())
+        panel.addSubview_(hint)
+
+        y -= 40
+        label = NSTextField.labelWithString_(t("settings.replacements.title"))
+        label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        panel.addSubview_(label)
+
+        y -= 86
+        replacement_scroll = NSScrollView.alloc().initWithFrame_(
+            NSMakeRect(20, y, 390, 78)
+        )
+        replacement_scroll.setHasVerticalScroller_(True)
+        replacement_scroll.setAutohidesScrollers_(True)
+        replacement_scroll.setBorderType_(1)
+        self._replacement_rules_text_view = NSTextView.alloc().initWithFrame_(
+            NSMakeRect(0, 0, 390, 78)
+        )
+        self._replacement_rules_text_view.setString_(
+            format_replacements_text(self._prefs.replacement_rules)
+        )
+        self._replacement_rules_text_view.setFont_(NSFont.systemFontOfSize_(12.0))
+        self._replacement_rules_text_view.setDelegate_(self)
+        replacement_scroll.setDocumentView_(self._replacement_rules_text_view)
+        panel.addSubview_(replacement_scroll)
+
+        y -= 20
+        hint = NSTextField.labelWithString_(t("settings.replacements.hint"))
+        hint.setFrame_(NSMakeRect(20, y, 390, 16))
+        hint.setFont_(NSFont.systemFontOfSize_(11.0))
+        hint.setTextColor_(NSColor.secondaryLabelColor())
+        panel.addSubview_(hint)
+
         return panel
 
     def _build_sound_panel(self):
         panel, y = self._new_panel()
-        label = NSTextField.labelWithString_(t("settings.categories.sound"))
+        label = NSTextField.labelWithString_(t("settings.sound.title"))
         label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         panel.addSubview_(label)
+
+        y -= 30
+        start_label = NSTextField.labelWithString_(t("settings.sound.start"))
+        start_label.setFrame_(NSMakeRect(20, y, 50, 20))
+        start_label.setAlignment_(2)
+        start_label.setTextColor_(NSColor.secondaryLabelColor())
+        start_label.setFont_(NSFont.systemFontOfSize_(12.0))
+        panel.addSubview_(start_label)
+
+        self._start_sound_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(76, y, 160, 24), False
+        )
+        self._start_sound_popup.setTarget_(self)
+        self._start_sound_popup.setAction_("startSoundChanged:")
+        panel.addSubview_(self._start_sound_popup)
+
+        self._start_volume_slider = NSSlider.alloc().initWithFrame_(
+            NSMakeRect(242, y, 120, 24)
+        )
+        self._start_volume_slider.setMinValue_(0)
+        self._start_volume_slider.setMaxValue_(100)
+        self._start_volume_slider.setIntValue_(int(self._prefs.start_volume * 100))
+        self._start_volume_slider.setContinuous_(True)
+        self._start_volume_slider.setTarget_(self)
+        self._start_volume_slider.setAction_("startVolumeChanged:")
+        panel.addSubview_(self._start_volume_slider)
+
+        self._start_volume_label = NSTextField.labelWithString_(
+            f"{int(self._prefs.start_volume * 100)}%"
+        )
+        self._start_volume_label.setFrame_(NSMakeRect(368, y, 42, 20))
+        self._start_volume_label.setTextColor_(NSColor.secondaryLabelColor())
+        self._start_volume_label.setFont_(NSFont.systemFontOfSize_(11.0))
+        panel.addSubview_(self._start_volume_label)
+
+        y -= 30
+        stop_label = NSTextField.labelWithString_(t("settings.sound.stop"))
+        stop_label.setFrame_(NSMakeRect(20, y, 50, 20))
+        stop_label.setAlignment_(2)
+        stop_label.setTextColor_(NSColor.secondaryLabelColor())
+        stop_label.setFont_(NSFont.systemFontOfSize_(12.0))
+        panel.addSubview_(stop_label)
+
+        self._stop_sound_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(76, y, 160, 24), False
+        )
+        self._stop_sound_popup.setTarget_(self)
+        self._stop_sound_popup.setAction_("stopSoundChanged:")
+        panel.addSubview_(self._stop_sound_popup)
+
+        self._stop_volume_slider = NSSlider.alloc().initWithFrame_(
+            NSMakeRect(242, y, 120, 24)
+        )
+        self._stop_volume_slider.setMinValue_(0)
+        self._stop_volume_slider.setMaxValue_(100)
+        self._stop_volume_slider.setIntValue_(int(self._prefs.stop_volume * 100))
+        self._stop_volume_slider.setContinuous_(True)
+        self._stop_volume_slider.setTarget_(self)
+        self._stop_volume_slider.setAction_("stopVolumeChanged:")
+        panel.addSubview_(self._stop_volume_slider)
+
+        self._stop_volume_label = NSTextField.labelWithString_(
+            f"{int(self._prefs.stop_volume * 100)}%"
+        )
+        self._stop_volume_label.setFrame_(NSMakeRect(368, y, 42, 20))
+        self._stop_volume_label.setTextColor_(NSColor.secondaryLabelColor())
+        self._stop_volume_label.setFont_(NSFont.systemFontOfSize_(11.0))
+        panel.addSubview_(self._stop_volume_label)
+
+        y -= 20
+        hint = NSTextField.labelWithString_(t("settings.sound.hint"))
+        hint.setFrame_(NSMakeRect(76, y, 334, 16))
+        hint.setFont_(NSFont.systemFontOfSize_(11.0))
+        hint.setTextColor_(NSColor.secondaryLabelColor())
+        panel.addSubview_(hint)
+
+        self._populate_sounds()
         return panel
 
     def _build_advanced_panel(self):
         panel, y = self._new_panel()
-        label = NSTextField.labelWithString_(t("settings.categories.advanced"))
+        label = NSTextField.labelWithString_(t("settings.correction.advanced_title"))
         label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         panel.addSubview_(label)
+
+        y -= 30
+        self._retract_checkbox = NSButton.alloc().initWithFrame_(
+            NSMakeRect(20, y, 390, 20)
+        )
+        self._retract_checkbox.setButtonType_(NSButtonTypeSwitch)
+        self._retract_checkbox.setTitle_(t("settings.correction.retract_enable"))
+        self._retract_checkbox.setState_(
+            1 if self._prefs.retract_last_dictation_enabled else 0
+        )
+        self._retract_checkbox.setTarget_(self)
+        self._retract_checkbox.setAction_("retractShortcutToggled:")
+        panel.addSubview_(self._retract_checkbox)
+
+        y -= 30
+        self._retract_shortcut_field = (
+            ShortcutField.alloc().initWithFrame_preferences_keycodeKey_modifiersKey_(
+                NSMakeRect(20, y, 300, 24),
+                self._prefs,
+                "retract_hotkey_keycode",
+                "retract_hotkey_modifiers",
+            )
+        )
+        panel.addSubview_(self._retract_shortcut_field)
+
+        self._retract_change_btn = NSButton.alloc().initWithFrame_(
+            NSMakeRect(330, y, 80, 24)
+        )
+        self._retract_change_btn.setTitle_(t("common.change"))
+        self._retract_change_btn.setBezelStyle_(NSBezelStyleRounded)
+        self._retract_change_btn.setTarget_(self)
+        self._retract_change_btn.setAction_("changeRetractShortcut:")
+        panel.addSubview_(self._retract_change_btn)
+
+        y -= 20
+        hint = NSTextField.labelWithString_(t("settings.correction.retract_hint"))
+        hint.setFrame_(NSMakeRect(20, y, 390, 16))
+        hint.setFont_(NSFont.systemFontOfSize_(11.0))
+        hint.setTextColor_(NSColor.secondaryLabelColor())
+        panel.addSubview_(hint)
+
+        self._refresh_retract_controls()
         return panel
 
     def _populate_sounds(self):
         """Populate both sound dropdowns with system sounds + Custom option."""
+        if self._start_sound_popup is None or self._stop_sound_popup is None:
+            return
         system_sounds = sounds.list_system_sounds()
         for popup, pref_value in [
             (self._start_sound_popup, self._prefs.sound_start),
@@ -958,6 +1270,8 @@ class SettingsWindowController(NSObject):
         )
 
     def _populate_mics(self, refresh: bool = False, devices=None):
+        if self._mic_popup is None:
+            return
         self._mic_popup.removeAllItems()
         if devices is None:
             devices = list_input_devices(refresh=refresh)

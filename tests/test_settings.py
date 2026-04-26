@@ -511,6 +511,50 @@ class TestSettingsSidebarLayout(unittest.TestCase):
         self.assertIsNotNone(controller._acc_label)
         self.assertIsNotNone(controller._mic_label)
 
+    @patch("vvrite.settings.transcriber.is_model_cached", return_value=False)
+    def test_model_panel_builds_model_controls(self, _mock_cached):
+        from vvrite.preferences import Preferences
+
+        controller = SettingsWindowController.alloc().initWithPreferences_(Preferences())
+        controller._show_settings_category("model")
+
+        self.assertIsNotNone(controller._model_popup)
+        self.assertIsNotNone(controller._output_mode_popup)
+        self.assertIsNotNone(controller._download_model_btn)
+        self.assertIsNotNone(controller._delete_model_btn)
+
+    def test_output_panel_builds_mode_and_text_controls(self):
+        from vvrite.preferences import Preferences
+
+        controller = SettingsWindowController.alloc().initWithPreferences_(Preferences())
+        controller._show_settings_category("output")
+
+        self.assertIsNotNone(controller._mode_popup)
+        self.assertIsNotNone(controller._custom_words_text_view)
+        self.assertIsNotNone(controller._replacement_rules_text_view)
+
+    @patch("vvrite.settings.sounds.list_system_sounds", return_value=["Tink", "Purr"])
+    def test_sound_panel_builds_sound_controls(self, _mock_sounds):
+        from vvrite.preferences import Preferences
+
+        controller = SettingsWindowController.alloc().initWithPreferences_(Preferences())
+        controller._show_settings_category("sound")
+
+        self.assertIsNotNone(controller._start_sound_popup)
+        self.assertIsNotNone(controller._stop_sound_popup)
+        self.assertIsNotNone(controller._start_volume_slider)
+        self.assertIsNotNone(controller._stop_volume_slider)
+
+    def test_advanced_panel_builds_retract_controls(self):
+        from vvrite.preferences import Preferences
+
+        controller = SettingsWindowController.alloc().initWithPreferences_(Preferences())
+        controller._show_settings_category("advanced")
+
+        self.assertIsNotNone(controller._retract_checkbox)
+        self.assertIsNotNone(controller._retract_shortcut_field)
+        self.assertIsNotNone(controller._retract_change_btn)
+
 
 class TestModeSettingsActions(unittest.TestCase):
     def test_mode_changed_saves_selected_mode_key(self):
