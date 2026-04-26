@@ -121,6 +121,28 @@ class TestRecordingFlow(unittest.TestCase):
         mock_paste.assert_called_once_with("Qwen 모델", async_restore=True)
         self.assertEqual(delegate._last_dictation_text, "Qwen 모델")
 
+    @patch("vvrite.main.HistoryStore")
+    @patch("vvrite.main.time.time", return_value=123.0)
+    @patch("vvrite.main.paste_and_restore")
+    @patch("vvrite.main.transcriber.transcribe", return_value="hello")
+    def test_transcribe_and_paste_saves_history(
+        self, _mock_transcribe, _mock_paste, _mock_time, mock_store_class
+    ):
+        store = MagicMock()
+        mock_store_class.return_value = store
+        delegate = self._delegate()
+        delegate._prefs.history_enabled = True
+        delegate._prefs.history_limit = 10
+        delegate._prefs.asr_model_key = "qwen3_asr_1_7b_8bit"
+        delegate._prefs.output_mode = "transcribe"
+        delegate._prefs.selected_mode_key = "voice"
+
+        delegate._transcribe_and_paste("/tmp/audio.wav")
+
+        record = store.add.call_args.args[0]
+        self.assertEqual(record.text, "hello")
+        self.assertEqual(record.created_at, 123.0)
+
 
 if __name__ == "__main__":
     unittest.main()

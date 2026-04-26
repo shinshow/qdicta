@@ -3,6 +3,7 @@
 import os
 import sys
 import threading
+import time
 import traceback
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -40,6 +41,7 @@ from vvrite.settings import SettingsWindowController
 from vvrite import transcriber, sounds
 from vvrite.recorder import Recorder
 from vvrite.clipboard import paste_and_restore, retract_text
+from vvrite.history_store import DictationRecord, HistoryStore, default_history_path
 from vvrite.text_replacements import apply_replacements, parse_replacements_text
 
 
@@ -341,6 +343,7 @@ class AppDelegate(NSObject):
             if text:
                 paste_and_restore(text, async_restore=True)
                 self._last_dictation_text = text
+                self._save_history_record(text)
                 self.performSelectorOnMainThread_withObject_waitUntilDone_(
                     "transcriptionComplete:", text, False
                 )
@@ -354,6 +357,23 @@ class AppDelegate(NSObject):
                 _format_exception_for_display("Transcription failed", e),
                 False,
             )
+
+    def _save_history_record(self, text: str):
+        if not getattr(self._prefs, "history_enabled", True):
+            return
+        store = HistoryStore(
+            default_history_path(),
+            getattr(self._prefs, "history_limit", 10),
+        )
+        store.add(
+            DictationRecord(
+                text=text,
+                created_at=time.time(),
+                model_key=self._prefs.asr_model_key,
+                output_mode=getattr(self._prefs, "output_mode", "transcribe"),
+                mode_key=getattr(self._prefs, "selected_mode_key", "voice"),
+            )
+        )
 
     # --- UI update selectors (must run on main thread) ---
 
