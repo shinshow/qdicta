@@ -154,9 +154,12 @@ class TestWhisperMlxBackend(unittest.TestCase):
 
         progress.assert_called_with(3, 10)
 
+    @patch("vvrite.asr_backends.whisper_mlx.resolve_asr_language", return_value="ko")
     @patch("vvrite.asr_backends.whisper_mlx._read_audio_samples")
     @patch("vvrite.asr_backends.whisper_mlx.model_path")
-    def test_transcribe_passes_fast_mlx_options(self, mock_model_path, mock_read_audio):
+    def test_transcribe_passes_fast_mlx_options(
+        self, mock_model_path, mock_read_audio, mock_resolve_language
+    ):
         fake_mlx_whisper = types.SimpleNamespace(transcribe=MagicMock())
         fake_mlx_whisper.transcribe.return_value = {"text": " hello "}
         mock_model_path.return_value = "/tmp/models/whisper-small-4bit"
@@ -174,7 +177,8 @@ class TestWhisperMlxBackend(unittest.TestCase):
         self.assertFalse(kwargs["condition_on_previous_text"])
         self.assertTrue(kwargs["without_timestamps"])
         self.assertEqual(kwargs["task"], "transcribe")
-        self.assertNotIn("language", kwargs)
+        self.assertEqual(kwargs["language"], "ko")
+        mock_resolve_language.assert_called()
 
     def test_unload_clears_mlx_whisper_model_holder_cache(self):
         model_holder = types.SimpleNamespace(model=object(), model_path="/tmp/model")
@@ -210,6 +214,15 @@ class TestWhisperMlxBackend(unittest.TestCase):
         kwargs = fake_mlx_whisper.transcribe.call_args.kwargs
         self.assertEqual(kwargs["language"], "ko")
         self.assertEqual(kwargs["initial_prompt"], "vvrite, Qwen")
+
+    @patch("vvrite.asr_backends.whisper_mlx.resolve_asr_language", return_value="ko")
+    def test_transcribe_kwargs_uses_resolved_auto_language_hint(
+        self, mock_resolve_language
+    ):
+        kwargs = whisper_mlx._transcribe_kwargs(get_model("whisper_small_4bit"), _Prefs())
+
+        mock_resolve_language.assert_called_once()
+        self.assertEqual(kwargs["language"], "ko")
 
     @patch("vvrite.asr_backends.whisper_mlx._read_audio_samples")
     @patch("vvrite.asr_backends.whisper_mlx.model_path")

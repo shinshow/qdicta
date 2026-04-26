@@ -397,6 +397,29 @@ class TestQwenBackend(unittest.TestCase):
         self.assertEqual(len(thread_ids), 2)
         self.assertEqual(thread_ids[0], thread_ids[1])
 
+    @patch("vvrite.asr_backends.qwen.os.unlink")
+    @patch("vvrite.asr_backends.qwen.audio_utils.normalize", return_value="/tmp/normalized.wav")
+    @patch("vvrite.asr_backends.qwen.resolve_asr_language", return_value="ko")
+    def test_qwen_auto_language_uses_resolved_language_hint(
+        self, mock_resolve_language, mock_normalize, mock_unlink
+    ):
+        from vvrite.asr_backends import qwen
+
+        class _Result:
+            text = "마이크 테스트"
+
+        model = MagicMock()
+        model.generate.return_value = _Result()
+        qwen._model = model
+
+        try:
+            self.assertEqual(qwen._transcribe_impl("/tmp/audio.wav", _Prefs()), "마이크 테스트")
+        finally:
+            qwen._model = None
+
+        mock_resolve_language.assert_called_once()
+        self.assertEqual(model.generate.call_args.kwargs["language"], "Korean")
+
 
 if __name__ == "__main__":
     unittest.main()

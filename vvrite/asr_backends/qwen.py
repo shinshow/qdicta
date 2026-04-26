@@ -13,6 +13,7 @@ from huggingface_hub import model_info, snapshot_download
 from tqdm.auto import tqdm
 
 from vvrite import audio_utils, model_store
+from vvrite.asr_language import resolve_asr_language
 from vvrite.locales import ASR_LANGUAGE_MAP
 from vvrite.preferences import SAMPLE_RATE
 
@@ -212,7 +213,7 @@ def _transcribe_impl(raw_wav_path: str, prefs) -> str:
         if custom_words:
             kwargs["system_prompt"] = f"Use the following spellings: {custom_words}"
 
-        asr_lang = prefs.asr_language
+        asr_lang = resolve_asr_language(prefs)
         if asr_lang != "auto":
             language_param = ASR_LANGUAGE_MAP.get(asr_lang)
             if language_param is None:

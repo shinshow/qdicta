@@ -15,6 +15,7 @@ import soundfile as sf
 from tqdm.auto import tqdm
 
 from vvrite import model_store
+from vvrite.asr_language import resolve_asr_language
 from vvrite.asr_models import OUTPUT_MODE_TRANSLATE_TO_ENGLISH
 from vvrite.preferences import SAMPLE_RATE
 
@@ -224,7 +225,7 @@ def _resample(samples: np.ndarray, source_rate: int, target_rate: int) -> np.nda
 
 
 def _language_code(prefs) -> str | None:
-    asr_language = getattr(prefs, "asr_language", "auto")
+    asr_language = resolve_asr_language(prefs)
     if asr_language == "auto":
         return None
     if asr_language in ("zh-Hans", "zh-Hant"):

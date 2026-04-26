@@ -4,6 +4,14 @@ All notable changes to this fork are documented here.
 
 ## Unreleased
 
+## [1.1.6] - 2026-04-26
+
+### Fixed
+
+- Resolved `auto` ASR language to the app UI language or system language before calling model backends, so Korean dictation keeps a Korean language hint after switching models from Settings.
+- Applied the resolved language hint consistently to Qwen3-ASR, Whisper MLX, and whisper.cpp backends.
+- Bumped app version from `1.1.5` to `1.1.6`.
+
 ## [1.1.5] - 2026-04-26
 
 ### Fixed

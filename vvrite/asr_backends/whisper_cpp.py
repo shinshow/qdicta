@@ -14,6 +14,7 @@ import numpy as np
 import soundfile as sf
 
 from vvrite import audio_utils, model_store
+from vvrite.asr_language import resolve_asr_language
 from vvrite.asr_models import OUTPUT_MODE_TRANSLATE_TO_ENGLISH
 
 WHISPER_SAMPLING_GREEDY = 0
@@ -292,9 +293,7 @@ def download(model, progress_callback=None) -> str:
 def _language_arg(prefs) -> str:
     if prefs.output_mode == OUTPUT_MODE_TRANSLATE_TO_ENGLISH:
         return "auto"
-    if prefs.asr_language == "auto":
-        return "auto"
-    return str(prefs.asr_language)
+    return resolve_asr_language(prefs)
 
 
 def _clean_output(stdout: str) -> str:
