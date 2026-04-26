@@ -35,6 +35,7 @@ _DEFAULTS = {
     "stop_volume": 1.0,
     "onboarding_completed": False,
     "custom_words": "",
+    "replacement_rules": "",
     "auto_update_check": True,
     "last_update_check": 0.0,
     "asr_language": "auto",
@@ -248,6 +249,14 @@ class Preferences:
     @custom_words.setter
     def custom_words(self, value: str):
         self._set("custom_words", value)
+
+    @property
+    def replacement_rules(self) -> str:
+        return str(self._get("replacement_rules"))
+
+    @replacement_rules.setter
+    def replacement_rules(self, value: str):
+        self._set("replacement_rules", value)
 
     @property
     def onboarding_completed(self) -> bool:
