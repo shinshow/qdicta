@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "Transcrever no idioma falado",
             "mode_translate_to_english": "Traduzir para inglês",
         },
+        "mode": {
+            "title": "Modo",
+        },
         "custom_words": {
             "title": "Palavras personalizadas",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "Escolher arquivo de áudio ou vídeo",
+    },
+    "modes": {
+        "voice": {"title": "Voz", "description": "Colar transcrição como falada."},
+        "message": {"title": "Mensagem", "description": "Texto curto para chats."},
+        "note": {"title": "Nota", "description": "Texto limpo para notas."},
+        "email": {"title": "Email", "description": "Texto simples para email."},
     },
     "history": {
         "title": "Ditados recentes",

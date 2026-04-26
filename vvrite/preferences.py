@@ -38,6 +38,7 @@ _DEFAULTS = {
     "replacement_rules": "",
     "history_enabled": True,
     "history_limit": 10,
+    "selected_mode_key": "voice",
     "auto_update_check": True,
     "last_update_check": 0.0,
     "asr_language": "auto",
@@ -275,6 +276,14 @@ class Preferences:
     @history_limit.setter
     def history_limit(self, value: int):
         self._set("history_limit", max(0, int(value)))
+
+    @property
+    def selected_mode_key(self) -> str:
+        return str(self._get("selected_mode_key"))
+
+    @selected_mode_key.setter
+    def selected_mode_key(self, value: str):
+        self._set("selected_mode_key", value)
 
     @property
     def onboarding_completed(self) -> bool:

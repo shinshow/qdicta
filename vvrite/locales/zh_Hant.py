@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "以原語言轉錄",
             "mode_translate_to_english": "翻譯成英文",
         },
+        "mode": {
+            "title": "模式",
+        },
         "custom_words": {
             "title": "自訂詞彙",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "選擇音訊或影片檔案",
+    },
+    "modes": {
+        "voice": {"title": "語音", "description": "按說話內容貼上轉錄。"},
+        "message": {"title": "訊息", "description": "適合聊天的短文字。"},
+        "note": {"title": "筆記", "description": "適合筆記的整理文字。"},
+        "email": {"title": "電子郵件", "description": "適合電子郵件的純文字。"},
     },
     "history": {
         "title": "最近聽寫",

@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "बोली गई भाषा में ट्रांसक्राइब करें",
             "mode_translate_to_english": "अंग्रेज़ी में अनुवाद करें",
         },
+        "mode": {
+            "title": "मोड",
+        },
         "custom_words": {
             "title": "कस्टम शब्द",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "ऑडियो या वीडियो फ़ाइल चुनें",
+    },
+    "modes": {
+        "voice": {"title": "आवाज़", "description": "बोले गए रूप में ट्रांसक्रिप्शन चिपकाएँ."},
+        "message": {"title": "संदेश", "description": "चैट के लिए छोटा टेक्स्ट."},
+        "note": {"title": "नोट", "description": "नोट्स के लिए साफ़ टेक्स्ट."},
+        "email": {"title": "ईमेल", "description": "ईमेल के लिए साधारण टेक्स्ट."},
     },
     "history": {
         "title": "हाल के डिक्टेशन",

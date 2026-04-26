@@ -270,6 +270,9 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
         # update
         self.assertIn("update", s)
         self.assertIn("title", s["update"])
+        # mode
+        self.assertIn("mode", s)
+        self.assertIn("title", s["mode"])
 
     def test_translation_warning_describes_selected_model_limitation(self):
         from vvrite.locales.en import strings
@@ -315,6 +318,19 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
         self.assertIn("history", strings)
         for key in ["title", "empty"]:
             self.assertIn(key, strings["history"], f"Missing history.{key}")
+
+    def test_modes_keys(self):
+        from vvrite.locales.en import strings
+
+        self.assertIn("modes", strings)
+        for mode in ["voice", "message", "note", "email"]:
+            self.assertIn(mode, strings["modes"], f"Missing modes.{mode}")
+            self.assertIn("title", strings["modes"][mode], f"Missing modes.{mode}.title")
+            self.assertIn(
+                "description",
+                strings["modes"][mode],
+                f"Missing modes.{mode}.description",
+            )
 
     def test_alerts_keys(self):
         from vvrite.locales.en import strings

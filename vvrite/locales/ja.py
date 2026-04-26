@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "話した言語で文字起こし",
             "mode_translate_to_english": "英語に翻訳",
         },
+        "mode": {
+            "title": "モード",
+        },
         "custom_words": {
             "title": "カスタムワード",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "音声または動画ファイルを選択",
+    },
+    "modes": {
+        "voice": {"title": "音声", "description": "話した内容のまま貼り付けます。"},
+        "message": {"title": "メッセージ", "description": "チャット向けの短いテキストです。"},
+        "note": {"title": "ノート", "description": "ノート向けの整ったテキストです。"},
+        "email": {"title": "メール", "description": "メール向けのプレーンテキストです。"},
     },
     "history": {
         "title": "最近の書き起こし",

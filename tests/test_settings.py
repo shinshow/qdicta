@@ -377,6 +377,9 @@ class TestAsrModelSettingsActions(unittest.TestCase):
     def test_settings_window_height_leaves_room_for_model_capability_hint(self):
         self.assertGreaterEqual(SETTINGS_WINDOW_HEIGHT, 880)
 
+    def test_settings_window_height_leaves_room_for_mode_section(self):
+        self.assertGreaterEqual(SETTINGS_WINDOW_HEIGHT, 1160)
+
     @patch("vvrite.settings.transcriber.prepare_model")
     def test_prepare_selected_model_downloads_missing_model_and_refreshes_state(
         self, mock_prepare_model
@@ -433,6 +436,18 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         self.assertEqual(self.controller._prefs.output_mode, "translate_to_english")
         sender.selectItemAtIndex_.assert_not_called()
         self.translation_item.setEnabled_.assert_called_once_with(True)
+
+
+class TestModeSettingsActions(unittest.TestCase):
+    def test_mode_changed_saves_selected_mode_key(self):
+        controller = SettingsWindowController.alloc().init()
+        controller._prefs = MagicMock()
+        sender = MagicMock()
+        sender.indexOfSelectedItem.return_value = 2
+
+        controller.modeChanged_(sender)
+
+        self.assertEqual(controller._prefs.selected_mode_key, "note")
 
 
 if __name__ == "__main__":

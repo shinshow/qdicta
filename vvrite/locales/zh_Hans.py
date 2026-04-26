@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "按原语言转写",
             "mode_translate_to_english": "翻译成英文",
         },
+        "mode": {
+            "title": "模式",
+        },
         "custom_words": {
             "title": "自定义词汇",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "选择音频或视频文件",
+    },
+    "modes": {
+        "voice": {"title": "语音", "description": "按说话内容粘贴转录。"},
+        "message": {"title": "消息", "description": "适合聊天的短文本。"},
+        "note": {"title": "笔记", "description": "适合笔记的清理文本。"},
+        "email": {"title": "邮件", "description": "适合邮件的纯文本。"},
     },
     "history": {
         "title": "最近听写",

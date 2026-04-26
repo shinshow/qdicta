@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "In gesprochener Sprache transkribieren",
             "mode_translate_to_english": "Ins Englische übersetzen",
         },
+        "mode": {
+            "title": "Modus",
+        },
         "custom_words": {
             "title": "Benutzerdefinierte Wörter",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "Audio- oder Videodatei auswählen",
+    },
+    "modes": {
+        "voice": {"title": "Sprache", "description": "Transkription wie gesprochen einfügen."},
+        "message": {"title": "Nachricht", "description": "Kurzer Text für Chats."},
+        "note": {"title": "Notiz", "description": "Bereinigter Text für Notizen."},
+        "email": {"title": "E-Mail", "description": "Einfacher E-Mail-tauglicher Text."},
     },
     "history": {
         "title": "Letzte Diktate",

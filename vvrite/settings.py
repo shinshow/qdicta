@@ -51,11 +51,12 @@ from vvrite.audio_devices import (
 )
 from vvrite.download_progress import format_progress
 from vvrite.locales import t, SUPPORTED_LANGUAGES
+from vvrite.modes import get_mode, list_modes
 from vvrite.preferences import Preferences
 from vvrite.text_replacements import format_replacements_text
 from vvrite.widgets import ShortcutField, format_shortcut
 
-SETTINGS_WINDOW_HEIGHT = 1060
+SETTINGS_WINDOW_HEIGHT = 1160
 SETTINGS_START_Y = SETTINGS_WINDOW_HEIGHT - 14
 
 
@@ -110,6 +111,7 @@ class SettingsWindowController(NSObject):
         self._asr_lang_popup = None
         self._model_popup = None
         self._output_mode_popup = None
+        self._mode_popup = None
         self._model_status_label = None
         self._model_capability_label = None
         self._model_mode_notice = None
@@ -386,6 +388,29 @@ class SettingsWindowController(NSObject):
         content.addSubview_(self._download_progress_label)
 
         self._refresh_model_controls()
+
+        # --- Mode ---
+        y -= 40
+        label = NSTextField.labelWithString_(t("settings.mode.title"))
+        label.setFrame_(NSMakeRect(20, y, 360, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        content.addSubview_(label)
+
+        y -= 30
+        self._mode_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
+            NSMakeRect(20, y, 360, 24), False
+        )
+        modes = list_modes()
+        for mode in modes:
+            self._mode_popup.addItemWithTitle_(t(mode.title_key))
+        selected_key = get_mode(self._prefs.selected_mode_key).key
+        for index, mode in enumerate(modes):
+            if mode.key == selected_key:
+                self._mode_popup.selectItemAtIndex_(index)
+                break
+        self._mode_popup.setTarget_(self)
+        self._mode_popup.setAction_("modeChanged:")
+        content.addSubview_(self._mode_popup)
 
         # --- Custom Words ---
         y -= 40
@@ -841,6 +866,10 @@ class SettingsWindowController(NSObject):
             self._model_mode_notice = "settings.model.translation_switched_to_transcribe"
             sender.selectItemAtIndex_(0)
         self._refresh_model_controls()
+
+    @objc.typedSelector(b"v@:@")
+    def modeChanged_(self, sender):
+        self._prefs.selected_mode_key = list_modes()[sender.indexOfSelectedItem()].key
 
     def _refresh_model_controls(self):
         model = get_model(self._prefs.asr_model_key)

@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "말한 언어 그대로 전사",
             "mode_translate_to_english": "영어로 번역",
         },
+        "mode": {
+            "title": "모드",
+        },
         "custom_words": {
             "title": "사용자 지정 단어",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "오디오 또는 비디오 파일 선택",
+    },
+    "modes": {
+        "voice": {"title": "음성", "description": "말한 그대로 전사를 붙여넣습니다."},
+        "message": {"title": "메시지", "description": "채팅용 짧은 텍스트입니다."},
+        "note": {"title": "노트", "description": "노트에 맞는 정리된 텍스트입니다."},
+        "email": {"title": "이메일", "description": "이메일에 맞는 일반 텍스트입니다."},
     },
     "history": {
         "title": "최근 받아쓰기",

@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "Транскрибировать на исходном языке",
             "mode_translate_to_english": "Перевести на английский",
         },
+        "mode": {
+            "title": "Режим",
+        },
         "custom_words": {
             "title": "Пользовательские слова",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "Выбрать аудио- или видеофайл",
+    },
+    "modes": {
+        "voice": {"title": "Голос", "description": "Вставить транскрипцию как произнесено."},
+        "message": {"title": "Сообщение", "description": "Короткий текст для чатов."},
+        "note": {"title": "Заметка", "description": "Чистый текст для заметок."},
+        "email": {"title": "Письмо", "description": "Простой текст для письма."},
     },
     "history": {
         "title": "Недавние диктовки",

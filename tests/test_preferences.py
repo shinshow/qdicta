@@ -25,6 +25,7 @@ _TEST_KEYS = [
     "replacement_rules",
     "history_enabled",
     "history_limit",
+    "selected_mode_key",
     "auto_update_check",
     "last_update_check",
     "ui_language",
@@ -224,6 +225,13 @@ class TestPreferences(unittest.TestCase):
 
         self.assertTrue(prefs.history_enabled)
         self.assertEqual(prefs.history_limit, 10)
+
+    def test_default_selected_mode_key(self):
+        from vvrite.preferences import Preferences
+
+        prefs = Preferences()
+
+        self.assertEqual(prefs.selected_mode_key, "voice")
 
     def test_migrates_custom_words_from_legacy_python_domain(self):
         defaults = NSUserDefaults.standardUserDefaults()

@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "Konuşulan dilde yazıya dök",
             "mode_translate_to_english": "İngilizceye çevir",
         },
+        "mode": {
+            "title": "Mod",
+        },
         "custom_words": {
             "title": "Özel Kelimeler",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "Ses veya video dosyası seç",
+    },
+    "modes": {
+        "voice": {"title": "Ses", "description": "Konuşmayı söylendiği gibi yapıştır."},
+        "message": {"title": "Mesaj", "description": "Sohbetler için kısa metin."},
+        "note": {"title": "Not", "description": "Notlar için temiz metin."},
+        "email": {"title": "E-posta", "description": "E-postaya uygun düz metin."},
     },
     "history": {
         "title": "Son Dikteler",

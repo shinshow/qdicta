@@ -102,6 +102,9 @@ strings = {
             "mode_transcribe": "تفريغ باللغة المنطوقة",
             "mode_translate_to_english": "ترجمة إلى الإنجليزية",
         },
+        "mode": {
+            "title": "الوضع",
+        },
         "custom_words": {
             "title": "كلمات مخصصة",
             "placeholder": "MLX, Qwen, vvrite",
@@ -153,6 +156,12 @@ strings = {
     },
     "file_transcription": {
         "choose_file": "اختر ملف صوت أو فيديو",
+    },
+    "modes": {
+        "voice": {"title": "صوت", "description": "لصق التفريغ كما قيل."},
+        "message": {"title": "رسالة", "description": "نص قصير للمحادثات."},
+        "note": {"title": "ملاحظة", "description": "نص منظم للملاحظات."},
+        "email": {"title": "بريد", "description": "نص بسيط مناسب للبريد."},
     },
     "history": {
         "title": "الإملاءات الأخيرة",
