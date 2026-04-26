@@ -251,6 +251,14 @@ class TestTranscriberRouter(unittest.TestCase):
 
 
 class TestQwenBackend(unittest.TestCase):
+    @patch("vvrite.asr_backends.qwen._clear_mlx_cache")
+    def test_qwen_unload_clears_mlx_runtime_cache(self, mock_clear_cache):
+        from vvrite.asr_backends import qwen
+
+        qwen.unload()
+
+        mock_clear_cache.assert_called_once_with()
+
     @patch("vvrite.asr_backends.qwen.model_store.model_dir", return_value="/tmp/qwen")
     @patch("vvrite.asr_backends.qwen.model_info")
     def test_qwen_download_progress_aggregates_huggingface_tqdm_updates(

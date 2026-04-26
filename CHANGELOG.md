@@ -4,6 +4,22 @@ All notable changes to this fork are documented here.
 
 ## Unreleased
 
+## [1.1.2] - 2026-04-26
+
+### Changed
+
+- Disabled timestamp generation in MLX Whisper transcription requests.
+- Bumped app version from `1.1.1` to `1.1.2`.
+
+### Fixed
+
+- Cleared MLX runtime caches when unloading Qwen and MLX Whisper backends.
+- Cleared the MLX Whisper model holder on unload so switched models are released from memory.
+
+## [1.1.1] - 2026-04-26
+
+This release packages the direct-distribution documentation, local DMG build mode, microphone device refresh fix, and MLX Whisper/backend cleanup that landed after `v1.1.0`.
+
 ### Added
 
 - Added `THIRD_PARTY_NOTICES.md` with dependency and model license notes for direct distribution.
@@ -19,6 +35,7 @@ All notable changes to this fork are documented here.
 - Updated the English translation-mode warning to name `Whisper small 4-bit MLX`, the model that currently supports translation in vvrite.
 - Made PyInstaller hidden import ordering stable for repeatable build analysis.
 - Cached the macOS 15-compatible `mlx-metal` metallib during release builds and avoided redundant codesigning of embedded binaries.
+- Bumped app version from `1.1.0` to `1.1.1`.
 
 ## [1.1.0] - 2026-04-26
 

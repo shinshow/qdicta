@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import gc
 from importlib import import_module
 import os
 import shutil
+import sys
 import threading
 
 from huggingface_hub import model_info, snapshot_download
@@ -93,6 +95,35 @@ def unload():
     global _loaded_model_key
     with _lock:
         _loaded_model_key = None
+        _clear_model_holder_cache()
+        _clear_mlx_cache()
+
+
+def _clear_model_holder_cache():
+    try:
+        transcribe_func = getattr(_mlx_whisper(), "transcribe", None)
+        holder = getattr(transcribe_func, "ModelHolder", None)
+        if holder is not None:
+            holder.model = None
+            holder.model_path = None
+    except Exception:
+        pass
+
+
+def _clear_mlx_cache():
+    gc.collect()
+    mx = sys.modules.get("mlx.core")
+    if mx is None:
+        return
+    try:
+        clear_cache = getattr(mx, "clear_cache", None)
+        if clear_cache is not None:
+            clear_cache()
+        metal = getattr(mx, "metal", None)
+        if metal is not None:
+            metal.clear_cache()
+    except Exception:
+        pass
 
 
 def is_cached(model) -> bool:
@@ -207,6 +238,7 @@ def _transcribe_kwargs(model, prefs):
         "verbose": None,
         "temperature": 0.0,
         "condition_on_previous_text": False,
+        "without_timestamps": True,
         "fp16": True,
         "task": (
             "translate"

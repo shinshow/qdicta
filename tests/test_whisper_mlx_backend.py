@@ -172,8 +172,20 @@ class TestWhisperMlxBackend(unittest.TestCase):
         self.assertEqual(kwargs["path_or_hf_repo"], "/tmp/models/whisper-small-4bit")
         self.assertEqual(kwargs["temperature"], 0.0)
         self.assertFalse(kwargs["condition_on_previous_text"])
+        self.assertTrue(kwargs["without_timestamps"])
         self.assertEqual(kwargs["task"], "transcribe")
         self.assertNotIn("language", kwargs)
+
+    def test_unload_clears_mlx_whisper_model_holder_cache(self):
+        model_holder = types.SimpleNamespace(model=object(), model_path="/tmp/model")
+        fake_transcribe = types.SimpleNamespace(ModelHolder=model_holder)
+        fake_mlx_whisper = types.SimpleNamespace(transcribe=fake_transcribe)
+
+        with patch.dict(sys.modules, {"mlx_whisper": fake_mlx_whisper}):
+            whisper_mlx.unload()
+
+        self.assertIsNone(model_holder.model)
+        self.assertIsNone(model_holder.model_path)
 
     @patch("vvrite.asr_backends.whisper_mlx._read_audio_samples")
     @patch("vvrite.asr_backends.whisper_mlx.model_path")

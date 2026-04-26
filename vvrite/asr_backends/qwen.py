@@ -1,7 +1,9 @@
 """Qwen3-ASR backend using mlx-audio."""
 
 import concurrent.futures
+import gc
 import os
+import sys
 import tempfile
 import threading
 
@@ -87,10 +89,27 @@ def _unload_impl():
     global _model, _warmed_up
     _model = None
     _warmed_up = False
+    _clear_mlx_cache()
 
 
 def unload():
     _run_on_worker(_unload_impl)
+
+
+def _clear_mlx_cache():
+    gc.collect()
+    mx = sys.modules.get("mlx.core")
+    if mx is None:
+        return
+    try:
+        clear_cache = getattr(mx, "clear_cache", None)
+        if clear_cache is not None:
+            clear_cache()
+        metal = getattr(mx, "metal", None)
+        if metal is not None:
+            metal.clear_cache()
+    except Exception:
+        pass
 
 
 def is_cached(model_id: str) -> bool:
