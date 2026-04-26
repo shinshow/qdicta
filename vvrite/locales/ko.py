@@ -146,7 +146,13 @@ strings = {
         "about": "이 앱에 대하여...",
         "check_updates": "업데이트 확인...",
         "update_available": "업데이트 사용 가능 ({version})",
+        "copy_last_dictation": "마지막 받아쓰기 복사",
+        "recent_dictations": "최근 받아쓰기...",
         "quit": "vvrite 종료",
+    },
+    "history": {
+        "title": "최근 받아쓰기",
+        "empty": "최근 받아쓰기가 없습니다.",
     },
     "alerts": {
         "permissions_required": {

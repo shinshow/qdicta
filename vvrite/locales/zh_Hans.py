@@ -146,7 +146,13 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "检查更新...",
         "update_available": "有可用更新 ({version})",
+        "copy_last_dictation": "复制上一次听写",
+        "recent_dictations": "最近听写...",
         "quit": "退出 vvrite",
+    },
+    "history": {
+        "title": "最近听写",
+        "empty": "没有最近听写。",
     },
     "alerts": {
         "permissions_required": {

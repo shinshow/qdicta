@@ -473,6 +473,29 @@ class AppDelegate(NSObject):
         if retract_text(text):
             self._last_dictation_text = None
 
+    @objc.typedSelector(b"v@:@")
+    def copyLastDictation_(self, sender):
+        if self._last_dictation_text:
+            from vvrite.clipboard import _set_text
+
+            _set_text(self._last_dictation_text)
+
+    @objc.typedSelector(b"v@:@")
+    def showRecentDictations_(self, sender):
+        records = HistoryStore(
+            default_history_path(),
+            getattr(self._prefs, "history_limit", 10),
+        ).list()
+        message = "\n\n".join(record.text for record in records[:10]) or t(
+            "history.empty"
+        )
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_(t("history.title"))
+        alert.setInformativeText_(message)
+        alert.addButtonWithTitle_(t("common.ok"))
+        NSApp.activateIgnoringOtherApps_(True)
+        alert.runModal()
+
     # --- About ---
 
     def showAbout(self):

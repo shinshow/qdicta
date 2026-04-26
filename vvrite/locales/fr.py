@@ -146,7 +146,13 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "Vérifier les mises à jour...",
         "update_available": "Mise à jour disponible ({version})",
+        "copy_last_dictation": "Copier la dernière dictée",
+        "recent_dictations": "Dictées récentes...",
         "quit": "Quitter vvrite",
+    },
+    "history": {
+        "title": "Dictées récentes",
+        "empty": "Aucune dictée récente.",
     },
     "alerts": {
         "permissions_required": {

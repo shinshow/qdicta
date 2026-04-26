@@ -146,7 +146,13 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "Проверить обновления...",
         "update_available": "Доступно обновление ({version})",
+        "copy_last_dictation": "Скопировать последнюю диктовку",
+        "recent_dictations": "Недавние диктовки...",
         "quit": "Завершить vvrite",
+    },
+    "history": {
+        "title": "Недавние диктовки",
+        "empty": "Нет недавних диктовок.",
     },
     "alerts": {
         "permissions_required": {

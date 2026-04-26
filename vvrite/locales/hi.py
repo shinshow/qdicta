@@ -146,7 +146,13 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "अपडेट जाँचें...",
         "update_available": "अपडेट उपलब्ध ({version})",
+        "copy_last_dictation": "अंतिम डिक्टेशन कॉपी करें",
+        "recent_dictations": "हाल के डिक्टेशन...",
         "quit": "vvrite बंद करें",
+    },
+    "history": {
+        "title": "हाल के डिक्टेशन",
+        "empty": "कोई हाल का डिक्टेशन नहीं है.",
     },
     "alerts": {
         "permissions_required": {

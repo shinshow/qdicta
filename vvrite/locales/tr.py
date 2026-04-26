@@ -146,7 +146,13 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "Güncellemeleri Kontrol Et...",
         "update_available": "Güncelleme Mevcut ({version})",
+        "copy_last_dictation": "Son Dikteyi Kopyala",
+        "recent_dictations": "Son Dikteler...",
         "quit": "vvrite'dan Çık",
+    },
+    "history": {
+        "title": "Son Dikteler",
+        "empty": "Son dikte yok.",
     },
     "alerts": {
         "permissions_required": {

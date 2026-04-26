@@ -146,7 +146,13 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "アップデートを確認...",
         "update_available": "アップデートあり ({version})",
+        "copy_last_dictation": "最後の書き起こしをコピー",
+        "recent_dictations": "最近の書き起こし...",
         "quit": "vvriteを終了",
+    },
+    "history": {
+        "title": "最近の書き起こし",
+        "empty": "最近の書き起こしはありません。",
     },
     "alerts": {
         "permissions_required": {

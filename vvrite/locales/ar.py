@@ -146,7 +146,13 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "التحقق من التحديثات...",
         "update_available": "تحديث متاح ({version})",
+        "copy_last_dictation": "نسخ آخر إملاء",
+        "recent_dictations": "الإملاءات الأخيرة...",
         "quit": "إنهاء vvrite",
+    },
+    "history": {
+        "title": "الإملاءات الأخيرة",
+        "empty": "لا توجد إملاءات حديثة.",
     },
     "alerts": {
         "permissions_required": {

@@ -76,6 +76,21 @@ class StatusBarController(NSObject):
 
         self._menu.addItem_(NSMenuItem.separatorItem())
 
+        # Recent dictation actions
+        self._copy_last_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            t("menu.copy_last_dictation"), "copyLastDictation:", ""
+        )
+        self._copy_last_item.setTarget_(self._delegate)
+        self._menu.addItem_(self._copy_last_item)
+
+        history_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+            t("menu.recent_dictations"), "showRecentDictations:", ""
+        )
+        history_item.setTarget_(self._delegate)
+        self._menu.addItem_(history_item)
+
+        self._menu.addItem_(NSMenuItem.separatorItem())
+
         # Settings
         settings_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
             t("menu.settings"), "openSettings:", ","

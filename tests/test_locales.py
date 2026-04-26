@@ -285,10 +285,25 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
         from vvrite.locales.en import strings
 
         expected = [
-            "hotkey", "microphone", "settings", "about", "quit",
+            "hotkey",
+            "microphone",
+            "settings",
+            "about",
+            "check_updates",
+            "update_available",
+            "copy_last_dictation",
+            "recent_dictations",
+            "quit",
         ]
         for key in expected:
             self.assertIn(key, strings["menu"], f"Missing menu.{key}")
+
+    def test_history_keys(self):
+        from vvrite.locales.en import strings
+
+        self.assertIn("history", strings)
+        for key in ["title", "empty"]:
+            self.assertIn(key, strings["history"], f"Missing history.{key}")
 
     def test_alerts_keys(self):
         from vvrite.locales.en import strings

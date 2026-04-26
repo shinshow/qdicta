@@ -111,7 +111,7 @@ class _FakeMenuItem:
 
 
 class TestStatusBarMenuActions(unittest.TestCase):
-    def test_settings_and_about_actions_target_app_delegate(self):
+    def _build_controller(self):
         status_bar = _FakeStatusBar()
         _FakeStatusBar._instance = status_bar
         delegate = MagicMock()
@@ -125,6 +125,11 @@ class TestStatusBarMenuActions(unittest.TestCase):
         ):
             controller = StatusBarController.alloc().initWithDelegate_(delegate)
 
+        return controller, status_bar, delegate
+
+    def test_settings_and_about_actions_target_app_delegate(self):
+        controller, _status_bar, delegate = self._build_controller()
+
         items_by_action = {
             item.action: item
             for item in controller._menu.items
@@ -133,6 +138,21 @@ class TestStatusBarMenuActions(unittest.TestCase):
 
         self.assertIs(items_by_action["openSettings:"].target, delegate)
         self.assertIs(items_by_action["showAbout:"].target, delegate)
+
+    def test_menu_contains_recent_history_actions(self):
+        controller, _status_bar, delegate = self._build_controller()
+
+        titles = [item.title for item in controller._menu.items]
+        items_by_action = {
+            item.action: item
+            for item in controller._menu.items
+            if getattr(item, "action", None)
+        }
+
+        self.assertIn("Copy Last Dictation", titles)
+        self.assertIn("Recent Dictations...", titles)
+        self.assertIs(items_by_action["copyLastDictation:"].target, delegate)
+        self.assertIs(items_by_action["showRecentDictations:"].target, delegate)
 
     def test_status_item_uses_fixed_visible_icon_slot_on_launch(self):
         status_bar = _FakeStatusBar()
