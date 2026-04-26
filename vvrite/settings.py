@@ -85,6 +85,7 @@ class SettingsWindowController(NSObject):
         self._download_progress_bar = None
         self._download_progress_label = None
         self._model_downloading = False
+        self._mic_device_signature = ()
         self._build_window()
         return self
 
@@ -246,7 +247,7 @@ class SettingsWindowController(NSObject):
         self._mic_popup = NSPopUpButton.alloc().initWithFrame_pullsDown_(
             NSMakeRect(20, y, 360, 24), False
         )
-        self._populate_mics()
+        self._populate_mics(refresh=True)
         self._mic_popup.setTarget_(self)
         self._mic_popup.setAction_("micChanged:")
         content.addSubview_(self._mic_popup)
@@ -528,9 +529,22 @@ class SettingsWindowController(NSObject):
                 if idx >= 0:
                     popup.selectItemAtIndex_(idx)
 
-    def _populate_mics(self):
+    def _mic_signature(self, devices):
+        return tuple(
+            (
+                device.device_id,
+                device.display_name,
+                device.index,
+                device.default_samplerate,
+            )
+            for device in devices
+        )
+
+    def _populate_mics(self, refresh: bool = False, devices=None):
         self._mic_popup.removeAllItems()
-        devices = list_input_devices()
+        if devices is None:
+            devices = list_input_devices(refresh=refresh)
+        self._mic_device_signature = self._mic_signature(devices)
         default_device = get_default_input_device(devices)
         default_label = t("common.system_default")
         if default_device is not None:
@@ -549,6 +563,14 @@ class SettingsWindowController(NSObject):
                 selected_idx = self._mic_popup.numberOfItems() - 1
 
         self._mic_popup.selectItemAtIndex_(selected_idx)
+
+    def _refresh_mics_if_changed(self):
+        if self._mic_popup is None:
+            return
+        devices = list_input_devices(refresh=True)
+        signature = self._mic_signature(devices)
+        if signature != self._mic_device_signature:
+            self._populate_mics(devices=devices)
 
     def _update_permissions(self):
         trusted = ApplicationServices.AXIsProcessTrusted()
@@ -584,6 +606,7 @@ class SettingsWindowController(NSObject):
     @objc.typedSelector(b"v@:@")
     def pollPermissions_(self, timer):
         self._update_permissions()
+        self._refresh_mics_if_changed()
 
     def _update_hotkey_display(self):
         delegate = NSApp.delegate()

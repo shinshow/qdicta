@@ -3,6 +3,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+from vvrite.audio_devices import AudioInputDevice
 from vvrite.settings import SettingsWindowController
 
 
@@ -90,6 +91,49 @@ class TestSoundPopupActions(unittest.TestCase):
             self.controller.stopSoundChanged_(sender)
 
         mock_schedule.assert_called_once_with("openStopCustomSoundPanel:", None, 0.0)
+
+
+class TestMicrophoneDeviceRefresh(unittest.TestCase):
+    def setUp(self):
+        self.controller = SettingsWindowController.alloc().init()
+        self.controller._prefs = MagicMock()
+        self.controller._prefs.mic_device = None
+        self.controller._mic_popup = MagicMock()
+        self.controller._mic_device_ids = [None]
+        self.controller._mic_device_signature = ()
+
+    @patch("vvrite.settings.resolve_input_device", return_value=None)
+    @patch("vvrite.settings.get_default_input_device", return_value=None)
+    @patch("vvrite.settings.list_input_devices")
+    def test_populate_mics_can_refresh_portaudio_devices(
+        self, mock_list_input_devices, mock_get_default, mock_resolve
+    ):
+        mock_list_input_devices.return_value = []
+
+        self.controller._populate_mics(refresh=True)
+
+        mock_list_input_devices.assert_called_once_with(refresh=True)
+
+    @patch("vvrite.settings.list_input_devices")
+    def test_poll_permissions_repopulates_mics_when_devices_change(
+        self, mock_list_input_devices
+    ):
+        device = AudioInputDevice(
+            device_id="Core Audio::DJI Mic Mini",
+            name="DJI Mic Mini",
+            display_name="DJI Mic Mini",
+            index=8,
+            hostapi_name="Core Audio",
+            default_samplerate=48000,
+        )
+        mock_list_input_devices.return_value = [device]
+        self.controller._update_permissions = MagicMock()
+        self.controller._populate_mics = MagicMock()
+
+        self.controller.pollPermissions_(MagicMock())
+
+        mock_list_input_devices.assert_called_once_with(refresh=True)
+        self.controller._populate_mics.assert_called_once_with(devices=[device])
 
 
 class TestAsrModelSettingsActions(unittest.TestCase):
