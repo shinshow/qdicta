@@ -22,8 +22,11 @@ python -m unittest discover tests/
 python -m unittest tests.test_preferences
 python -m unittest tests.test_transcriber
 
-# Build, sign, notarize, and staple (ALWAYS use this for builds)
+# Release build, sign, notarize, and staple (ALWAYS use this for release builds)
 ./scripts/build.sh
+
+# Local test build without Developer ID notarization
+./scripts/build.sh --local
 
 IMPORTANT: Never run pyinstaller vvrite.spec directly. Always use ./scripts/build.sh.
 
@@ -52,6 +55,6 @@ State machine: Idle → Recording (hotkey down) → Transcribing (hotkey up) →
 ## Build & Distribution
 
 - vvrite.spec: PyInstaller build config (arm64, MLX Metal shaders, PyObjC)
-- scripts/build.sh: Full pipeline (PyInstaller → codesign → notarize → staple)
+- scripts/build.sh: Release pipeline (PyInstaller → codesign → notarize → staple) plus --local test DMG mode
 - entitlements.plist: macOS entitlements for hardened runtime
 - Version string: vvrite/__init__.__version__

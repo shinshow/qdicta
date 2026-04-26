@@ -15,6 +15,14 @@ class TestPyInstallerSpec(unittest.TestCase):
 
         self.assertNotIn("ffmpeg", spec.lower())
 
+    def test_build_script_has_local_mode_without_notarization(self):
+        script = pathlib.Path("scripts/build.sh").read_text(encoding="utf-8")
+
+        self.assertIn("--local", script)
+        self.assertIn("BUILD_MODE=\"local\"", script)
+        self.assertIn("LOCAL_SIGN_IDENTITY", script)
+        self.assertIn("Skipping notarization", script)
+
 
 if __name__ == "__main__":
     unittest.main()

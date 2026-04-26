@@ -97,7 +97,16 @@ pip install -r requirements.txt
 open dist/vvrite.dmg
 ```
 
-`./scripts/build.sh` is the supported build path. It performs the PyInstaller build, code signing, notarization, stapling, and DMG creation. It requires a configured Apple Developer signing identity and `notarytool` profile.
+`./scripts/build.sh` is the supported release build path. It performs the PyInstaller build, Developer ID code signing, notarization, stapling, and DMG creation. It requires a configured Apple Developer signing identity and `notarytool` profile.
+
+For local development without an Apple Developer Program account, use:
+
+```bash
+./scripts/build.sh --local
+open dist/vvrite.dmg
+```
+
+Local builds use ad-hoc signing by default and skip notarization, so they are not suitable for public distribution. To use a local signing identity instead, run `LOCAL_SIGN_IDENTITY="Apple Development: ..." ./scripts/build.sh --local`.
 
 ## Usage
 
