@@ -3,6 +3,7 @@
 import objc
 import ApplicationServices
 import os
+import re
 import threading
 import traceback
 
@@ -26,6 +27,9 @@ from AppKit import (
     NSWorkspace,
     NSSlider,
     NSOpenPanel,
+    NSSavePanel,
+    NSScrollView,
+    NSTextView,
     NSMenuItem,
     NSProgressIndicator,
     NSProgressIndicatorStyleBar,
@@ -50,8 +54,29 @@ from vvrite.locales import t, SUPPORTED_LANGUAGES
 from vvrite.preferences import Preferences
 from vvrite.widgets import ShortcutField, format_shortcut
 
-SETTINGS_WINDOW_HEIGHT = 880
+SETTINGS_WINDOW_HEIGHT = 950
 SETTINGS_START_Y = SETTINGS_WINDOW_HEIGHT - 14
+
+
+def normalize_custom_words_text(text: str) -> str:
+    """Return comma-separated custom words from comma or line separated input."""
+    words = []
+    seen = set()
+    for raw_word in re.split(r"[,;\r\n]+", str(text or "")):
+        word = raw_word.strip()
+        if not word or word in seen:
+            continue
+        seen.add(word)
+        words.append(word)
+    return ", ".join(words)
+
+
+def format_custom_words_for_editor(text: str) -> str:
+    """Return one custom word per line for the multiline editor."""
+    normalized = normalize_custom_words_text(text)
+    if not normalized:
+        return ""
+    return "\n".join(normalized.split(", "))
 
 
 class SettingsWindowController(NSObject):
@@ -72,6 +97,7 @@ class SettingsWindowController(NSObject):
         self._mic_device_ids = [None]
         self._login_checkbox = None
         self._custom_words_field = None
+        self._custom_words_text_view = None
         self._start_sound_popup = None
         self._stop_sound_popup = None
         self._start_volume_slider = None
@@ -366,14 +392,39 @@ class SettingsWindowController(NSObject):
         label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
         content.addSubview_(label)
 
-        y -= 26
-        self._custom_words_field = NSTextField.alloc().initWithFrame_(
-            NSMakeRect(20, y, 360, 24)
+        y -= 86
+        scroll = NSScrollView.alloc().initWithFrame_(
+            NSMakeRect(20, y, 360, 78)
         )
-        self._custom_words_field.setStringValue_(self._prefs.custom_words)
-        self._custom_words_field.setPlaceholderString_(t("settings.custom_words.placeholder"))
-        self._custom_words_field.setDelegate_(self)
-        content.addSubview_(self._custom_words_field)
+        scroll.setHasVerticalScroller_(True)
+        scroll.setAutohidesScrollers_(True)
+        scroll.setBorderType_(1)
+
+        self._custom_words_text_view = NSTextView.alloc().initWithFrame_(
+            NSMakeRect(0, 0, 360, 78)
+        )
+        self._custom_words_text_view.setString_(
+            format_custom_words_for_editor(self._prefs.custom_words)
+        )
+        self._custom_words_text_view.setFont_(NSFont.systemFontOfSize_(12.0))
+        self._custom_words_text_view.setDelegate_(self)
+        scroll.setDocumentView_(self._custom_words_text_view)
+        content.addSubview_(scroll)
+
+        y -= 30
+        import_btn = NSButton.alloc().initWithFrame_(NSMakeRect(20, y, 90, 24))
+        import_btn.setTitle_(t("settings.custom_words.import"))
+        import_btn.setBezelStyle_(NSBezelStyleRounded)
+        import_btn.setTarget_(self)
+        import_btn.setAction_("importCustomWords:")
+        content.addSubview_(import_btn)
+
+        export_btn = NSButton.alloc().initWithFrame_(NSMakeRect(120, y, 90, 24))
+        export_btn.setTitle_(t("settings.custom_words.export"))
+        export_btn.setBezelStyle_(NSBezelStyleRounded)
+        export_btn.setTarget_(self)
+        export_btn.setAction_("exportCustomWords:")
+        content.addSubview_(export_btn)
 
         y -= 20
         hint = NSTextField.labelWithString_(
@@ -619,9 +670,24 @@ class SettingsWindowController(NSObject):
             self._permission_timer = None
 
     def _save_custom_words(self):
-        if self._custom_words_field is None:
-            return
-        self._prefs.custom_words = self._custom_words_field.stringValue()
+        value = normalize_custom_words_text(self._custom_words_text())
+        self._prefs.custom_words = value
+        self._set_custom_words_text(value)
+
+    def _custom_words_text(self) -> str:
+        if self._custom_words_text_view is not None:
+            return str(self._custom_words_text_view.string())
+        if self._custom_words_field is not None:
+            return str(self._custom_words_field.stringValue())
+        return str(getattr(self._prefs, "custom_words", ""))
+
+    def _set_custom_words_text(self, value: str):
+        if self._custom_words_text_view is not None:
+            self._custom_words_text_view.setString_(
+                format_custom_words_for_editor(value)
+            )
+        elif self._custom_words_field is not None:
+            self._custom_words_field.setStringValue_(value)
 
     @objc.typedSelector(b"v@:@")
     def pollPermissions_(self, timer):
@@ -958,6 +1024,83 @@ class SettingsWindowController(NSObject):
         field = notification.object()
         if field == self._custom_words_field:
             self._save_custom_words()
+
+    def textDidEndEditing_(self, notification):
+        if notification.object() == self._custom_words_text_view:
+            self._save_custom_words()
+
+    @objc.typedSelector(b"v@:@")
+    def importCustomWords_(self, sender):
+        self._open_custom_words_import_panel()
+
+    @objc.typedSelector(b"v@:@")
+    def exportCustomWords_(self, sender):
+        self._open_custom_words_export_panel()
+
+    def _open_custom_words_import_panel(self):
+        NSApp.activateIgnoringOtherApps_(True)
+        if self._window is not None:
+            self._window.makeKeyAndOrderFront_(None)
+
+        panel = NSOpenPanel.openPanel()
+        panel.setAllowedFileTypes_(["txt", "csv"])
+        panel.setCanChooseFiles_(True)
+        panel.setCanChooseDirectories_(False)
+        panel.setAllowsMultipleSelection_(False)
+        panel.setTitle_(t("settings.custom_words.import_title"))
+
+        if self._window is not None:
+            panel.beginSheetModalForWindow_completionHandler_(
+                self._window,
+                lambda response: self._handle_custom_words_import_result(
+                    response, panel
+                ),
+            )
+            return
+
+        self._handle_custom_words_import_result(panel.runModal(), panel)
+
+    def _handle_custom_words_import_result(self, response, panel):
+        if response != 1:  # NSModalResponseOK
+            return
+        path = str(panel.URL().path())
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            value = normalize_custom_words_text(f.read())
+        self._prefs.custom_words = value
+        self._set_custom_words_text(value)
+
+    def _open_custom_words_export_panel(self):
+        self._save_custom_words()
+        NSApp.activateIgnoringOtherApps_(True)
+        if self._window is not None:
+            self._window.makeKeyAndOrderFront_(None)
+
+        panel = NSSavePanel.savePanel()
+        panel.setAllowedFileTypes_(["txt", "csv"])
+        panel.setNameFieldStringValue_("vvrite-custom-words.txt")
+        panel.setTitle_(t("settings.custom_words.export_title"))
+
+        if self._window is not None:
+            panel.beginSheetModalForWindow_completionHandler_(
+                self._window,
+                lambda response: self._handle_custom_words_export_result(
+                    response, panel
+                ),
+            )
+            return
+
+        self._handle_custom_words_export_result(panel.runModal(), panel)
+
+    def _handle_custom_words_export_result(self, response, panel):
+        if response != 1:  # NSModalResponseOK
+            return
+        value = normalize_custom_words_text(self._custom_words_text())
+        self._prefs.custom_words = value
+        self._set_custom_words_text(value)
+        path = str(panel.URL().path())
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(value)
+            f.write("\n")
 
     @objc.typedSelector(b"v@:@")
     def openAccessibility_(self, sender):

@@ -105,7 +105,11 @@ strings = {
         "custom_words": {
             "title": "Mots personnalisés",
             "placeholder": "MLX, Qwen, vvrite",
-            "hint": "Mots séparés par des virgules pour améliorer la précision de la reconnaissance",
+            "hint": "Saisissez un mot par ligne ou collez des mots séparés par des virgules",
+            "import": "Importer...",
+            "export": "Exporter...",
+            "import_title": "Importer des mots personnalisés",
+            "export_title": "Exporter des mots personnalisés",
         },
         "sound": {
             "title": "Son",

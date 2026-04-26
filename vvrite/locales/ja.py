@@ -105,7 +105,11 @@ strings = {
         "custom_words": {
             "title": "カスタムワード",
             "placeholder": "MLX, Qwen, vvrite",
-            "hint": "認識精度を向上させるためのカンマ区切りの単語",
+            "hint": "1行に1語ずつ入力するか、カンマ区切りの単語を貼り付けてください",
+            "import": "読み込み...",
+            "export": "書き出し...",
+            "import_title": "カスタムワードを読み込み",
+            "export_title": "カスタムワードを書き出し",
         },
         "sound": {
             "title": "サウンド",

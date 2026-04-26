@@ -105,7 +105,11 @@ strings = {
         "custom_words": {
             "title": "Benutzerdefinierte Wörter",
             "placeholder": "MLX, Qwen, vvrite",
-            "hint": "Kommagetrennte Wörter zur Verbesserung der Erkennungsgenauigkeit",
+            "hint": "Geben Sie ein Wort pro Zeile ein oder fügen Sie kommagetrennte Wörter ein",
+            "import": "Importieren...",
+            "export": "Exportieren...",
+            "import_title": "Benutzerdefinierte Wörter importieren",
+            "export_title": "Benutzerdefinierte Wörter exportieren",
         },
         "sound": {
             "title": "Ton",

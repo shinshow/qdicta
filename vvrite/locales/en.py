@@ -105,7 +105,11 @@ strings = {
         "custom_words": {
             "title": "Custom Words",
             "placeholder": "MLX, Qwen, vvrite",
-            "hint": "Comma-separated words to help recognition accuracy",
+            "hint": "Enter one word per line, or paste comma-separated words",
+            "import": "Import...",
+            "export": "Export...",
+            "import_title": "Import custom words",
+            "export_title": "Export custom words",
         },
         "sound": {
             "title": "Sound",

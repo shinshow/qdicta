@@ -105,7 +105,11 @@ strings = {
         "custom_words": {
             "title": "Palabras personalizadas",
             "placeholder": "MLX, Qwen, vvrite",
-            "hint": "Palabras separadas por comas para mejorar la precisión del reconocimiento",
+            "hint": "Introduce una palabra por línea o pega palabras separadas por comas",
+            "import": "Importar...",
+            "export": "Exportar...",
+            "import_title": "Importar palabras personalizadas",
+            "export_title": "Exportar palabras personalizadas",
         },
         "sound": {
             "title": "Sonido",

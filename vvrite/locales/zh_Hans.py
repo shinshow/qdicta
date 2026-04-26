@@ -105,7 +105,11 @@ strings = {
         "custom_words": {
             "title": "自定义词汇",
             "placeholder": "MLX, Qwen, vvrite",
-            "hint": "用逗号分隔的词汇，以提高识别准确度",
+            "hint": "每行输入一个词，或粘贴逗号分隔的词汇",
+            "import": "导入...",
+            "export": "导出...",
+            "import_title": "导入自定义词汇",
+            "export_title": "导出自定义词汇",
         },
         "sound": {
             "title": "声音",

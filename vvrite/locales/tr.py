@@ -105,7 +105,11 @@ strings = {
         "custom_words": {
             "title": "Özel Kelimeler",
             "placeholder": "MLX, Qwen, vvrite",
-            "hint": "Tanıma doğruluğunu artırmak için virgülle ayrılmış kelimeler",
+            "hint": "Her satıra bir kelime girin veya virgülle ayrılmış kelimeler yapıştırın",
+            "import": "İçe aktar...",
+            "export": "Dışa aktar...",
+            "import_title": "Özel kelimeleri içe aktar",
+            "export_title": "Özel kelimeleri dışa aktar",
         },
         "sound": {
             "title": "Ses",

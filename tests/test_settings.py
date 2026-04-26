@@ -1,11 +1,77 @@
 """Tests for settings sound customization behavior."""
 
+import os
+import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import MagicMock, patch
 
 from vvrite.audio_devices import AudioInputDevice
 from vvrite.settings import SETTINGS_WINDOW_HEIGHT, SettingsWindowController
+
+
+class TestCustomWordsFormatting(unittest.TestCase):
+    def test_normalize_custom_words_accepts_commas_and_lines(self):
+        from vvrite import settings
+
+        text = " vvrite, Qwen\nOpenAI\r\nQwen,,  김철수  "
+
+        result = settings.normalize_custom_words_text(text)
+
+        self.assertEqual(result, "vvrite, Qwen, OpenAI, 김철수")
+
+    def test_normalize_custom_words_keeps_first_exact_spelling(self):
+        from vvrite import settings
+
+        result = settings.normalize_custom_words_text("OpenAI, openai, OpenAI")
+
+        self.assertEqual(result, "OpenAI, openai")
+
+    def test_format_custom_words_for_editor_uses_one_word_per_line(self):
+        from vvrite import settings
+
+        result = settings.format_custom_words_for_editor("vvrite, Qwen\nOpenAI")
+
+        self.assertEqual(result, "vvrite\nQwen\nOpenAI")
+
+
+class TestCustomWordsFileActions(unittest.TestCase):
+    def setUp(self):
+        self.controller = SettingsWindowController.alloc().init()
+        self.controller._prefs = MagicMock()
+        self.controller._custom_words_text_view = MagicMock()
+
+    def test_import_custom_words_normalizes_file_into_preferences(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "words.txt")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("vvrite\nQwen, OpenAI\nQwen")
+
+            panel = MagicMock()
+            panel.URL.return_value.path.return_value = path
+
+            self.controller._handle_custom_words_import_result(1, panel)
+
+        self.assertEqual(self.controller._prefs.custom_words, "vvrite, Qwen, OpenAI")
+        self.controller._custom_words_text_view.setString_.assert_called_once_with(
+            "vvrite\nQwen\nOpenAI"
+        )
+
+    def test_export_custom_words_writes_normalized_text_file(self):
+        self.controller._custom_words_text_view.string.return_value = "vvrite\nQwen, Qwen"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "words.txt")
+            panel = MagicMock()
+            panel.URL.return_value.path.return_value = path
+
+            self.controller._handle_custom_words_export_result(1, panel)
+
+            with open(path, "r", encoding="utf-8") as f:
+                saved = f.read()
+
+        self.assertEqual(saved, "vvrite, Qwen\n")
+        self.assertEqual(self.controller._prefs.custom_words, "vvrite, Qwen")
 
 
 class TestCustomSoundPanelResult(unittest.TestCase):

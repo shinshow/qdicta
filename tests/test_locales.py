@@ -238,7 +238,15 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
             self.assertIn(key, s["model"], f"Missing settings.model.{key}")
         # custom_words
         self.assertIn("custom_words", s)
-        for key in ["title", "placeholder", "hint"]:
+        for key in [
+            "title",
+            "placeholder",
+            "hint",
+            "import",
+            "export",
+            "import_title",
+            "export_title",
+        ]:
             self.assertIn(key, s["custom_words"], f"Missing settings.custom_words.{key}")
         # sound
         self.assertIn("sound", s)

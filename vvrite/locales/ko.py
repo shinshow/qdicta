@@ -105,7 +105,11 @@ strings = {
         "custom_words": {
             "title": "사용자 지정 단어",
             "placeholder": "MLX, Qwen, vvrite",
-            "hint": "인식 정확도를 높이기 위한 쉼표로 구분된 단어",
+            "hint": "한 줄에 하나씩 입력하거나 쉼표로 구분된 단어를 붙여넣으세요",
+            "import": "가져오기...",
+            "export": "내보내기...",
+            "import_title": "사용자 지정 단어 가져오기",
+            "export_title": "사용자 지정 단어 내보내기",
         },
         "sound": {
             "title": "소리",
