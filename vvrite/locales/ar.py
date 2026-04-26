@@ -64,6 +64,14 @@ strings = {
     },
     "settings": {
         "title": "الإعدادات",
+        "categories": {
+            "general": "عام",
+            "recording": "التسجيل",
+            "model": "النموذج",
+            "output": "الإخراج",
+            "sound": "الصوت",
+            "advanced": "متقدم",
+        },
         "language": {
             "title": "اللغة",
             "ui_language": "الواجهة",

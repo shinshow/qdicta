@@ -64,6 +64,14 @@ strings = {
     },
     "settings": {
         "title": "Настройки",
+        "categories": {
+            "general": "Общие",
+            "recording": "Запись",
+            "model": "Модель",
+            "output": "Вывод",
+            "sound": "Звук",
+            "advanced": "Дополнительно",
+        },
         "language": {
             "title": "Язык",
             "ui_language": "Интерфейс",

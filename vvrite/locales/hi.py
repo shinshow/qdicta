@@ -64,6 +64,14 @@ strings = {
     },
     "settings": {
         "title": "सेटिंग्स",
+        "categories": {
+            "general": "सामान्य",
+            "recording": "रिकॉर्डिंग",
+            "model": "मॉडल",
+            "output": "आउटपुट",
+            "sound": "ध्वनि",
+            "advanced": "उन्नत",
+        },
         "language": {
             "title": "भाषा",
             "ui_language": "UI",

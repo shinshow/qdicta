@@ -438,6 +438,21 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         self.translation_item.setEnabled_.assert_called_once_with(True)
 
 
+class TestSettingsSidebarLayout(unittest.TestCase):
+    def test_settings_window_height_is_small_screen_friendly(self):
+        from vvrite.settings import SETTINGS_WINDOW_HEIGHT
+
+        self.assertLessEqual(SETTINGS_WINDOW_HEIGHT, 700)
+
+    def test_sidebar_categories_are_in_expected_order(self):
+        from vvrite.settings import SETTINGS_CATEGORIES
+
+        self.assertEqual(
+            [category.key for category in SETTINGS_CATEGORIES],
+            ["general", "recording", "model", "output", "sound", "advanced"],
+        )
+
+
 class TestModeSettingsActions(unittest.TestCase):
     def test_mode_changed_saves_selected_mode_key(self):
         controller = SettingsWindowController.alloc().init()

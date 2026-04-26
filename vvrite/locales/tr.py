@@ -64,6 +64,14 @@ strings = {
     },
     "settings": {
         "title": "Ayarlar",
+        "categories": {
+            "general": "Genel",
+            "recording": "Kayıt",
+            "model": "Model",
+            "output": "Çıktı",
+            "sound": "Ses",
+            "advanced": "Gelişmiş",
+        },
         "language": {
             "title": "Dil",
             "ui_language": "Arayüz",

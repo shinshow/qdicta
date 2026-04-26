@@ -64,6 +64,14 @@ strings = {
     },
     "settings": {
         "title": "설정",
+        "categories": {
+            "general": "일반",
+            "recording": "녹음",
+            "model": "모델",
+            "output": "출력",
+            "sound": "소리",
+            "advanced": "고급",
+        },
         "language": {
             "title": "언어",
             "ui_language": "UI",

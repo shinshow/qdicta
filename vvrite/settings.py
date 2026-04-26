@@ -6,6 +6,7 @@ import os
 import re
 import threading
 import traceback
+from dataclasses import dataclass
 
 from AppKit import (
     NSObject,
@@ -56,8 +57,28 @@ from vvrite.preferences import Preferences
 from vvrite.text_replacements import format_replacements_text
 from vvrite.widgets import ShortcutField, format_shortcut
 
-SETTINGS_WINDOW_HEIGHT = 1160
-SETTINGS_START_Y = SETTINGS_WINDOW_HEIGHT - 14
+SETTINGS_WINDOW_WIDTH = 640
+SETTINGS_WINDOW_HEIGHT = 660
+SETTINGS_SIDEBAR_WIDTH = 170
+SETTINGS_CONTENT_WIDTH = SETTINGS_WINDOW_WIDTH - SETTINGS_SIDEBAR_WIDTH
+SETTINGS_CONTENT_HEIGHT = SETTINGS_WINDOW_HEIGHT
+SETTINGS_START_Y = SETTINGS_CONTENT_HEIGHT - 24
+
+
+@dataclass(frozen=True)
+class SettingsCategory:
+    key: str
+    title_key: str
+
+
+SETTINGS_CATEGORIES = [
+    SettingsCategory("general", "settings.categories.general"),
+    SettingsCategory("recording", "settings.categories.recording"),
+    SettingsCategory("model", "settings.categories.model"),
+    SettingsCategory("output", "settings.categories.output"),
+    SettingsCategory("sound", "settings.categories.sound"),
+    SettingsCategory("advanced", "settings.categories.advanced"),
+]
 
 
 def normalize_custom_words_text(text: str) -> str:

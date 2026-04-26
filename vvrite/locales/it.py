@@ -64,6 +64,14 @@ strings = {
     },
     "settings": {
         "title": "Impostazioni",
+        "categories": {
+            "general": "Generale",
+            "recording": "Registrazione",
+            "model": "Modello",
+            "output": "Output",
+            "sound": "Suono",
+            "advanced": "Avanzate",
+        },
         "language": {
             "title": "Lingua",
             "ui_language": "Interfaccia",

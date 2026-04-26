@@ -280,6 +280,10 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
         # mode
         self.assertIn("mode", s)
         self.assertIn("title", s["mode"])
+        # categories
+        self.assertIn("categories", s)
+        for key in ["general", "recording", "model", "output", "sound", "advanced"]:
+            self.assertIn(key, s["categories"], f"Missing settings.categories.{key}")
 
     def test_translation_warning_describes_selected_model_limitation(self):
         from vvrite.locales.en import strings
