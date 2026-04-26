@@ -34,6 +34,7 @@ from AppKit import (
     NSMenuItem,
     NSProgressIndicator,
     NSProgressIndicatorStyleBar,
+    NSView,
 )
 from Foundation import NSLog, NSURL, NSTimer
 
@@ -109,6 +110,12 @@ class SettingsWindowController(NSObject):
             return None
         self._prefs = prefs
         self._window = None
+        self._sidebar_view = None
+        self._content_scroll = None
+        self._content_container = None
+        self._selected_category_key = None
+        self._sidebar_buttons = {}
+        self._category_builders = {}
         self._permission_timer = None
         self._acc_label = None
         self._mic_label = None
@@ -146,7 +153,7 @@ class SettingsWindowController(NSObject):
         return self
 
     def _build_window(self):
-        frame = NSMakeRect(0, 0, 400, SETTINGS_WINDOW_HEIGHT)
+        frame = NSMakeRect(0, 0, SETTINGS_WINDOW_WIDTH, SETTINGS_WINDOW_HEIGHT)
         self._window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
             frame,
             NSWindowStyleMaskTitled | NSWindowStyleMaskClosable,
@@ -159,6 +166,39 @@ class SettingsWindowController(NSObject):
         self._window.setDelegate_(self)
 
         content = self._window.contentView()
+        self._sidebar_view = NSView.alloc().initWithFrame_(
+            NSMakeRect(0, 0, SETTINGS_SIDEBAR_WIDTH, SETTINGS_WINDOW_HEIGHT)
+        )
+        content.addSubview_(self._sidebar_view)
+
+        self._content_scroll = NSScrollView.alloc().initWithFrame_(
+            NSMakeRect(
+                SETTINGS_SIDEBAR_WIDTH,
+                0,
+                SETTINGS_CONTENT_WIDTH,
+                SETTINGS_WINDOW_HEIGHT,
+            )
+        )
+        self._content_scroll.setHasVerticalScroller_(True)
+        self._content_scroll.setAutohidesScrollers_(True)
+        self._content_scroll.setBorderType_(0)
+        content.addSubview_(self._content_scroll)
+
+        self._build_sidebar()
+        self._category_builders = {
+            "general": self._build_general_panel,
+            "recording": self._build_recording_panel,
+            "model": self._build_model_panel,
+            "output": self._build_output_panel,
+            "sound": self._build_sound_panel,
+            "advanced": self._build_advanced_panel,
+        }
+        self._show_settings_category("general")
+        self._update_permissions()
+        self._refresh_login_checkbox()
+        self._refresh_retract_controls()
+        return
+
         y = SETTINGS_START_Y
 
         # --- Language ---
@@ -648,6 +688,94 @@ class SettingsWindowController(NSObject):
         self._refresh_login_checkbox()
         self._refresh_retract_controls()
 
+    def _build_sidebar(self):
+        self._sidebar_buttons = {}
+        y = SETTINGS_WINDOW_HEIGHT - 50
+        for category in SETTINGS_CATEGORIES:
+            button = NSButton.alloc().initWithFrame_(
+                NSMakeRect(12, y, SETTINGS_SIDEBAR_WIDTH - 24, 28)
+            )
+            button.setTitle_(t(category.title_key))
+            button.setBezelStyle_(NSBezelStyleRounded)
+            button.setTarget_(self)
+            button.setAction_("sidebarCategoryChanged:")
+            button.setRepresentedObject_(category.key)
+            self._sidebar_view.addSubview_(button)
+            self._sidebar_buttons[category.key] = button
+            y -= 34
+
+    @objc.typedSelector(b"v@:@")
+    def sidebarCategoryChanged_(self, sender):
+        self._show_settings_category(str(sender.representedObject()))
+
+    def _new_panel(self, height: int = SETTINGS_CONTENT_HEIGHT):
+        panel_height = max(height, SETTINGS_CONTENT_HEIGHT)
+        panel = NSView.alloc().initWithFrame_(
+            NSMakeRect(0, 0, SETTINGS_CONTENT_WIDTH, panel_height)
+        )
+        return panel, panel_height - 24
+
+    def _set_content_panel(self, panel):
+        self._content_container = panel
+        self._content_scroll.setDocumentView_(panel)
+
+    def _show_settings_category(self, category_key: str):
+        builder = self._category_builders.get(category_key)
+        if builder is None:
+            category_key = "general"
+            builder = self._category_builders[category_key]
+        self._selected_category_key = category_key
+        panel = builder()
+        self._set_content_panel(panel)
+
+    def _build_general_panel(self):
+        panel, y = self._new_panel()
+        label = NSTextField.labelWithString_(t("settings.categories.general"))
+        label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        panel.addSubview_(label)
+        return panel
+
+    def _build_recording_panel(self):
+        panel, y = self._new_panel()
+        label = NSTextField.labelWithString_(t("settings.categories.recording"))
+        label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        panel.addSubview_(label)
+        return panel
+
+    def _build_model_panel(self):
+        panel, y = self._new_panel()
+        label = NSTextField.labelWithString_(t("settings.categories.model"))
+        label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        panel.addSubview_(label)
+        return panel
+
+    def _build_output_panel(self):
+        panel, y = self._new_panel()
+        label = NSTextField.labelWithString_(t("settings.categories.output"))
+        label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        panel.addSubview_(label)
+        return panel
+
+    def _build_sound_panel(self):
+        panel, y = self._new_panel()
+        label = NSTextField.labelWithString_(t("settings.categories.sound"))
+        label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        panel.addSubview_(label)
+        return panel
+
+    def _build_advanced_panel(self):
+        panel, y = self._new_panel()
+        label = NSTextField.labelWithString_(t("settings.categories.advanced"))
+        label.setFrame_(NSMakeRect(20, y, SETTINGS_CONTENT_WIDTH - 40, 20))
+        label.setFont_(NSFont.boldSystemFontOfSize_(13.0))
+        panel.addSubview_(label)
+        return panel
+
     def _populate_sounds(self):
         """Populate both sound dropdowns with system sounds + Custom option."""
         system_sounds = sounds.list_system_sounds()
@@ -723,11 +851,17 @@ class SettingsWindowController(NSObject):
 
     def _update_permissions(self):
         trusted = ApplicationServices.AXIsProcessTrusted()
-        if trusted:
-            self._acc_label.setStringValue_(t("settings.permissions.accessibility_granted"))
-        else:
-            self._acc_label.setStringValue_(t("settings.permissions.accessibility_not_granted"))
-        self._mic_label.setStringValue_(t("settings.permissions.microphone_granted"))
+        if self._acc_label is not None:
+            if trusted:
+                self._acc_label.setStringValue_(
+                    t("settings.permissions.accessibility_granted")
+                )
+            else:
+                self._acc_label.setStringValue_(
+                    t("settings.permissions.accessibility_not_granted")
+                )
+        if self._mic_label is not None:
+            self._mic_label.setStringValue_(t("settings.permissions.microphone_granted"))
 
     def showWindow_(self, sender):
         self._adopt_single_downloaded_model_if_unset()

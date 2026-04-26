@@ -374,11 +374,11 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         )
         self.controller._model_capability_label.setTextColor_.assert_called_with("orange")
 
-    def test_settings_window_height_leaves_room_for_model_capability_hint(self):
-        self.assertGreaterEqual(SETTINGS_WINDOW_HEIGHT, 880)
+    def test_settings_window_height_no_longer_depends_on_single_column_content(self):
+        self.assertLessEqual(SETTINGS_WINDOW_HEIGHT, 700)
 
-    def test_settings_window_height_leaves_room_for_mode_section(self):
-        self.assertGreaterEqual(SETTINGS_WINDOW_HEIGHT, 1160)
+    def test_settings_window_height_fits_small_laptop_screens(self):
+        self.assertGreaterEqual(SETTINGS_WINDOW_HEIGHT, 560)
 
     @patch("vvrite.settings.transcriber.prepare_model")
     def test_prepare_selected_model_downloads_missing_model_and_refreshes_state(
@@ -450,6 +450,40 @@ class TestSettingsSidebarLayout(unittest.TestCase):
         self.assertEqual(
             [category.key for category in SETTINGS_CATEGORIES],
             ["general", "recording", "model", "output", "sound", "advanced"],
+        )
+
+    @patch("vvrite.settings.transcriber.is_model_cached", return_value=False)
+    @patch("vvrite.settings.list_input_devices", return_value=[])
+    @patch("vvrite.settings.sounds.list_system_sounds", return_value=["Tink", "Purr"])
+    def test_settings_window_builds_sidebar_and_content_scroll_view(
+        self, _mock_sounds, _mock_devices, _mock_cached
+    ):
+        from vvrite.preferences import Preferences
+
+        controller = SettingsWindowController.alloc().initWithPreferences_(Preferences())
+
+        self.assertIsNotNone(controller._sidebar_view)
+        self.assertIsNotNone(controller._content_scroll)
+        self.assertIsNotNone(controller._content_container)
+        self.assertEqual(controller._selected_category_key, "general")
+
+    def test_selecting_category_replaces_content_container(self):
+        controller = SettingsWindowController.alloc().init()
+        controller._prefs = MagicMock()
+        controller._content_scroll = MagicMock()
+        controller._category_builders = {
+            "general": lambda: MagicMock(name="general_view"),
+            "sound": lambda: MagicMock(name="sound_view"),
+        }
+
+        controller._show_settings_category("general")
+        first = controller._content_container
+        controller._show_settings_category("sound")
+
+        self.assertIsNot(controller._content_container, first)
+        self.assertEqual(controller._selected_category_key, "sound")
+        controller._content_scroll.setDocumentView_.assert_called_with(
+            controller._content_container
         )
 
 
