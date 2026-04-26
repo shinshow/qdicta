@@ -103,8 +103,8 @@ class TestPreferences(unittest.TestCase):
     def test_set_asr_model_key(self):
         from vvrite.preferences import Preferences
         prefs = Preferences()
-        prefs.asr_model_key = "whisper_large_v3"
-        self.assertEqual(prefs.asr_model_key, "whisper_large_v3")
+        prefs.asr_model_key = "whisper_small_4bit"
+        self.assertEqual(prefs.asr_model_key, "whisper_small_4bit")
 
     def test_set_output_mode(self):
         from vvrite.preferences import Preferences
@@ -115,8 +115,8 @@ class TestPreferences(unittest.TestCase):
     def test_model_id_compatibility_tracks_selected_model(self):
         from vvrite.preferences import Preferences
         prefs = Preferences()
-        prefs.asr_model_key = "whisper_large_v3"
-        self.assertEqual(prefs.model_id, "ggerganov/whisper.cpp/ggml-large-v3.bin")
+        prefs.asr_model_key = "whisper_small_4bit"
+        self.assertEqual(prefs.model_id, "mlx-community/whisper-small-4bit")
 
     def test_default_sounds(self):
         from vvrite.preferences import Preferences

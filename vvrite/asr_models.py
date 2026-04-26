@@ -7,8 +7,13 @@ OUTPUT_MODE_TRANSLATE_TO_ENGLISH = "translate_to_english"
 
 BACKEND_QWEN_MLX = "qwen_mlx"
 BACKEND_WHISPER_CPP = "whisper_cpp"
+BACKEND_WHISPER_MLX = "whisper_mlx"
 
 DEFAULT_ASR_MODEL_KEY = "qwen3_asr_1_7b_8bit"
+MODEL_ALIASES = {
+    "whisper_large_v3": "whisper_large_v3_turbo_4bit",
+    "whisper_large_v3_turbo": "whisper_large_v3_turbo_4bit",
+}
 
 
 @dataclass(frozen=True)
@@ -36,31 +41,25 @@ ASR_MODELS = {
         supports_language_hint=True,
         supports_translation_to_english=False,
     ),
-    "whisper_large_v3": AsrModel(
-        key="whisper_large_v3",
-        display_name="Whisper large-v3",
-        backend=BACKEND_WHISPER_CPP,
-        model_id="ggerganov/whisper.cpp/ggml-large-v3.bin",
-        download_url=(
-            "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/"
-            "ggml-large-v3.bin"
-        ),
-        local_filename="ggml-large-v3.bin",
-        size_hint="~2.9 GiB",
+    "whisper_small_4bit": AsrModel(
+        key="whisper_small_4bit",
+        display_name="Whisper small 4-bit MLX",
+        backend=BACKEND_WHISPER_MLX,
+        model_id="mlx-community/whisper-small-4bit",
+        download_url=None,
+        local_filename=None,
+        size_hint="~139 MB",
         supports_language_hint=True,
         supports_translation_to_english=True,
     ),
-    "whisper_large_v3_turbo": AsrModel(
-        key="whisper_large_v3_turbo",
-        display_name="Whisper large-v3-turbo",
-        backend=BACKEND_WHISPER_CPP,
-        model_id="ggerganov/whisper.cpp/ggml-large-v3-turbo.bin",
-        download_url=(
-            "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/"
-            "ggml-large-v3-turbo.bin"
-        ),
-        local_filename="ggml-large-v3-turbo.bin",
-        size_hint="~1.5 GiB",
+    "whisper_large_v3_turbo_4bit": AsrModel(
+        key="whisper_large_v3_turbo_4bit",
+        display_name="Whisper large-v3-turbo 4-bit MLX",
+        backend=BACKEND_WHISPER_MLX,
+        model_id="mlx-community/whisper-large-v3-turbo-4bit",
+        download_url=None,
+        local_filename=None,
+        size_hint="~463 MB",
         supports_language_hint=True,
         supports_translation_to_english=False,
     ),
@@ -68,7 +67,8 @@ ASR_MODELS = {
 
 
 def get_model(key: str | None) -> AsrModel:
-    return ASR_MODELS.get(key or "", ASR_MODELS[DEFAULT_ASR_MODEL_KEY])
+    canonical_key = MODEL_ALIASES.get(key or "", key or "")
+    return ASR_MODELS.get(canonical_key, ASR_MODELS[DEFAULT_ASR_MODEL_KEY])
 
 
 def is_output_mode_supported(model_key: str, output_mode: str) -> bool:

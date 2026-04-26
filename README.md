@@ -11,7 +11,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/platform-macOS_(Apple_Silicon)-blue" alt="macOS">
   <img src="https://img.shields.io/badge/models-Qwen3--ASR_%2B_Whisper-green" alt="Models">
-  <img src="https://img.shields.io/badge/runtime-MLX_%2B_whisper.cpp-orange" alt="Runtime">
+  <img src="https://img.shields.io/badge/runtime-MLX-orange" alt="Runtime">
 </p>
 
 <p align="center">
@@ -27,15 +27,15 @@
 3. Press the hotkey again to stop
 4. Your speech is transcribed locally and pasted into the active text field
 
-Everything runs on-device using [MLX](https://github.com/ml-explore/mlx) or a bundled [whisper.cpp](https://github.com/ggml-org/whisper.cpp) sidecar. No audio leaves your Mac.
+Everything runs on-device using [MLX](https://github.com/ml-explore/mlx). No audio leaves your Mac.
 The default Qwen3-ASR model and optional Whisper models support multilingual dictation, including Korean and English mixed in one recording.
 
 ## Features
 
-- **On-device transcription** — Qwen3-ASR via mlx-audio or Whisper via whisper.cpp, no cloud API needed
-- **Selectable ASR models** — switch between Qwen3-ASR 1.7B 8-bit, Whisper large-v3, and Whisper large-v3-turbo in Settings
+- **On-device transcription** — Qwen3-ASR via mlx-audio or Whisper via mlx-whisper, no cloud API needed
+- **Selectable ASR models** — switch between Qwen3-ASR 1.7B 8-bit, Whisper small 4-bit MLX, and Whisper large-v3-turbo 4-bit MLX in Settings
 - **Multilingual-ready** — Korean, English, and mixed Korean/English dictation are supported by the local models
-- **English translation mode** — Whisper large-v3 can translate spoken Korean or multilingual speech to English text
+- **English translation mode** — Whisper small 4-bit MLX can translate spoken Korean or multilingual speech to English text
 - **Global hotkey** — trigger from any app, configurable in Settings
 - **Menu bar app** — lives quietly in your status bar
 - **Recording overlay** — visual feedback with audio level bars and timer
@@ -48,10 +48,10 @@ The default Qwen3-ASR model and optional Whisper models support multilingual dic
 | Model | Best for | Approx. disk use | English translation |
 |---|---|---:|---|
 | Qwen3-ASR 1.7B 8-bit | Default multilingual dictation | ~2.5 GB | No |
-| Whisper large-v3 | Accuracy and Korean-to-English translation | ~2.9 GiB | Yes |
-| Whisper large-v3-turbo | Faster multilingual dictation | ~1.5 GiB | No in vvrite |
+| Whisper small 4-bit MLX | Fastest Whisper option and Korean-to-English translation | ~139 MB | Yes |
+| Whisper large-v3-turbo 4-bit MLX | Higher-quality fast Whisper dictation | ~463 MB | No in vvrite |
 
-Qwen3-ASR runs in-process through mlx-audio. Whisper models use a bundled whisper.cpp runtime and keep the selected model loaded after preparation, avoiding repeated model startup cost during dictation.
+Qwen3-ASR runs in-process through mlx-audio. Whisper models run through mlx-whisper, and the selected model is warmed up after preparation to avoid paying the model startup cost during dictation.
 
 ## Model Storage
 
@@ -64,13 +64,13 @@ Older vvrite builds may also have cached Qwen files under `~/.cache/huggingface/
 
 The default [`mlx-community/Qwen3-ASR-1.7B-8bit`](https://huggingface.co/mlx-community/Qwen3-ASR-1.7B-8bit) model is an MLX conversion of [`Qwen/Qwen3-ASR-1.7B`](https://huggingface.co/Qwen/Qwen3-ASR-1.7B). According to the official Qwen model card, Qwen3-ASR-1.7B supports language identification and speech recognition for 30 languages and 22 Chinese dialects.
 
-Whisper large-v3 and large-v3-turbo add widely used Whisper-family transcription options. For Korean plus English code-switching, use transcription mode. For Korean or multilingual speech translated into English output, choose Whisper large-v3 and English translation mode.
+Whisper small 4-bit MLX and Whisper large-v3-turbo 4-bit MLX add fast Whisper-family transcription options. For Korean plus English code-switching, use transcription mode. For Korean or multilingual speech translated into English output, choose Whisper small 4-bit MLX and English translation mode.
 
 ## Requirements
 
 - macOS 13+ on Apple Silicon (M1/M2/M3/M4)
-- ~2.5 GB disk space for the default model, or ~7 GB if all selectable models are installed
 - `ffmpeg` installed when running from source
+- ~2.5 GB disk space for the default model, or ~3.2 GB if all selectable models are installed
 - Microphone permission
 - Accessibility permission (for global hotkey)
 
@@ -119,13 +119,13 @@ On first launch, the onboarding wizard will guide you through:
 | Component | Technology |
 |---|---|
 | UI | PyObjC (AppKit, Quartz) |
-| ASR Models | [Qwen3-ASR-1.7B-8bit](https://huggingface.co/mlx-community/Qwen3-ASR-1.7B-8bit), [Whisper large-v3 / turbo](https://huggingface.co/ggerganov/whisper.cpp) |
-| Inference | [mlx-audio](https://github.com/ml-explore/mlx-audio) and [whisper.cpp](https://github.com/ggml-org/whisper.cpp) on Apple Silicon |
 | Audio | sounddevice + ffmpeg |
+| ASR Models | [Qwen3-ASR-1.7B-8bit](https://huggingface.co/mlx-community/Qwen3-ASR-1.7B-8bit), [Whisper small 4-bit](https://huggingface.co/mlx-community/whisper-small-4bit), [Whisper large-v3-turbo 4-bit](https://huggingface.co/mlx-community/whisper-large-v3-turbo-4bit) |
+| Inference | [mlx-audio](https://github.com/ml-explore/mlx-audio) and [mlx-whisper](https://github.com/ml-explore/mlx-examples/tree/main/whisper) on Apple Silicon |
 | Packaging | PyInstaller |
 
 ## License
 
 MIT — see [LICENSE](LICENSE) for details.
 
-This application bundles [ffmpeg](https://ffmpeg.org/), which is licensed under the [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html). The ffmpeg source code is available at https://ffmpeg.org/download.html. whisper.cpp is MIT licensed. Whisper model weights are distributed through the [ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp) Hugging Face repository. The Qwen3-ASR model remains Apache 2.0 licensed.
+This application bundles [ffmpeg](https://ffmpeg.org/), which is licensed under the [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html). The ffmpeg source code is available at https://ffmpeg.org/download.html. Whisper model weights are distributed through the [mlx-community](https://huggingface.co/mlx-community) Hugging Face organization. The Qwen3-ASR model remains Apache 2.0 licensed.

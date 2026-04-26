@@ -115,11 +115,14 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         self.controller._prefs.asr_model_key = "whisper_large_v3"
         self.controller._prefs.output_mode = "translate_to_english"
         sender = MagicMock()
-        sender.indexOfSelectedItem.return_value = 2  # Whisper large-v3-turbo
+        sender.indexOfSelectedItem.return_value = 2  # Whisper large-v3-turbo 4-bit MLX
 
         self.controller.asrModelChanged_(sender)
 
-        self.assertEqual(self.controller._prefs.asr_model_key, "whisper_large_v3_turbo")
+        self.assertEqual(
+            self.controller._prefs.asr_model_key,
+            "whisper_large_v3_turbo_4bit",
+        )
         self.assertEqual(self.controller._prefs.output_mode, "transcribe")
         self.controller._output_mode_popup.selectItemAtIndex_.assert_called_once_with(0)
         self.translation_item.setEnabled_.assert_called_once_with(False)
@@ -129,7 +132,10 @@ class TestAsrModelSettingsActions(unittest.TestCase):
             mock_thread.call_args.kwargs["target"],
             self.controller._prepare_selected_model,
         )
-        self.assertEqual(mock_thread.call_args.kwargs["args"], ("whisper_large_v3_turbo",))
+        self.assertEqual(
+            mock_thread.call_args.kwargs["args"],
+            ("whisper_large_v3_turbo_4bit",),
+        )
         self.assertTrue(mock_thread.call_args.kwargs["daemon"])
         mock_thread.return_value.start.assert_called_once_with()
 
@@ -160,8 +166,8 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         sender.selectItemAtIndex_.assert_called_once_with(0)
         self.translation_item.setEnabled_.assert_called_once_with(False)
 
-    def test_output_mode_changed_accepts_large_v3_translation(self):
-        self.controller._prefs.asr_model_key = "whisper_large_v3"
+    def test_output_mode_changed_accepts_small_whisper_translation(self):
+        self.controller._prefs.asr_model_key = "whisper_small_4bit"
         self.controller._prefs.output_mode = "transcribe"
         sender = MagicMock()
         sender.indexOfSelectedItem.return_value = 1

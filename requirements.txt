@@ -1,4 +1,5 @@
 mlx-audio>=0.4.0
+mlx-whisper>=0.4.3
 sounddevice
 soundfile
 pyobjc-framework-Quartz

@@ -11,7 +11,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/platform-macOS_(Apple_Silicon)-blue" alt="macOS">
   <img src="https://img.shields.io/badge/models-Qwen3--ASR_%2B_Whisper-green" alt="Models">
-  <img src="https://img.shields.io/badge/runtime-MLX_%2B_whisper.cpp-orange" alt="Runtime">
+  <img src="https://img.shields.io/badge/runtime-MLX-orange" alt="Runtime">
 </p>
 
 <p align="center">
@@ -27,15 +27,15 @@
 3. 단축키를 다시 눌러 녹음을 중지합니다
 4. 음성이 로컬에서 변환되어 활성 텍스트 필드에 붙여넣기됩니다
 
-모든 처리는 [MLX](https://github.com/ml-explore/mlx) 또는 번들된 [whisper.cpp](https://github.com/ggml-org/whisper.cpp) sidecar를 통해 기기에서 이루어집니다. 음성 데이터가 Mac 밖으로 나가지 않습니다.
+모든 처리는 [MLX](https://github.com/ml-explore/mlx)를 통해 기기에서 이루어집니다. 음성 데이터가 Mac 밖으로 나가지 않습니다.
 기본 Qwen3-ASR 모델과 선택 가능한 Whisper 모델은 한국어와 영어가 섞인 받아쓰기를 포함한 다국어 전사를 지원합니다.
 
 ## 주요 기능
 
-- **온디바이스 변환** — Qwen3-ASR은 mlx-audio로, Whisper는 whisper.cpp로 실행되며 클라우드 API가 필요 없습니다
-- **모델 선택** — 설정에서 Qwen3-ASR 1.7B 8-bit, Whisper large-v3, Whisper large-v3-turbo를 전환할 수 있습니다
+- **온디바이스 변환** — Qwen3-ASR은 mlx-audio로, Whisper는 mlx-whisper로 실행되며 클라우드 API가 필요 없습니다
+- **모델 선택** — 설정에서 Qwen3-ASR 1.7B 8-bit, Whisper small 4-bit MLX, Whisper large-v3-turbo 4-bit MLX를 전환할 수 있습니다
 - **다국어 지원** — 한국어, 영어, 한국어/영어 혼합 받아쓰기를 로컬 모델로 처리합니다
-- **영어 번역 모드** — Whisper large-v3는 한국어 또는 다국어 음성을 영어 텍스트로 번역 전사할 수 있습니다
+- **영어 번역 모드** — Whisper small 4-bit MLX는 한국어 또는 다국어 음성을 영어 텍스트로 번역 전사할 수 있습니다
 - **전역 단축키** — 어떤 앱에서든 실행 가능하며, 설정에서 변경할 수 있습니다
 - **메뉴 막대 앱** — 상태 막대에 조용히 자리 잡습니다
 - **녹음 오버레이** — 오디오 레벨 바와 타이머로 시각적 피드백을 제공합니다
@@ -48,10 +48,10 @@
 | 모델 | 적합한 용도 | 예상 디스크 사용량 | 영어 번역 |
 |---|---|---:|---|
 | Qwen3-ASR 1.7B 8-bit | 기본 다국어 받아쓰기 | 약 2.5 GB | 아니오 |
-| Whisper large-v3 | 정확도와 한국어→영어 번역 | 약 2.9 GiB | 예 |
-| Whisper large-v3-turbo | 더 빠른 다국어 받아쓰기 | 약 1.5 GiB | vvrite에서는 아니오 |
+| Whisper small 4-bit MLX | 가장 빠른 Whisper 옵션과 한국어→영어 번역 | 약 139 MB | 예 |
+| Whisper large-v3-turbo 4-bit MLX | 더 높은 품질의 빠른 Whisper 받아쓰기 | 약 463 MB | vvrite에서는 아니오 |
 
-Qwen3-ASR은 mlx-audio를 통해 앱 프로세스 안에서 실행됩니다. Whisper 모델은 번들된 whisper.cpp 런타임을 사용하며, 준비된 뒤에는 선택한 모델을 로드한 상태로 유지해 받아쓰기마다 반복되는 모델 시작 비용을 줄입니다.
+Qwen3-ASR은 mlx-audio를 통해 앱 프로세스 안에서 실행됩니다. Whisper 모델은 mlx-whisper로 실행되며, 준비된 뒤에는 선택한 모델을 미리 워밍업해 받아쓰기마다 반복되는 모델 시작 비용을 줄입니다.
 
 ## 모델 저장 위치
 
@@ -64,13 +64,13 @@ Qwen3-ASR은 mlx-audio를 통해 앱 프로세스 안에서 실행됩니다. Whi
 
 기본 [`mlx-community/Qwen3-ASR-1.7B-8bit`](https://huggingface.co/mlx-community/Qwen3-ASR-1.7B-8bit) 모델은 [`Qwen/Qwen3-ASR-1.7B`](https://huggingface.co/Qwen/Qwen3-ASR-1.7B)의 MLX 변환 버전입니다. 공식 Qwen 모델 카드에 따르면, Qwen3-ASR-1.7B은 30개 언어와 22개 중국어 방언의 언어 식별 및 음성 인식을 지원합니다.
 
-Whisper large-v3와 large-v3-turbo는 널리 쓰이는 Whisper 계열 전사 옵션입니다. 한국어와 영어가 섞인 입력은 전사 모드를 사용하세요. 한국어 또는 다국어 음성을 영어 결과로 받고 싶다면 Whisper large-v3와 영어 번역 모드를 선택하세요.
+Whisper small 4-bit MLX와 Whisper large-v3-turbo 4-bit MLX는 빠른 Whisper 계열 전사 옵션입니다. 한국어와 영어가 섞인 입력은 전사 모드를 사용하세요. 한국어 또는 다국어 음성을 영어 결과로 받고 싶다면 Whisper small 4-bit MLX와 영어 번역 모드를 선택하세요.
 
 ## 요구 사항
 
 - Apple Silicon (M1/M2/M3/M4) 탑재 macOS 13 이상
-- 기본 모델용 디스크 공간 약 2.5 GB, 모든 선택 모델 설치 시 약 7 GB
 - 소스에서 실행 시 `ffmpeg` 필요
+- 기본 모델용 디스크 공간 약 2.5 GB, 모든 선택 모델 설치 시 약 3.2 GB
 - 마이크 권한
 - 손쉬운 사용 권한 (전역 단축키용)
 

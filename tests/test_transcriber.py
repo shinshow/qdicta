@@ -16,8 +16,15 @@ class _Prefs:
 
 
 class _WhisperPrefs:
-    asr_model_key = "whisper_large_v3"
+    asr_model_key = "whisper_large_v3_turbo_4bit"
     output_mode = "transcribe"
+
+
+class _WhisperMlxPrefs:
+    asr_model_key = "whisper_small_4bit"
+    output_mode = "transcribe"
+    custom_words = ""
+    asr_language = "auto"
 
 
 class TestTranscriberRouter(unittest.TestCase):
@@ -77,6 +84,20 @@ class TestTranscriberRouter(unittest.TestCase):
         backend.load_from_local.assert_called_once_with("/tmp/model")
         self.assertTrue(transcriber.is_model_loaded())
 
+    @patch("vvrite.transcriber._whisper_mlx_backend")
+    def test_load_from_local_initializes_mlx_whisper_backend(self, mock_whisper_backend):
+        backend = MagicMock()
+        backend.is_loaded.return_value = True
+        mock_whisper_backend.return_value = backend
+
+        from vvrite import transcriber
+
+        transcriber.load_from_local("/tmp/whisper-small", _WhisperMlxPrefs())
+
+        backend.load.assert_called_once()
+        self.assertEqual(backend.load.call_args.args[0].key, "whisper_small_4bit")
+        self.assertTrue(transcriber.is_model_loaded())
+
     @patch("vvrite.transcriber._qwen_backend")
     def test_unload_releases_backend(self, mock_qwen_backend):
         backend = MagicMock()
@@ -103,38 +124,53 @@ class TestTranscriberRouter(unittest.TestCase):
         self.assertEqual(result, "hello")
         backend.transcribe.assert_called_once()
 
-    @patch("vvrite.transcriber._whisper_backend")
+    @patch("vvrite.transcriber._whisper_mlx_backend")
+    def test_get_model_size_routes_to_mlx_whisper_backend(self, mock_whisper_backend):
+        backend = MagicMock()
+        backend.get_size.return_value = 139_000_000
+        mock_whisper_backend.return_value = backend
+
+        from vvrite.transcriber import get_model_size
+
+        size = get_model_size("whisper_small_4bit")
+
+        self.assertEqual(size, 139_000_000)
+        backend.get_size.assert_called_once()
+
+    @patch("vvrite.transcriber._whisper_mlx_backend")
     def test_download_model_routes_to_whisper_backend(self, mock_whisper_backend):
         backend = MagicMock()
-        backend.download.return_value = "/models/ggml-large-v3.bin"
+        backend.download.return_value = "/models/whisper-small-4bit"
         mock_whisper_backend.return_value = backend
 
         from vvrite.transcriber import download_model
 
-        path = download_model("whisper_large_v3")
+        path = download_model("whisper_small_4bit")
 
-        self.assertEqual(path, "/models/ggml-large-v3.bin")
+        self.assertEqual(path, "/models/whisper-small-4bit")
         backend.download.assert_called_once()
 
-    @patch("vvrite.transcriber._whisper_backend")
+    @patch("vvrite.transcriber._whisper_mlx_backend")
     def test_download_model_passes_progress_callback_to_backend(
         self, mock_whisper_backend
     ):
         backend = MagicMock()
-        backend.download.return_value = "/models/ggml-large-v3.bin"
+        backend.download.return_value = "/models/whisper-small-4bit"
         mock_whisper_backend.return_value = backend
 
         from vvrite.transcriber import download_model
 
         callback = MagicMock()
-        download_model("whisper_large_v3", progress_callback=callback)
+        download_model("whisper_small_4bit", progress_callback=callback)
 
         backend.download.assert_called_once()
         self.assertIs(backend.download.call_args.kwargs["progress_callback"], callback)
 
-    @patch("vvrite.transcriber._whisper_backend")
+    @patch("vvrite.transcriber._whisper_mlx_backend")
     def test_transcribe_routes_to_whisper_backend(self, mock_whisper_backend):
         backend = MagicMock()
+        backend.is_cached.return_value = True
+        backend.is_loaded.return_value = True
         backend.transcribe.return_value = "translated text"
         mock_whisper_backend.return_value = backend
 
@@ -145,7 +181,7 @@ class TestTranscriberRouter(unittest.TestCase):
         self.assertEqual(result, "translated text")
         backend.transcribe.assert_called_once()
 
-    @patch("vvrite.transcriber._whisper_backend")
+    @patch("vvrite.transcriber._whisper_mlx_backend")
     def test_load_initializes_whisper_backend(self, mock_whisper_backend):
         backend = MagicMock()
         backend.is_cached.return_value = True
@@ -156,10 +192,13 @@ class TestTranscriberRouter(unittest.TestCase):
         transcriber.load(_WhisperPrefs())
 
         backend.load.assert_called_once()
-        self.assertEqual(backend.load.call_args.args[0].key, "whisper_large_v3")
+        self.assertEqual(
+            backend.load.call_args.args[0].key,
+            "whisper_large_v3_turbo_4bit",
+        )
         self.assertTrue(transcriber.is_model_loaded())
 
-    @patch("vvrite.transcriber._whisper_backend")
+    @patch("vvrite.transcriber._whisper_mlx_backend")
     @patch("vvrite.transcriber._qwen_backend")
     def test_transcribe_switches_to_selected_qwen_before_routing(
         self, mock_qwen_backend, mock_whisper_backend
@@ -173,7 +212,7 @@ class TestTranscriberRouter(unittest.TestCase):
 
         from vvrite import transcriber
 
-        transcriber._loaded_model_key = "whisper_large_v3_turbo"
+        transcriber._loaded_model_key = "whisper_large_v3_turbo_4bit"
         result = transcriber.transcribe("/tmp/audio.wav", _Prefs())
 
         self.assertEqual(result, "hello")
@@ -181,7 +220,7 @@ class TestTranscriberRouter(unittest.TestCase):
         qwen_backend.load.assert_called_once_with("mlx-community/Qwen3-ASR-1.7B-8bit")
         qwen_backend.transcribe.assert_called_once()
 
-    @patch("vvrite.transcriber._whisper_backend")
+    @patch("vvrite.transcriber._whisper_mlx_backend")
     @patch("vvrite.transcriber._qwen_backend")
     def test_prepare_model_downloads_missing_selected_model_before_loading(
         self, mock_qwen_backend, mock_whisper_backend
@@ -195,7 +234,7 @@ class TestTranscriberRouter(unittest.TestCase):
 
         from vvrite import transcriber
 
-        transcriber._loaded_model_key = "whisper_large_v3_turbo"
+        transcriber._loaded_model_key = "whisper_large_v3_turbo_4bit"
         callback = MagicMock()
         transcriber.prepare_model(
             "qwen3_asr_1_7b_8bit",

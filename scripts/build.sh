@@ -13,17 +13,24 @@ DMG="dist/vvrite.dmg"
 echo "▸ Checking build environment..."
 python - <<'PY'
 import importlib
+import importlib.util
 import sys
 
-required_modules = {
+import_modules = {
     "ServiceManagement": "pyobjc-framework-ServiceManagement",
+}
+find_spec_modules = {
+    "mlx_whisper": "mlx-whisper",
 }
 
 missing = []
-for module_name, package_name in required_modules.items():
+for module_name, package_name in import_modules.items():
     try:
         importlib.import_module(module_name)
     except ImportError:
+        missing.append(f"{package_name} ({module_name})")
+for module_name, package_name in find_spec_modules.items():
+    if importlib.util.find_spec(module_name) is None:
         missing.append(f"{package_name} ({module_name})")
 
 if missing:
@@ -51,11 +58,6 @@ SITE=$(python -c "import site; print(site.getsitepackages()[0])")
 unzip -o "$MLX_COMPAT_DIR"/mlx_metal-*.whl "mlx/lib/mlx.metallib" -d "$SITE" > /dev/null
 rm -rf "$MLX_COMPAT_DIR"
 echo "  ✓ Backward-compatible metallib installed (macOS 15+)"
-
-# ── Step 0.75: whisper.cpp sidecar ─────────────────────────────
-echo "▸ Building whisper.cpp sidecar..."
-"$(dirname "$0")/build_whisper_cpp.sh"
-echo "  ✓ whisper.cpp sidecar ready"
 
 # ── Step 1: Build ──────────────────────────────────────────────
 echo "▸ Building with PyInstaller..."

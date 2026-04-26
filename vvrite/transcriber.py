@@ -6,6 +6,7 @@ import threading
 from vvrite.asr_models import (
     BACKEND_QWEN_MLX,
     BACKEND_WHISPER_CPP,
+    BACKEND_WHISPER_MLX,
     get_model,
     is_output_mode_supported,
 )
@@ -23,6 +24,10 @@ def _whisper_backend():
     return import_module("vvrite.asr_backends.whisper_cpp")
 
 
+def _whisper_mlx_backend():
+    return import_module("vvrite.asr_backends.whisper_mlx")
+
+
 def _selected_model(prefs: Preferences | None = None):
     if prefs is None:
         prefs = Preferences()
@@ -38,6 +43,8 @@ def is_model_loaded() -> bool:
             return _qwen_backend().is_loaded()
         if model.backend == BACKEND_WHISPER_CPP:
             return _whisper_backend().is_loaded()
+        if model.backend == BACKEND_WHISPER_MLX:
+            return _whisper_mlx_backend().is_loaded()
         return False
 
 
@@ -54,6 +61,8 @@ def _is_model_cached(model) -> bool:
         return _qwen_backend().is_cached(model.model_id)
     if model.backend == BACKEND_WHISPER_CPP:
         return _whisper_backend().is_cached(model)
+    if model.backend == BACKEND_WHISPER_MLX:
+        return _whisper_mlx_backend().is_cached(model)
     raise RuntimeError(f"Unsupported backend before Whisper task: {model.backend}")
 
 
@@ -64,6 +73,10 @@ def _is_loaded_model_ready(model) -> bool:
         return _qwen_backend().is_loaded()
     if model.backend == BACKEND_WHISPER_CPP:
         return _whisper_backend().is_loaded() and _whisper_backend().is_cached(model)
+    if model.backend == BACKEND_WHISPER_MLX:
+        return _whisper_mlx_backend().is_loaded() and _whisper_mlx_backend().is_cached(
+            model
+        )
     return False
 
 
@@ -75,6 +88,8 @@ def _unload_loaded_model():
             _qwen_backend().unload()
         elif model.backend == BACKEND_WHISPER_CPP:
             _whisper_backend().unload()
+        elif model.backend == BACKEND_WHISPER_MLX:
+            _whisper_mlx_backend().unload()
     _loaded_model_key = None
 
 
@@ -90,6 +105,13 @@ def _load_model(model):
         if not _whisper_backend().is_cached(model):
             raise RuntimeError(f"{model.display_name} is not downloaded")
         _whisper_backend().load(model)
+        _loaded_model_key = model.key
+        print("Model ready.")
+        return
+    if model.backend == BACKEND_WHISPER_MLX:
+        if not _whisper_mlx_backend().is_cached(model):
+            raise RuntimeError(f"{model.display_name} is not downloaded")
+        _whisper_mlx_backend().load(model)
         _loaded_model_key = model.key
         print("Model ready.")
         return
@@ -121,6 +143,8 @@ def get_model_size(model_id_or_key: str) -> int:
         return _qwen_backend().get_size(model.model_id)
     if model.backend == BACKEND_WHISPER_CPP:
         return _whisper_backend().get_size(model)
+    if model.backend == BACKEND_WHISPER_MLX:
+        return _whisper_mlx_backend().get_size(model)
     return 0
 
 
@@ -133,6 +157,11 @@ def download_model(model_id_or_key: str, progress_callback=None) -> str:
         )
     if model.backend == BACKEND_WHISPER_CPP:
         return _whisper_backend().download(
+            model,
+            progress_callback=progress_callback,
+        )
+    if model.backend == BACKEND_WHISPER_MLX:
+        return _whisper_mlx_backend().download(
             model,
             progress_callback=progress_callback,
         )
@@ -150,6 +179,10 @@ def load_from_local(local_path: str, prefs: Preferences = None):
             _loaded_model_key = model.key
             return
         if model.backend == BACKEND_WHISPER_CPP:
+            _loaded_model_key = model.key
+            return
+        if model.backend == BACKEND_WHISPER_MLX:
+            _whisper_mlx_backend().load(model)
             _loaded_model_key = model.key
             return
         raise RuntimeError(f"Unsupported backend before Whisper task: {model.backend}")
@@ -195,4 +228,6 @@ def transcribe(raw_wav_path: str, prefs: Preferences = None) -> str:
             return _qwen_backend().transcribe(raw_wav_path, prefs)
         if model.backend == BACKEND_WHISPER_CPP:
             return _whisper_backend().transcribe(raw_wav_path, model, prefs)
+        if model.backend == BACKEND_WHISPER_MLX:
+            return _whisper_mlx_backend().transcribe(raw_wav_path, model, prefs)
         raise RuntimeError(f"Unsupported backend before Whisper task: {model.backend}")

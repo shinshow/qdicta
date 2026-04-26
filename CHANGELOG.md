@@ -2,6 +2,14 @@
 
 All notable changes to this fork are documented here.
 
+## Unreleased
+
+### Changed
+
+- Replaced the selectable Whisper options with MLX-native `whisper-small-4bit` and `whisper-large-v3-turbo-4bit` models.
+- Added an MLX Whisper backend that downloads Hugging Face snapshots into vvrite's app-managed model directory and warms up the selected model before dictation.
+- Removed the PyInstaller build-time requirement for bundled whisper.cpp sidecar binaries.
+
 ## [1.1.0] - 2026-04-26
 
 Compared with upstream `shaircast/vvrite` `v1.0.6`, this release adds selectable local ASR models, improves model lifecycle handling, and updates the app to use this fork's GitHub releases for update checks.

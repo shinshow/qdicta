@@ -1,5 +1,4 @@
 """PyInstaller spec for vvrite macOS app."""
-import glob
 import importlib.util
 import os
 import sys
@@ -19,18 +18,10 @@ mlx_spec = importlib.util.find_spec("mlx")
 if mlx_spec is None or not mlx_spec.submodule_search_locations:
     raise RuntimeError("Unable to locate mlx package for PyInstaller datas")
 mlx_package_dir = mlx_spec.submodule_search_locations[0]
-
-whisper_cli = os.path.join(ROOT_DIR, "vendor", "whisper.cpp", "whisper-cli")
-if not os.path.exists(whisper_cli):
-    whisper_cli = os.path.join(ROOT_DIR, "vendor", "whisper.cpp", "main")
-if not os.path.exists(whisper_cli):
-    raise RuntimeError("Missing whisper.cpp sidecar. Run scripts/build_whisper_cpp.sh")
-whisper_dylibs = glob.glob(os.path.join(ROOT_DIR, "vendor", "whisper.cpp", "*.dylib"))
-if not whisper_dylibs:
-    raise RuntimeError("Missing whisper.cpp dylibs. Run scripts/build_whisper_cpp.sh")
-whisper_binaries = [(whisper_cli, "whisper.cpp")] + [
-    (path, "whisper.cpp") for path in sorted(whisper_dylibs)
-]
+mlx_whisper_spec = importlib.util.find_spec("mlx_whisper")
+if mlx_whisper_spec is None or not mlx_whisper_spec.submodule_search_locations:
+    raise RuntimeError("Unable to locate mlx_whisper package for PyInstaller datas")
+mlx_whisper_package_dir = mlx_whisper_spec.submodule_search_locations[0]
 
 # PyObjC bridge modules need all submodules collected
 pyobjc_hiddenimports = (
@@ -48,13 +39,17 @@ a = Analysis(
     pathex=[],
     binaries=[
         ("/opt/homebrew/bin/ffmpeg", "."),
-        *whisper_binaries,
     ],
     datas=[
         # soundfile needs libsndfile
         (os.path.join(site_packages, "_soundfile_data"), "_soundfile_data"),
         # MLX Metal shaders and native libs
         (os.path.join(mlx_package_dir, "lib"), os.path.join("mlx", "lib")),
+        # MLX Whisper tokenizer and mel filter assets
+        (
+            os.path.join(mlx_whisper_package_dir, "assets"),
+            os.path.join("mlx_whisper", "assets"),
+        ),
     ],
     hiddenimports=pyobjc_hiddenimports + [
         # Locale modules (dynamically imported by vvrite.locales)
@@ -74,9 +69,19 @@ a = Analysis(
         "mlx_audio.stt",
         "mlx_audio.stt.models",
         "mlx_audio.stt.models.qwen3_asr",
+        "mlx_whisper",
+        "mlx_whisper.audio",
+        "mlx_whisper.decoding",
+        "mlx_whisper.load_models",
+        "mlx_whisper.timing",
+        "mlx_whisper.tokenizer",
+        "mlx_whisper.transcribe",
+        "mlx_whisper.whisper",
         # Transformers
         "transformers",
         "tokenizers",
+        "tiktoken",
+        "more_itertools",
         # Audio
         "sounddevice",
         "soundfile",

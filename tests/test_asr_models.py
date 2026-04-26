@@ -22,15 +22,15 @@ class TestAsrModels(unittest.TestCase):
             set(ASR_MODELS),
             {
                 "qwen3_asr_1_7b_8bit",
-                "whisper_large_v3",
-                "whisper_large_v3_turbo",
+                "whisper_small_4bit",
+                "whisper_large_v3_turbo_4bit",
             },
         )
 
-    def test_whisper_large_v3_supports_translation(self):
+    def test_whisper_small_supports_translation(self):
         self.assertTrue(
             is_output_mode_supported(
-                "whisper_large_v3", OUTPUT_MODE_TRANSLATE_TO_ENGLISH
+                "whisper_small_4bit", OUTPUT_MODE_TRANSLATE_TO_ENGLISH
             )
         )
 
@@ -42,7 +42,7 @@ class TestAsrModels(unittest.TestCase):
         )
         self.assertFalse(
             is_output_mode_supported(
-                "whisper_large_v3_turbo", OUTPUT_MODE_TRANSLATE_TO_ENGLISH
+                "whisper_large_v3_turbo_4bit", OUTPUT_MODE_TRANSLATE_TO_ENGLISH
             )
         )
 
@@ -52,6 +52,16 @@ class TestAsrModels(unittest.TestCase):
 
     def test_unknown_model_falls_back_to_default(self):
         self.assertEqual(get_model("missing").key, DEFAULT_ASR_MODEL_KEY)
+
+    def test_legacy_whisper_keys_migrate_to_mlx_turbo(self):
+        self.assertEqual(
+            get_model("whisper_large_v3").key,
+            "whisper_large_v3_turbo_4bit",
+        )
+        self.assertEqual(
+            get_model("whisper_large_v3_turbo").key,
+            "whisper_large_v3_turbo_4bit",
+        )
 
 
 if __name__ == "__main__":
