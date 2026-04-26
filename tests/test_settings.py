@@ -1,5 +1,6 @@
 """Tests for settings sound customization behavior."""
 
+from types import SimpleNamespace
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -115,7 +116,7 @@ class TestMicrophoneDeviceRefresh(unittest.TestCase):
         mock_list_input_devices.assert_called_once_with(refresh=True)
 
     @patch("vvrite.settings.list_input_devices")
-    def test_poll_permissions_repopulates_mics_when_devices_change(
+    def test_poll_permissions_repopulates_mics_with_portaudio_refresh(
         self, mock_list_input_devices
     ):
         device = AudioInputDevice(
@@ -134,6 +135,30 @@ class TestMicrophoneDeviceRefresh(unittest.TestCase):
 
         mock_list_input_devices.assert_called_once_with(refresh=True)
         self.controller._populate_mics.assert_called_once_with(devices=[device])
+
+    def test_show_window_refreshes_portaudio_device_list(self):
+        self.controller._populate_mics = MagicMock()
+        self.controller._populate_sounds = MagicMock()
+        self.controller._window = MagicMock()
+
+        with patch("vvrite.settings.NSApp"), patch("vvrite.settings.NSTimer"):
+            self.controller.showWindow_(None)
+
+        self.controller._populate_mics.assert_called_once_with(refresh=True)
+
+    @patch("vvrite.settings.NSApp")
+    @patch("vvrite.settings.list_input_devices")
+    def test_poll_permissions_does_not_scan_audio_devices_while_recording(
+        self, mock_list_input_devices, mock_app
+    ):
+        mock_app.delegate.return_value = SimpleNamespace(_recording=True)
+        self.controller._update_permissions = MagicMock()
+        self.controller._populate_mics = MagicMock()
+
+        self.controller.pollPermissions_(MagicMock())
+
+        mock_list_input_devices.assert_not_called()
+        self.controller._populate_mics.assert_not_called()
 
 
 class TestAsrModelSettingsActions(unittest.TestCase):
@@ -184,7 +209,7 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         mock_thread.return_value.start.assert_called_once_with()
 
     @patch("vvrite.settings.transcriber.prepare_model")
-    def test_prepare_selected_model_prepares_model_and_refreshes_state(
+    def test_prepare_selected_model_downloads_missing_model_and_refreshes_state(
         self, mock_prepare_model
     ):
         self.controller.performSelectorOnMainThread_withObject_waitUntilDone_ = MagicMock()
@@ -192,8 +217,22 @@ class TestAsrModelSettingsActions(unittest.TestCase):
         self.controller._prepare_selected_model("qwen3_asr_1_7b_8bit")
 
         mock_prepare_model.assert_called_once()
-        self.assertEqual(mock_prepare_model.call_args.args[0], "qwen3_asr_1_7b_8bit")
+        self.assertEqual(
+            mock_prepare_model.call_args.args[0], "qwen3_asr_1_7b_8bit"
+        )
         self.assertIn("progress_callback", mock_prepare_model.call_args.kwargs)
+        self.controller.performSelectorOnMainThread_withObject_waitUntilDone_.assert_any_call(
+            "modelDownloadStateChanged:", None, False
+        )
+
+    @patch("vvrite.settings.transcriber.prepare_model")
+    def test_prepare_selected_model_loads_cached_model(self, mock_prepare_model):
+        self.controller.performSelectorOnMainThread_withObject_waitUntilDone_ = MagicMock()
+
+        self.controller._prepare_selected_model("whisper_small_4bit")
+
+        mock_prepare_model.assert_called_once()
+        self.assertEqual(mock_prepare_model.call_args.args[0], "whisper_small_4bit")
         self.controller.performSelectorOnMainThread_withObject_waitUntilDone_.assert_any_call(
             "modelDownloadStateChanged:", None, False
         )

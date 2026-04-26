@@ -108,6 +108,24 @@ class TestPlay(unittest.TestCase):
         self.assertEqual(mock_copy.isPlaying.call_count, 2)
         mock_sleep.assert_called_once_with(0.01)
 
+    @patch("vvrite.sounds.time.sleep")
+    @patch("vvrite.sounds.time.monotonic", side_effect=[0.0, 0.0, 1.0])
+    @patch("vvrite.sounds.NSSound")
+    def test_play_and_wait_stops_sound_on_timeout(
+        self, mock_nssound, _mock_monotonic, _mock_sleep
+    ):
+        from vvrite.sounds import play_and_wait
+
+        mock_sound = MagicMock()
+        mock_copy = MagicMock()
+        mock_copy.isPlaying.return_value = True
+        mock_sound.copy.return_value = mock_copy
+        mock_nssound.soundNamed_.return_value = mock_sound
+
+        play_and_wait("Glass", volume=0.5, max_wait=0.5)
+
+        mock_copy.stop.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()

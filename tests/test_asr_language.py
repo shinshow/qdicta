@@ -1,7 +1,6 @@
 """Tests for ASR language hint resolution."""
 
 import unittest
-from unittest.mock import patch
 
 
 class _Prefs:
@@ -10,11 +9,18 @@ class _Prefs:
 
 
 class TestAsrLanguageResolution(unittest.TestCase):
-    @patch("vvrite.asr_language.resolve_system_locale", return_value="ko")
-    def test_auto_uses_system_locale_as_language_hint(self, _mock_locale):
+    def test_auto_keeps_model_language_detection(self):
         from vvrite.asr_language import resolve_asr_language
 
-        self.assertEqual(resolve_asr_language(_Prefs()), "ko")
+        self.assertEqual(resolve_asr_language(_Prefs()), "auto")
+
+    def test_auto_does_not_use_ui_language_as_asr_hint(self):
+        from vvrite.asr_language import resolve_asr_language
+
+        prefs = _Prefs()
+        prefs.ui_language = "ko"
+
+        self.assertEqual(resolve_asr_language(prefs), "auto")
 
     def test_manual_language_overrides_system_locale(self):
         from vvrite.asr_language import resolve_asr_language

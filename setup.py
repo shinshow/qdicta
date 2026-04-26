@@ -18,8 +18,8 @@ OPTIONS = {
     "plist": {
         "CFBundleName": "vvrite",
         "CFBundleIdentifier": APP_BUNDLE_IDENTIFIER,
-        "CFBundleShortVersionString": "1.1.7",  # keep in sync with vvrite/__init__.__version__
-        "CFBundleVersion": "14",
+        "CFBundleShortVersionString": "1.1.8",  # keep in sync with vvrite/__init__.__version__
+        "CFBundleVersion": "15",
         "LSUIElement": True,
         "NSMicrophoneUsageDescription": (
             "vvrite needs microphone access to record and transcribe your speech."

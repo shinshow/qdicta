@@ -35,6 +35,7 @@ from vvrite.status_bar import StatusBarController
 from vvrite.hotkey import HotkeyManager
 from vvrite.overlay import OverlayController
 from vvrite.onboarding import OnboardingWindowController
+from vvrite.settings import SettingsWindowController
 from vvrite import transcriber, sounds
 from vvrite.recorder import Recorder
 from vvrite.clipboard import paste_and_restore, retract_text
@@ -42,6 +43,7 @@ from vvrite.clipboard import paste_and_restore, retract_text
 
 FORK_REPOSITORY_URL = "https://github.com/shinshow/vvrite"
 ORIGINAL_REPOSITORY_URL = "https://github.com/shaircast/vvrite"
+START_CUE_MAX_WAIT_SECONDS = 0.35
 
 
 def _about_message() -> str:
@@ -107,6 +109,27 @@ class AppDelegate(NSObject):
         self._status_bar = StatusBarController.alloc().initWithDelegate_(self)
         self._overlay = OverlayController.alloc().init()
 
+        NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
+            0.0, self, "preloadSettings:", None, False
+        )
+        NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
+            0.0, self, "finishLaunching:", None, False
+        )
+
+    def _ensure_settings_window_controller(self):
+        if self._settings_wc is None:
+            self._settings_wc = SettingsWindowController.alloc().initWithPreferences_(self._prefs)
+        return self._settings_wc
+
+    @objc.typedSelector(b"v@:@")
+    def preloadSettings_(self, _timer):
+        try:
+            self._ensure_settings_window_controller()
+        except Exception as e:
+            NSLog(f"Settings preload failed: {e}")
+
+    @objc.typedSelector(b"v@:@")
+    def finishLaunching_(self, _timer):
         if not self._prefs.onboarding_completed or not transcriber.is_model_cached(self._prefs.asr_model_key):
             self._prefs.onboarding_completed = False
             self._onboarding_wc = (
@@ -252,7 +275,11 @@ class AppDelegate(NSObject):
                 device=self._prefs.mic_device,
                 level_callback=level_cb,
             )
-            sounds.play_and_wait(self._prefs.sound_start, self._prefs.start_volume)
+            sounds.play_and_wait(
+                self._prefs.sound_start,
+                self._prefs.start_volume,
+                max_wait=START_CUE_MAX_WAIT_SECONDS,
+            )
             self._recorder.discard_frames()
             self.performSelectorOnMainThread_withObject_waitUntilDone_(
                 "showRecordingUI:", None, False
@@ -298,7 +325,7 @@ class AppDelegate(NSObject):
         try:
             text = transcriber.transcribe(raw_path, self._prefs)
             if text:
-                paste_and_restore(text)
+                paste_and_restore(text, async_restore=True)
                 self._last_dictation_text = text
                 self.performSelectorOnMainThread_withObject_waitUntilDone_(
                     "transcriptionComplete:", text, False
@@ -424,6 +451,10 @@ class AppDelegate(NSObject):
         if response == NSAlertFirstButtonReturn:
             self._open_external_url(FORK_REPOSITORY_URL)
 
+    @objc.typedSelector(b"v@:@")
+    def showAbout_(self, sender):
+        self.showAbout()
+
     def _open_external_url(self, url: str) -> bool:
         if not url:
             return False
@@ -437,12 +468,14 @@ class AppDelegate(NSObject):
         self._open_external_url(str(url))
 
     def openSettings(self):
-        from vvrite.settings import SettingsWindowController
-        if self._settings_wc is None:
-            self._settings_wc = SettingsWindowController.alloc().initWithPreferences_(self._prefs)
+        self._ensure_settings_window_controller()
         self._settings_wc.showWindow_(None)
         self._settings_wc.window().makeKeyAndOrderFront_(None)
         NSApp.activateIgnoringOtherApps_(True)
+
+    @objc.typedSelector(b"v@:@")
+    def openSettings_(self, sender):
+        self.openSettings()
 
     def invalidateSettingsWindow(self):
         """Force settings window to be recreated (after language change)."""

@@ -4,6 +4,20 @@ All notable changes to this fork are documented here.
 
 ## Unreleased
 
+## [1.1.8] - 2026-04-26
+
+### Changed
+
+- Reduced perceived dictation latency by capping the start cue wait, switching the default start cue to the shorter `Tink` sound, and restoring the clipboard asynchronously after paste.
+- Preloaded the Settings window after launch and prepared selected ASR models from Settings so model-switching pays less cost on the next dictation.
+- Let automatic ASR language mode remain model-driven instead of forcing the UI/system language as a backend language hint.
+
+### Fixed
+
+- Refreshed PortAudio input devices when opening or polling Settings so newly connected microphones appear without restarting vvrite.
+- Routed Settings and About menu actions directly to the app delegate from the menu bar.
+- Bumped app version from `1.1.7` to `1.1.8`.
+
 ## [1.1.7] - 2026-04-26
 
 ### Fixed

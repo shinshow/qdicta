@@ -29,7 +29,7 @@ _DEFAULTS = {
     "output_mode": OUTPUT_MODE_TRANSCRIBE,
     "max_tokens": 128000,
     "launch_at_login": False,
-    "sound_start": "Glass",
+    "sound_start": "Tink",
     "sound_stop": "Purr",
     "start_volume": 1.0,
     "stop_volume": 1.0,

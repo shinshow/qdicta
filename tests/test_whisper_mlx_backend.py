@@ -154,10 +154,10 @@ class TestWhisperMlxBackend(unittest.TestCase):
 
         progress.assert_called_with(3, 10)
 
-    @patch("vvrite.asr_backends.whisper_mlx.resolve_asr_language", return_value="ko")
+    @patch("vvrite.asr_backends.whisper_mlx.resolve_asr_language", return_value="auto")
     @patch("vvrite.asr_backends.whisper_mlx._read_audio_samples")
     @patch("vvrite.asr_backends.whisper_mlx.model_path")
-    def test_transcribe_passes_fast_mlx_options(
+    def test_transcribe_auto_language_lets_model_detect_language(
         self, mock_model_path, mock_read_audio, mock_resolve_language
     ):
         fake_mlx_whisper = types.SimpleNamespace(transcribe=MagicMock())
@@ -177,7 +177,7 @@ class TestWhisperMlxBackend(unittest.TestCase):
         self.assertFalse(kwargs["condition_on_previous_text"])
         self.assertTrue(kwargs["without_timestamps"])
         self.assertEqual(kwargs["task"], "transcribe")
-        self.assertEqual(kwargs["language"], "ko")
+        self.assertNotIn("language", kwargs)
         mock_resolve_language.assert_called()
 
     def test_unload_clears_mlx_whisper_model_holder_cache(self):
@@ -215,14 +215,14 @@ class TestWhisperMlxBackend(unittest.TestCase):
         self.assertEqual(kwargs["language"], "ko")
         self.assertEqual(kwargs["initial_prompt"], "vvrite, Qwen")
 
-    @patch("vvrite.asr_backends.whisper_mlx.resolve_asr_language", return_value="ko")
-    def test_transcribe_kwargs_uses_resolved_auto_language_hint(
+    @patch("vvrite.asr_backends.whisper_mlx.resolve_asr_language", return_value="auto")
+    def test_transcribe_kwargs_omits_language_for_auto_detection(
         self, mock_resolve_language
     ):
         kwargs = whisper_mlx._transcribe_kwargs(get_model("whisper_small_4bit"), _Prefs())
 
         mock_resolve_language.assert_called_once()
-        self.assertEqual(kwargs["language"], "ko")
+        self.assertNotIn("language", kwargs)
 
     @patch("vvrite.asr_backends.whisper_mlx._read_audio_samples")
     @patch("vvrite.asr_backends.whisper_mlx.model_path")

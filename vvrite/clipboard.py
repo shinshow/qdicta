@@ -1,5 +1,6 @@
 """Clipboard swap pattern: backup, write, paste, restore."""
 
+import threading
 import time
 from AppKit import NSPasteboard, NSPasteboardItem, NSData, NSPasteboardTypeString
 from Quartz import (
@@ -77,12 +78,17 @@ def _simulate_delete_backward(repeat_count: int):
         _post_keypress(kVK_Delete)
 
 
-def paste_and_restore(text: str):
+def paste_and_restore(text: str, async_restore: bool = False):
     """Write text to clipboard, paste via Cmd-V, then restore original clipboard."""
     saved = backup()
     _set_text(text)
     time.sleep(0.05)
     _simulate_cmd_v()
+    if async_restore:
+        timer = threading.Timer(CLIPBOARD_RESTORE_DELAY, restore, args=(saved,))
+        timer.daemon = True
+        timer.start()
+        return
     time.sleep(CLIPBOARD_RESTORE_DELAY)
     restore(saved)
 

@@ -106,12 +106,12 @@ class TestWhisperCppBackend(unittest.TestCase):
         self.assertIn("-nf", args)
         self.assertIn("-np", args)
 
-    @patch("vvrite.asr_backends.whisper_cpp.resolve_asr_language", return_value="ko")
-    def test_language_arg_uses_resolved_auto_language_hint(self, mock_resolve_language):
+    @patch("vvrite.asr_backends.whisper_cpp.resolve_asr_language", return_value="auto")
+    def test_language_arg_keeps_auto_detection(self, mock_resolve_language):
         prefs = _Prefs()
         prefs.asr_language = "auto"
 
-        self.assertEqual(whisper_cpp._language_arg(prefs), "ko")
+        self.assertEqual(whisper_cpp._language_arg(prefs), "auto")
         mock_resolve_language.assert_called_once()
 
     @patch("vvrite.asr_backends.whisper_cpp.subprocess.run")

@@ -249,6 +249,36 @@ class TestTranscriberRouter(unittest.TestCase):
         qwen_backend.load.assert_called_once_with("mlx-community/Qwen3-ASR-1.7B-8bit")
         self.assertTrue(transcriber.is_model_loaded())
 
+    @patch("vvrite.transcriber._whisper_mlx_backend")
+    @patch("vvrite.transcriber._qwen_backend")
+    def test_ensure_model_cached_downloads_without_loading_or_unloading_current_model(
+        self, mock_qwen_backend, mock_whisper_backend
+    ):
+        qwen_backend = MagicMock()
+        mock_qwen_backend.return_value = qwen_backend
+        whisper_backend = MagicMock()
+        whisper_backend.is_cached.return_value = False
+        whisper_backend.download.return_value = "/models/whisper-small"
+        mock_whisper_backend.return_value = whisper_backend
+
+        from vvrite import transcriber
+
+        transcriber._loaded_model_key = "qwen3_asr_1_7b_8bit"
+        callback = MagicMock()
+        transcriber.ensure_model_cached(
+            "whisper_small_4bit",
+            progress_callback=callback,
+        )
+
+        whisper_backend.download.assert_called_once()
+        self.assertEqual(
+            whisper_backend.download.call_args.args[0].key,
+            "whisper_small_4bit",
+        )
+        qwen_backend.unload.assert_not_called()
+        whisper_backend.load.assert_not_called()
+        self.assertEqual(transcriber._loaded_model_key, "qwen3_asr_1_7b_8bit")
+
 
 class TestQwenBackend(unittest.TestCase):
     @patch("vvrite.asr_backends.qwen._clear_mlx_cache")
@@ -399,8 +429,8 @@ class TestQwenBackend(unittest.TestCase):
 
     @patch("vvrite.asr_backends.qwen.os.unlink")
     @patch("vvrite.asr_backends.qwen.audio_utils.normalize", return_value="/tmp/normalized.wav")
-    @patch("vvrite.asr_backends.qwen.resolve_asr_language", return_value="ko")
-    def test_qwen_auto_language_uses_resolved_language_hint(
+    @patch("vvrite.asr_backends.qwen.resolve_asr_language", return_value="auto")
+    def test_qwen_auto_language_lets_model_detect_language(
         self, mock_resolve_language, mock_normalize, mock_unlink
     ):
         from vvrite.asr_backends import qwen
@@ -418,7 +448,7 @@ class TestQwenBackend(unittest.TestCase):
             qwen._model = None
 
         mock_resolve_language.assert_called_once()
-        self.assertEqual(model.generate.call_args.kwargs["language"], "Korean")
+        self.assertNotIn("language", model.generate.call_args.kwargs)
 
 
 if __name__ == "__main__":

@@ -121,7 +121,7 @@ class TestPreferences(unittest.TestCase):
     def test_default_sounds(self):
         from vvrite.preferences import Preferences
         prefs = Preferences()
-        self.assertEqual(prefs.sound_start, "Glass")
+        self.assertEqual(prefs.sound_start, "Tink")
         self.assertEqual(prefs.sound_stop, "Purr")
 
     def test_default_launch_at_login(self):

@@ -44,7 +44,12 @@ def play(name: str, volume: float = 1.0):
     sound.play()
 
 
-def play_and_wait(name: str, volume: float = 1.0, max_wait: float = 1.5):
+def play_and_wait(
+    name: str,
+    volume: float = 1.0,
+    max_wait: float = 1.5,
+    stop_on_timeout: bool = True,
+):
     """Play a short cue and wait until it finishes or times out."""
     sound = _sound_for_name(name)
     if sound is None:
@@ -59,3 +64,8 @@ def play_and_wait(name: str, volume: float = 1.0, max_wait: float = 1.5):
         except Exception:
             return
         time.sleep(0.01)
+    if stop_on_timeout:
+        try:
+            sound.stop()
+        except Exception:
+            pass

@@ -19,10 +19,11 @@ class TestRecordingFlow(unittest.TestCase):
         )
         delegate._recorder = MagicMock()
         delegate._recording = False
+        delegate._last_dictation_text = None
         delegate.performSelectorOnMainThread_withObject_waitUntilDone_ = MagicMock()
         return delegate
 
-    def test_start_recording_discards_ready_sound_before_showing_recording_ui(self):
+    def test_start_recording_shows_ui_after_discarding_ready_sound_frames(self):
         delegate = self._delegate()
         events = []
         delegate._recorder.start.side_effect = lambda **_kwargs: events.append(
@@ -38,7 +39,7 @@ class TestRecordingFlow(unittest.TestCase):
         with patch.object(
             main.sounds,
             "play_and_wait",
-            side_effect=lambda *_args: events.append("sounds.play"),
+            side_effect=lambda *_args, **_kwargs: events.append("sounds.play"),
         ):
             delegate._start_recording()
 
@@ -51,6 +52,14 @@ class TestRecordingFlow(unittest.TestCase):
                 "showRecordingUI:",
             ],
         )
+
+    def test_start_recording_caps_ready_sound_wait_for_responsiveness(self):
+        delegate = self._delegate()
+
+        with patch.object(main.sounds, "play_and_wait") as mock_play:
+            delegate._start_recording()
+
+        mock_play.assert_called_once_with("Glass", 1.0, max_wait=0.35)
 
     def test_stop_recording_closes_microphone_before_stop_sound(self):
         delegate = self._delegate()
@@ -68,6 +77,17 @@ class TestRecordingFlow(unittest.TestCase):
             delegate._stop_recording()
 
         self.assertEqual(events, ["recorder.stop", "sounds.play"])
+
+    @patch("vvrite.main.paste_and_restore")
+    @patch("vvrite.main.transcriber.transcribe", return_value="hello")
+    def test_transcribe_and_paste_restores_clipboard_asynchronously(
+        self, _mock_transcribe, mock_paste
+    ):
+        delegate = self._delegate()
+
+        delegate._transcribe_and_paste("/tmp/audio.wav")
+
+        mock_paste.assert_called_once_with("hello", async_restore=True)
 
 
 if __name__ == "__main__":

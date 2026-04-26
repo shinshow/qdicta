@@ -79,14 +79,14 @@ class StatusBarController(NSObject):
         settings_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
             t("menu.settings"), "openSettings:", ","
         )
-        settings_item.setTarget_(self)
+        settings_item.setTarget_(self._delegate)
         self._menu.addItem_(settings_item)
 
         # About
         about_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
             t("menu.about"), "showAbout:", ""
         )
-        about_item.setTarget_(self)
+        about_item.setTarget_(self._delegate)
         self._menu.addItem_(about_item)
 
         self._menu.addItem_(NSMenuItem.separatorItem())

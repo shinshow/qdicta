@@ -567,6 +567,12 @@ class SettingsWindowController(NSObject):
     def _refresh_mics_if_changed(self):
         if self._mic_popup is None:
             return
+        try:
+            delegate = NSApp.delegate()
+        except AttributeError:
+            delegate = None
+        if getattr(delegate, "_recording", False):
+            return
         devices = list_input_devices(refresh=True)
         signature = self._mic_signature(devices)
         if signature != self._mic_device_signature:
@@ -581,7 +587,7 @@ class SettingsWindowController(NSObject):
         self._mic_label.setStringValue_(t("settings.permissions.microphone_granted"))
 
     def showWindow_(self, sender):
-        self._populate_mics()
+        self._populate_mics(refresh=True)
         self._populate_sounds()
         self._window.makeKeyAndOrderFront_(sender)
         NSApp.activateIgnoringOtherApps_(True)

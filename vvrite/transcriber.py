@@ -132,6 +132,15 @@ def prepare_model(model_or_prefs=None, progress_callback=None):
         return model
 
 
+def ensure_model_cached(model_or_prefs=None, progress_callback=None):
+    """Ensure the selected ASR model is downloaded without loading it."""
+    with _model_lock:
+        model = _model_from(model_or_prefs)
+        if not _is_model_cached(model):
+            download_model(model.key, progress_callback=progress_callback)
+        return model
+
+
 def is_model_cached(model_id_or_key: str) -> bool:
     model = get_model(model_id_or_key)
     return _is_model_cached(model)
