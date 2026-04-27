@@ -1,4 +1,4 @@
-"""Korean locale strings for vvrite."""
+"""Korean locale strings for Qdicta."""
 
 strings = {
     "common": {
@@ -76,7 +76,7 @@ strings = {
             "title": "언어",
             "ui_language": "UI",
             "asr_language": "인식",
-            "restart_message": "언어 변경을 적용하려면 vvrite를 재시작하세요.",
+            "restart_message": "언어 변경을 적용하려면 Qdicta를 재시작하세요.",
             "restart_now": "지금 재시작",
         },
         "shortcut": {
@@ -100,13 +100,13 @@ strings = {
             "download": "모델 다운로드",
             "delete": "모델 삭제",
             "delete_confirm_title": "이 모델을 삭제할까요?",
-            "delete_confirm_message": "이 모델의 다운로드 파일을 vvrite의 Application Support 폴더에서 삭제합니다. 나중에 다시 다운로드할 수 있습니다.",
+            "delete_confirm_message": "이 모델의 다운로드 파일을 Qdicta의 Application Support 폴더에서 삭제합니다. 나중에 다시 다운로드할 수 있습니다.",
             "downloaded": "다운로드됨",
             "not_downloaded": "다운로드 안 됨",
             "downloading_progress": "다운로드 중: {progress}",
             "download_failed": "모델 다운로드 실패",
-            "delete_current_model_blocked": "현재 로드된 모델을 삭제하기 전에 vvrite를 종료하거나 모델을 전환하세요.",
-            "translation_unsupported": "선택한 모델은 vvrite에서 영어 번역을 지원하지 않습니다.",
+            "delete_current_model_blocked": "현재 로드된 모델을 삭제하기 전에 Qdicta를 종료하거나 모델을 전환하세요.",
+            "translation_unsupported": "선택한 모델은 Qdicta에서 영어 번역을 지원하지 않습니다.",
             "translation_supported": "전사와 영어 번역을 지원합니다.",
             "translation_unavailable": "전사 전용 모델입니다. 영어 번역은 사용할 수 없습니다.",
             "translation_switched_to_transcribe": "이 모델은 영어 번역을 지원하지 않아 전사 모드로 전환했습니다.",
@@ -118,7 +118,7 @@ strings = {
         },
         "custom_words": {
             "title": "사용자 지정 단어",
-            "placeholder": "MLX, Qwen, vvrite",
+            "placeholder": "MLX, Qwen, Qdicta",
             "hint": "한 줄에 하나씩 입력하거나 쉼표로 구분된 단어를 붙여넣으세요",
             "import": "가져오기...",
             "export": "내보내기...",
@@ -163,7 +163,7 @@ strings = {
         "transcribe_file": "오디오/비디오 파일 전사...",
         "copy_last_dictation": "마지막 받아쓰기 복사",
         "recent_dictations": "최근 받아쓰기...",
-        "quit": "vvrite 종료",
+        "quit": "Qdicta 종료",
     },
     "file_transcription": {
         "choose_file": "오디오 또는 비디오 파일 선택",
@@ -183,7 +183,7 @@ strings = {
     "alerts": {
         "permissions_required": {
             "title": "권한 필요",
-            "message": "vvrite에 다음 권한이 필요합니다:\n\n{permissions}\n\n'허용'을 클릭하여 각 권한 대화 상자를 여세요.",
+            "message": "Qdicta에 다음 권한이 필요합니다:\n\n{permissions}\n\n'허용'을 클릭하여 각 권한 대화 상자를 여세요.",
             "accessibility": "손쉬운 사용 (전역 단축키 사용)",
             "microphone": "마이크 (음성 녹음 사용)",
         },
@@ -192,10 +192,10 @@ strings = {
         },
         "no_updates": {
             "title": "사용 가능한 업데이트 없음",
-            "message": "vvrite {version}이 최신 버전입니다.",
+            "message": "Qdicta {version}이 최신 버전입니다.",
         },
         "update_available": {
-            "title": "vvrite {version}을 사용할 수 있습니다",
+            "title": "Qdicta {version}을 사용할 수 있습니다",
             "message": "현재 {current_version}을 실행 중입니다.",
         },
     },

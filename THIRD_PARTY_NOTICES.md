@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-vvrite is distributed under the MIT License. This file summarizes key third-party components, model sources, and license notes that matter for direct distribution.
+Qdicta is distributed under the MIT License. This file summarizes key third-party components, model sources, and license notes that matter for direct distribution.
 
 ## Runtime Dependencies
 
@@ -25,7 +25,7 @@ Some binary Python wheels may bundle additional native libraries, for example BL
 
 ## Models
 
-vvrite downloads model weights separately into the user's Application Support folder. Model files are not bundled in the app DMG.
+Qdicta downloads model weights separately into the user's Application Support folder. Model files are not bundled in the app DMG.
 
 | Model | Source | License note |
 |---|---|---|
@@ -37,8 +37,8 @@ Users download model weights directly from Hugging Face through the app. The use
 
 ## No FFmpeg Bundle
 
-Current vvrite builds do not bundle `ffmpeg`. Audio capture and processing use `sounddevice`, `soundfile`, `scipy`, and MLX-related Python packages.
+Current Qdicta builds do not bundle `ffmpeg`. Audio capture and processing use `sounddevice`, `soundfile`, `scipy`, and MLX-related Python packages.
 
 ## Source Availability
 
-vvrite's source code is available from the project repository. Third-party source code and license text are available from each upstream project and package distribution.
+Qdicta's source code is available from the project repository. Third-party source code and license text are available from each upstream project and package distribution.

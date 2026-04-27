@@ -1,4 +1,4 @@
-"""Chinese Traditional locale strings for vvrite."""
+"""Chinese Traditional locale strings for Qdicta."""
 
 strings = {
     "common": {
@@ -76,7 +76,7 @@ strings = {
             "title": "語言",
             "ui_language": "介面",
             "asr_language": "辨識",
-            "restart_message": "重新啟動 vvrite 以套用語言變更。",
+            "restart_message": "重新啟動 Qdicta 以套用語言變更。",
             "restart_now": "立即重新啟動",
         },
         "shortcut": {
@@ -100,13 +100,13 @@ strings = {
             "download": "下載所選模型",
             "delete": "刪除所選模型",
             "delete_confirm_title": "刪除已下載的模型？",
-            "delete_confirm_message": "這會從 vvrite 的 Application Support 資料夾移除所選模型。你之後可以重新下載。",
+            "delete_confirm_message": "這會從 Qdicta 的 Application Support 資料夾移除所選模型。你之後可以重新下載。",
             "downloaded": "已下載",
             "not_downloaded": "未下載",
             "downloading_progress": "Downloading: {progress}",
             "download_failed": "Model download failed",
-            "delete_current_model_blocked": "刪除目前已載入的模型前，請結束 vvrite 或切換模型。",
-            "translation_unsupported": "所選模型在 vvrite 中不支援英文翻譯。",
+            "delete_current_model_blocked": "刪除目前已載入的模型前，請結束 Qdicta 或切換模型。",
+            "translation_unsupported": "所選模型在 Qdicta 中不支援英文翻譯。",
             "translation_supported": "支援轉錄與英文翻譯。",
             "translation_unavailable": "僅支援轉錄。此模型無法使用英文翻譯。",
             "translation_switched_to_transcribe": "此模型不支援英文翻譯。已切換為轉錄。",
@@ -118,7 +118,7 @@ strings = {
         },
         "custom_words": {
             "title": "自訂詞彙",
-            "placeholder": "MLX, Qwen, vvrite",
+            "placeholder": "MLX, Qwen, Qdicta",
             "hint": "每行輸入一個詞，或貼上以逗號分隔的詞彙",
             "import": "匯入...",
             "export": "匯出...",
@@ -157,13 +157,13 @@ strings = {
         "hotkey": "快捷鍵：{hotkey}",
         "microphone": "麥克風：{microphone}",
         "settings": "設定...",
-        "about": "About vvrite...",
+        "about": "About Qdicta...",
         "check_updates": "檢查更新...",
         "update_available": "有可用更新 ({version})",
         "transcribe_file": "轉錄音訊/影片檔案...",
         "copy_last_dictation": "複製上一次聽寫",
         "recent_dictations": "最近聽寫...",
-        "quit": "結束 vvrite",
+        "quit": "結束 Qdicta",
     },
     "file_transcription": {
         "choose_file": "選擇音訊或影片檔案",
@@ -183,7 +183,7 @@ strings = {
     "alerts": {
         "permissions_required": {
             "title": "需要權限",
-            "message": "vvrite 需要以下權限：\n\n{permissions}\n\n點擊「授權」開啟每個權限對話框。",
+            "message": "Qdicta 需要以下權限：\n\n{permissions}\n\n點擊「授權」開啟每個權限對話框。",
             "accessibility": "輔助使用（用於全域快捷鍵）",
             "microphone": "麥克風（用於語音錄製）",
         },
@@ -192,10 +192,10 @@ strings = {
         },
         "no_updates": {
             "title": "沒有可用更新",
-            "message": "vvrite {version} 已是最新版本。",
+            "message": "Qdicta {version} 已是最新版本。",
         },
         "update_available": {
-            "title": "vvrite {version} 可用",
+            "title": "Qdicta {version} 可用",
             "message": "您目前正在執行 {current_version}。",
         },
     },

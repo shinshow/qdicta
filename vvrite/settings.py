@@ -38,7 +38,7 @@ from AppKit import (
 )
 from Foundation import NSLog, NSURL, NSTimer
 
-from vvrite import launch_at_login, sounds, transcriber
+from vvrite import APP_NAME, launch_at_login, sounds, transcriber
 from vvrite.asr_models import (
     ASR_MODELS,
     OUTPUT_MODE_TRANSCRIBE,
@@ -1287,7 +1287,7 @@ class SettingsWindowController(NSObject):
 
         panel = NSSavePanel.savePanel()
         panel.setAllowedFileTypes_(["txt", "csv"])
-        panel.setNameFieldStringValue_("vvrite-custom-words.txt")
+        panel.setNameFieldStringValue_(f"{APP_NAME.lower()}-custom-words.txt")
         panel.setTitle_(t("settings.custom_words.export_title"))
 
         if self._window is not None:

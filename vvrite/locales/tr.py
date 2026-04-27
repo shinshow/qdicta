@@ -1,4 +1,4 @@
-"""Turkish locale strings for vvrite."""
+"""Turkish locale strings for Qdicta."""
 
 strings = {
     "common": {
@@ -76,7 +76,7 @@ strings = {
             "title": "Dil",
             "ui_language": "Arayüz",
             "asr_language": "Tanıma",
-            "restart_message": "Dil değişikliklerini uygulamak için vvrite'ı yeniden başlatın.",
+            "restart_message": "Dil değişikliklerini uygulamak için Qdicta'ı yeniden başlatın.",
             "restart_now": "Şimdi Yeniden Başlat",
         },
         "shortcut": {
@@ -100,13 +100,13 @@ strings = {
             "download": "Seçili modeli indir",
             "delete": "Seçili modeli sil",
             "delete_confirm_title": "İndirilen model silinsin mi?",
-            "delete_confirm_message": "Bu, seçili modeli vvrite'ın Application Support klasöründen kaldırır. Daha sonra tekrar indirebilirsiniz.",
+            "delete_confirm_message": "Bu, seçili modeli Qdicta'ın Application Support klasöründen kaldırır. Daha sonra tekrar indirebilirsiniz.",
             "downloaded": "İndirildi",
             "not_downloaded": "İndirilmedi",
             "downloading_progress": "Downloading: {progress}",
             "download_failed": "Model download failed",
-            "delete_current_model_blocked": "Şu anda yüklü modeli silmeden önce vvrite'ı kapatın veya modeli değiştirin.",
-            "translation_unsupported": "Seçilen model vvrite içinde İngilizce çeviriyi desteklemez.",
+            "delete_current_model_blocked": "Şu anda yüklü modeli silmeden önce Qdicta'ı kapatın veya modeli değiştirin.",
+            "translation_unsupported": "Seçilen model Qdicta içinde İngilizce çeviriyi desteklemez.",
             "translation_supported": "Yazıya dökme ve İngilizce çeviriyi destekler.",
             "translation_unavailable": "Yalnızca yazıya dökme. Bu model için İngilizce çeviri kullanılamaz.",
             "translation_switched_to_transcribe": "Bu model İngilizce çeviriyi desteklemez. Yazıya dökme moduna geçildi.",
@@ -118,7 +118,7 @@ strings = {
         },
         "custom_words": {
             "title": "Özel Kelimeler",
-            "placeholder": "MLX, Qwen, vvrite",
+            "placeholder": "MLX, Qwen, Qdicta",
             "hint": "Her satıra bir kelime girin veya virgülle ayrılmış kelimeler yapıştırın",
             "import": "İçe aktar...",
             "export": "Dışa aktar...",
@@ -157,13 +157,13 @@ strings = {
         "hotkey": "Kısayol: {hotkey}",
         "microphone": "Mikrofon: {microphone}",
         "settings": "Ayarlar...",
-        "about": "About vvrite...",
+        "about": "About Qdicta...",
         "check_updates": "Güncellemeleri Kontrol Et...",
         "update_available": "Güncelleme Mevcut ({version})",
         "transcribe_file": "Ses/Video Dosyasını Yazıya Dök...",
         "copy_last_dictation": "Son Dikteyi Kopyala",
         "recent_dictations": "Son Dikteler...",
-        "quit": "vvrite'dan Çık",
+        "quit": "Qdicta'dan Çık",
     },
     "file_transcription": {
         "choose_file": "Ses veya video dosyası seç",
@@ -183,7 +183,7 @@ strings = {
     "alerts": {
         "permissions_required": {
             "title": "İzinler Gerekli",
-            "message": "vvrite aşağıdaki izinlere ihtiyaç duyar:\n\n{permissions}\n\nHer izin iletişim kutusunu açmak için 'İzin Ver'e tıklayın.",
+            "message": "Qdicta aşağıdaki izinlere ihtiyaç duyar:\n\n{permissions}\n\nHer izin iletişim kutusunu açmak için 'İzin Ver'e tıklayın.",
             "accessibility": "Erişilebilirlik (genel kısayol tuşu için)",
             "microphone": "Mikrofon (ses kaydı için)",
         },
@@ -192,10 +192,10 @@ strings = {
         },
         "no_updates": {
             "title": "Güncelleme Yok",
-            "message": "vvrite {version} en son sürümdür.",
+            "message": "Qdicta {version} en son sürümdür.",
         },
         "update_available": {
-            "title": "vvrite {version} mevcut",
+            "title": "Qdicta {version} mevcut",
             "message": "Şu anda {current_version} çalıştırıyorsunuz.",
         },
     },

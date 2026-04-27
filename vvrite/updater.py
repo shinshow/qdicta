@@ -5,8 +5,8 @@ import re
 import urllib.request
 import urllib.error
 
-GITHUB_API_URL = "https://api.github.com/repos/shinshow/vvrite/releases/latest"
-REPOSITORY_URL = "https://github.com/shinshow/vvrite"
+GITHUB_API_URL = "https://api.github.com/repos/shinshow/qdicta/releases/latest"
+REPOSITORY_URL = "https://github.com/shinshow/qdicta"
 REQUEST_TIMEOUT = 15
 COOLDOWN_SECONDS = 86400  # 24 hours
 
@@ -33,7 +33,7 @@ def fetch_latest_release() -> dict | None:
         GITHUB_API_URL,
         headers={
             "Accept": "application/vnd.github+json",
-            "User-Agent": "vvrite-updater",
+            "User-Agent": "qdicta-updater",
         },
     )
     try:
@@ -76,7 +76,7 @@ def download_asset(url: str, destination: str) -> str:
         url,
         headers={
             "Accept": "application/octet-stream",
-            "User-Agent": "vvrite-updater",
+            "User-Agent": "qdicta-updater",
         },
     )
     with urllib.request.urlopen(req, timeout=120) as resp:

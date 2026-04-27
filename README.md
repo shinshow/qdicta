@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="assets/icon.png" width="128" height="128" alt="vvrite icon">
+  <img src="assets/qdicta-icon.png" width="128" height="128" alt="Qdicta icon">
 </p>
 
-<h1 align="center">vvrite</h1>
+<h1 align="center">Qdicta</h1>
 
 <p align="center">
-  macOS menu bar app that transcribes your voice and pastes the text — powered by on-device AI.
+  Local dictation for Mac. On-device voice transcription that pastes into any app.
 </p>
 
 <p align="center">
@@ -54,16 +54,17 @@ The default Qwen3-ASR model and optional Whisper models support multilingual dic
 |---|---|---:|---|
 | Qwen3-ASR 1.7B 8-bit | Default multilingual dictation | ~2.5 GB | No |
 | Whisper small 4-bit MLX | Fastest Whisper option and Korean-to-English translation | ~139 MB | Yes |
-| Whisper large-v3-turbo 4-bit MLX | Higher-quality fast Whisper dictation | ~463 MB | No in vvrite |
+| Whisper large-v3-turbo 4-bit MLX | Higher-quality fast Whisper dictation | ~463 MB | No in Qdicta |
 
 Qwen3-ASR runs in-process through mlx-audio. Whisper models run through mlx-whisper, and the selected model is warmed up after preparation to avoid paying the model startup cost during dictation.
 
 ## Model Storage
 
 Downloaded models are stored under `~/Library/Application Support/vvrite/models/`.
-Deleting `/Applications/vvrite.app` does not automatically delete downloaded models.
+Deleting `/Applications/Qdicta.app` does not automatically delete downloaded models.
 Use Settings > Model > Delete selected model to reclaim disk space, or remove model folders manually.
-Older vvrite builds may also have cached Qwen files under `~/.cache/huggingface/hub/`.
+Qdicta keeps the existing `vvrite` Application Support folder for upgrade compatibility.
+Older builds may also have cached Qwen files under `~/.cache/huggingface/hub/`.
 
 ## Language Support
 
@@ -84,8 +85,8 @@ Whisper small 4-bit MLX and Whisper large-v3-turbo 4-bit MLX add fast Whisper-fa
 
 ```bash
 # Clone
-git clone https://github.com/shinshow/vvrite.git
-cd vvrite
+git clone https://github.com/shinshow/qdicta.git
+cd qdicta
 
 # Install dependencies
 pip install -r requirements.txt
@@ -99,7 +100,7 @@ python -m vvrite
 ```bash
 pip install -r requirements.txt
 ./scripts/build.sh
-open dist/vvrite.dmg
+open dist/Qdicta.dmg
 ```
 
 `./scripts/build.sh` is the supported release build path. It performs the PyInstaller build, Developer ID code signing, notarization, stapling, and DMG creation. It requires a configured Apple Developer signing identity and `notarytool` profile.
@@ -108,7 +109,7 @@ For local development without an Apple Developer Program account, use:
 
 ```bash
 ./scripts/build.sh --local
-open dist/vvrite.dmg
+open dist/Qdicta.dmg
 ```
 
 Local builds use ad-hoc signing by default and skip notarization, so they are not suitable for public distribution. To use a local signing identity instead, run `LOCAL_SIGN_IDENTITY="Apple Development: ..." ./scripts/build.sh --local`.
@@ -135,16 +136,16 @@ On first launch, the onboarding wizard will guide you through:
 2. Press the configured hotkey.
 3. Speak while the recording overlay is visible.
 4. Press the hotkey again to stop.
-5. vvrite transcribes locally, pastes the result into the active app, and stores it in recent dictations.
+5. Qdicta transcribes locally, pastes the result into the active app, and stores it in recent dictations.
 
-If you press `Escape` while recording, vvrite cancels the recording and does not transcribe or paste anything.
+If you press `Escape` while recording, Qdicta cancels the recording and does not transcribe or paste anything.
 
 ### File Transcription
 
 1. Put the cursor where you want the result to appear.
 2. Click the menu bar icon and choose **Transcribe Audio/Video File...**.
 3. Select a supported file: `WAV`, `MP3`, `M4A`, `MP4`, `CAF`, `AIFF`, or `FLAC`.
-4. vvrite copies the selected file to a temporary working file, transcribes it locally with the currently selected model, pastes the result into the active app, and stores it in recent dictations.
+4. Qdicta copies the selected file to a temporary working file, transcribes it locally with the currently selected model, pastes the result into the active app, and stores it in recent dictations.
 
 File transcription does not open a separate results window. If the active app is not ready for text input, use **Copy Last Dictation** or **Recent Dictations...** from the menu bar to recover the result.
 

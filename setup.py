@@ -1,4 +1,4 @@
-"""py2app build configuration for vvrite."""
+"""py2app build configuration for Qdicta."""
 import os
 import sys
 
@@ -9,20 +9,20 @@ if ROOT_DIR not in sys.path:
 sys.setrecursionlimit(5000)
 
 from setuptools import setup
-from vvrite import APP_BUNDLE_IDENTIFIER
+from vvrite import APP_BUNDLE_IDENTIFIER, APP_NAME, __version__
 
 APP = ["vvrite/main.py"]
 DATA_FILES = []
 OPTIONS = {
     "argv_emulation": False,
     "plist": {
-        "CFBundleName": "vvrite",
+        "CFBundleName": APP_NAME,
         "CFBundleIdentifier": APP_BUNDLE_IDENTIFIER,
-        "CFBundleShortVersionString": "1.1.9",  # keep in sync with vvrite/__init__.__version__
-        "CFBundleVersion": "15",
+        "CFBundleShortVersionString": __version__,
+        "CFBundleVersion": "16",
         "LSUIElement": True,
         "NSMicrophoneUsageDescription": (
-            "vvrite needs microphone access to record and transcribe your speech."
+            f"{APP_NAME} needs microphone access to record and transcribe your speech."
         ),
         "NSHighResolutionCapable": True,
     },

@@ -1,4 +1,4 @@
-"""Russian locale strings for vvrite."""
+"""Russian locale strings for Qdicta."""
 
 strings = {
     "common": {
@@ -76,7 +76,7 @@ strings = {
             "title": "Язык",
             "ui_language": "Интерфейс",
             "asr_language": "Распознавание",
-            "restart_message": "Перезапустите vvrite для применения языковых изменений.",
+            "restart_message": "Перезапустите Qdicta для применения языковых изменений.",
             "restart_now": "Перезапустить сейчас",
         },
         "shortcut": {
@@ -100,13 +100,13 @@ strings = {
             "download": "Загрузить выбранную модель",
             "delete": "Удалить выбранную модель",
             "delete_confirm_title": "Удалить загруженную модель?",
-            "delete_confirm_message": "Это удалит выбранную модель из папки Application Support vvrite. Вы сможете загрузить её снова позже.",
+            "delete_confirm_message": "Это удалит выбранную модель из папки Application Support Qdicta. Вы сможете загрузить её снова позже.",
             "downloaded": "Загружено",
             "not_downloaded": "Не загружено",
             "downloading_progress": "Downloading: {progress}",
             "download_failed": "Model download failed",
-            "delete_current_model_blocked": "Закройте vvrite или переключите модель перед удалением текущей загруженной модели.",
-            "translation_unsupported": "Выбранная модель не поддерживает перевод на английский в vvrite.",
+            "delete_current_model_blocked": "Закройте Qdicta или переключите модель перед удалением текущей загруженной модели.",
+            "translation_unsupported": "Выбранная модель не поддерживает перевод на английский в Qdicta.",
             "translation_supported": "Поддерживает транскрипцию и перевод на английский.",
             "translation_unavailable": "Только транскрипция. Перевод на английский для этой модели недоступен.",
             "translation_switched_to_transcribe": "Эта модель не поддерживает перевод на английский. Переключено на транскрипцию.",
@@ -118,7 +118,7 @@ strings = {
         },
         "custom_words": {
             "title": "Пользовательские слова",
-            "placeholder": "MLX, Qwen, vvrite",
+            "placeholder": "MLX, Qwen, Qdicta",
             "hint": "Введите по одному слову в строке или вставьте слова через запятую",
             "import": "Импорт...",
             "export": "Экспорт...",
@@ -157,13 +157,13 @@ strings = {
         "hotkey": "Горячая клавиша: {hotkey}",
         "microphone": "Микрофон: {microphone}",
         "settings": "Настройки...",
-        "about": "About vvrite...",
+        "about": "About Qdicta...",
         "check_updates": "Проверить обновления...",
         "update_available": "Доступно обновление ({version})",
         "transcribe_file": "Транскрибировать аудио-/видеофайл...",
         "copy_last_dictation": "Скопировать последнюю диктовку",
         "recent_dictations": "Недавние диктовки...",
-        "quit": "Завершить vvrite",
+        "quit": "Завершить Qdicta",
     },
     "file_transcription": {
         "choose_file": "Выбрать аудио- или видеофайл",
@@ -183,7 +183,7 @@ strings = {
     "alerts": {
         "permissions_required": {
             "title": "Требуются разрешения",
-            "message": "vvrite необходимы следующие разрешения:\n\n{permissions}\n\nНажмите «Разрешить», чтобы открыть каждый диалог разрешений.",
+            "message": "Qdicta необходимы следующие разрешения:\n\n{permissions}\n\nНажмите «Разрешить», чтобы открыть каждый диалог разрешений.",
             "accessibility": "Универсальный доступ (для глобальной горячей клавиши)",
             "microphone": "Микрофон (для записи голоса)",
         },
@@ -192,10 +192,10 @@ strings = {
         },
         "no_updates": {
             "title": "Обновлений нет",
-            "message": "vvrite {version} — последняя версия.",
+            "message": "Qdicta {version} — последняя версия.",
         },
         "update_available": {
-            "title": "Доступна версия vvrite {version}",
+            "title": "Доступна версия Qdicta {version}",
             "message": "Вы используете версию {current_version}.",
         },
     },

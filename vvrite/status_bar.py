@@ -13,6 +13,7 @@ from AppKit import (
     NSColor,
 )
 
+from vvrite import APP_NAME
 from vvrite.locales import t
 from vvrite.widgets import format_shortcut
 
@@ -41,7 +42,7 @@ class StatusBarController(NSObject):
 
         # App title
         title_item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-            "vvrite", None, ""
+            APP_NAME, None, ""
         )
         title_item.setEnabled_(False)
         self._menu.addItem_(title_item)

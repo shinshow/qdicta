@@ -4,7 +4,7 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 ## Project Overview
 
-vvrite is a macOS menu bar application (Python) that performs on-device voice transcription using the Qwen3-ASR model via mlx-audio. It captures audio through a global hotkey, transcribes speech, and pastes text into the active application.
+Qdicta is a macOS menu bar application (Python package name: `vvrite`) that performs on-device voice transcription using the Qwen3-ASR model via mlx-audio. It captures audio through a global hotkey, transcribes speech, and pastes text into the active application.
 
 - Platform: macOS 13+ (Apple Silicon only)
 - UI Framework: PyObjC (AppKit, Quartz, Foundation)

@@ -1,4 +1,4 @@
-"""Arabic locale strings for vvrite."""
+"""Arabic locale strings for Qdicta."""
 
 strings = {
     "common": {
@@ -76,7 +76,7 @@ strings = {
             "title": "اللغة",
             "ui_language": "الواجهة",
             "asr_language": "التعرف",
-            "restart_message": "أعد تشغيل vvrite لتطبيق تغييرات اللغة.",
+            "restart_message": "أعد تشغيل Qdicta لتطبيق تغييرات اللغة.",
             "restart_now": "إعادة التشغيل الآن",
         },
         "shortcut": {
@@ -100,13 +100,13 @@ strings = {
             "download": "تنزيل النموذج المحدد",
             "delete": "حذف النموذج المحدد",
             "delete_confirm_title": "حذف النموذج الذي تم تنزيله؟",
-            "delete_confirm_message": "سيؤدي هذا إلى إزالة النموذج المحدد من مجلد Application Support الخاص بـ vvrite. يمكنك تنزيله مرة أخرى لاحقاً.",
+            "delete_confirm_message": "سيؤدي هذا إلى إزالة النموذج المحدد من مجلد Application Support الخاص بـ Qdicta. يمكنك تنزيله مرة أخرى لاحقاً.",
             "downloaded": "تم التنزيل",
             "not_downloaded": "لم يتم التنزيل",
             "downloading_progress": "Downloading: {progress}",
             "download_failed": "Model download failed",
-            "delete_current_model_blocked": "أغلق vvrite أو بدّل النموذج قبل حذف النموذج المحمل حالياً.",
-            "translation_unsupported": "النموذج المحدد لا يدعم الترجمة إلى الإنجليزية في vvrite.",
+            "delete_current_model_blocked": "أغلق Qdicta أو بدّل النموذج قبل حذف النموذج المحمل حالياً.",
+            "translation_unsupported": "النموذج المحدد لا يدعم الترجمة إلى الإنجليزية في Qdicta.",
             "translation_supported": "يدعم التفريغ والترجمة إلى الإنجليزية.",
             "translation_unavailable": "تفريغ فقط. الترجمة إلى الإنجليزية غير متاحة لهذا النموذج.",
             "translation_switched_to_transcribe": "هذا النموذج لا يدعم الترجمة إلى الإنجليزية. تم التبديل إلى التفريغ.",
@@ -118,7 +118,7 @@ strings = {
         },
         "custom_words": {
             "title": "كلمات مخصصة",
-            "placeholder": "MLX, Qwen, vvrite",
+            "placeholder": "MLX, Qwen, Qdicta",
             "hint": "أدخل كلمة في كل سطر أو الصق كلمات مفصولة بفواصل",
             "import": "استيراد...",
             "export": "تصدير...",
@@ -157,13 +157,13 @@ strings = {
         "hotkey": "الاختصار: {hotkey}",
         "microphone": "الميكروفون: {microphone}",
         "settings": "الإعدادات...",
-        "about": "About vvrite...",
+        "about": "About Qdicta...",
         "check_updates": "التحقق من التحديثات...",
         "update_available": "تحديث متاح ({version})",
         "transcribe_file": "تفريغ ملف صوت/فيديو...",
         "copy_last_dictation": "نسخ آخر إملاء",
         "recent_dictations": "الإملاءات الأخيرة...",
-        "quit": "إنهاء vvrite",
+        "quit": "إنهاء Qdicta",
     },
     "file_transcription": {
         "choose_file": "اختر ملف صوت أو فيديو",
@@ -183,7 +183,7 @@ strings = {
     "alerts": {
         "permissions_required": {
             "title": "الأذونات مطلوبة",
-            "message": "يحتاج vvrite إلى الأذونات التالية:\n\n{permissions}\n\nانقر على 'منح' لفتح كل مربع حوار أذونات.",
+            "message": "يحتاج Qdicta إلى الأذونات التالية:\n\n{permissions}\n\nانقر على 'منح' لفتح كل مربع حوار أذونات.",
             "accessibility": "إمكانية الوصول (لاختصار لوحة المفاتيح العام)",
             "microphone": "الميكروفون (لتسجيل الصوت)",
         },
@@ -192,10 +192,10 @@ strings = {
         },
         "no_updates": {
             "title": "لا توجد تحديثات متاحة",
-            "message": "vvrite {version} هو أحدث إصدار.",
+            "message": "Qdicta {version} هو أحدث إصدار.",
         },
         "update_available": {
-            "title": "vvrite {version} متاح",
+            "title": "Qdicta {version} متاح",
             "message": "أنت تستخدم حالياً الإصدار {current_version}.",
         },
     },

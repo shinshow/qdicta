@@ -2,7 +2,7 @@
 
 import unittest
 
-from vvrite import __version__
+from vvrite import APP_DESCRIPTION, APP_NAME, APP_TAGLINE, __version__
 from vvrite.main import (
     FORK_REPOSITORY_URL,
     ORIGINAL_REPOSITORY_URL,
@@ -15,9 +15,11 @@ class TestAboutDialogContent(unittest.TestCase):
         message = _about_message()
 
         self.assertIn(__version__, message)
+        self.assertIn(APP_NAME, message)
+        self.assertIn(APP_TAGLINE, message)
+        self.assertIn(APP_DESCRIPTION, message)
         self.assertIn(FORK_REPOSITORY_URL, message)
         self.assertIn(ORIGINAL_REPOSITORY_URL, message)
-        self.assertIn("on-device voice transcription", message)
 
 
 if __name__ == "__main__":

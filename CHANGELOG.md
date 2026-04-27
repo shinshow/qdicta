@@ -4,6 +4,16 @@ All notable changes to this fork are documented here.
 
 ## Unreleased
 
+## [1.2.0] - 2026-04-27
+
+### Changed
+
+- Renamed the public app branding to Qdicta with the tagline "Local dictation for Mac."
+- Updated the app bundle name, DMG name, About text, menu labels, onboarding title, README, privacy notice, and third-party notices for Qdicta.
+- Updated the project repository and update-check URLs to `https://github.com/shinshow/qdicta`.
+- Added a new Qdicta app icon and package icon asset.
+- Bumped app version from `1.1.9` to `1.2.0`.
+
 ## [1.1.9] - 2026-04-27
 
 ### Changed
@@ -122,7 +132,7 @@ Compared with upstream `shaircast/vvrite` `v1.0.6`, this release adds selectable
 ### Changed
 
 - Bumped app version from `1.0.6` to `1.1.0`.
-- Changed update checks to use `https://github.com/shinshow/vvrite` releases.
+- Changed update checks to use this fork's GitHub Releases.
 - Updated README documentation for selectable ASR models and fork installation URLs.
 - Improved Qwen model loading so it uses the app-managed model directory.
 - Improved Whisper response time by preparing and warming up the selected MLX Whisper model.

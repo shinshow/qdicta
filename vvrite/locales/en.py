@@ -1,4 +1,4 @@
-"""English locale strings for vvrite."""
+"""English locale strings for Qdicta."""
 
 strings = {
     "common": {
@@ -76,7 +76,7 @@ strings = {
             "title": "Language",
             "ui_language": "UI",
             "asr_language": "Recognition",
-            "restart_message": "Restart vvrite to apply language changes.",
+            "restart_message": "Restart Qdicta to apply language changes.",
             "restart_now": "Restart Now",
         },
         "shortcut": {
@@ -100,13 +100,13 @@ strings = {
             "download": "Download selected model",
             "delete": "Delete selected model",
             "delete_confirm_title": "Delete downloaded model?",
-            "delete_confirm_message": "This removes the selected model from vvrite's Application Support folder. You can download it again later.",
+            "delete_confirm_message": "This removes the selected model from Qdicta's Application Support folder. You can download it again later.",
             "downloaded": "Downloaded",
             "not_downloaded": "Not downloaded",
             "downloading_progress": "Downloading: {progress}",
             "download_failed": "Model download failed",
-            "delete_current_model_blocked": "Quit vvrite or switch models before deleting the currently loaded model.",
-            "translation_unsupported": "Selected model does not support English translation in vvrite.",
+            "delete_current_model_blocked": "Quit Qdicta or switch models before deleting the currently loaded model.",
+            "translation_unsupported": "Selected model does not support English translation in Qdicta.",
             "translation_supported": "Supports transcription and English translation.",
             "translation_unavailable": "Transcription only. English translation is unavailable for this model.",
             "translation_switched_to_transcribe": "This model does not support English translation. Switched to transcription.",
@@ -118,7 +118,7 @@ strings = {
         },
         "custom_words": {
             "title": "Custom Words",
-            "placeholder": "MLX, Qwen, vvrite",
+            "placeholder": "MLX, Qwen, Qdicta",
             "hint": "Enter one word per line, or paste comma-separated words",
             "import": "Import...",
             "export": "Export...",
@@ -157,13 +157,13 @@ strings = {
         "hotkey": "Hotkey: {hotkey}",
         "microphone": "Microphone: {microphone}",
         "settings": "Settings...",
-        "about": "About vvrite...",
+        "about": "About Qdicta...",
         "check_updates": "Check for Updates...",
         "update_available": "Update Available ({version})",
         "transcribe_file": "Transcribe Audio/Video File...",
         "copy_last_dictation": "Copy Last Dictation",
         "recent_dictations": "Recent Dictations...",
-        "quit": "Quit vvrite",
+        "quit": "Quit Qdicta",
     },
     "file_transcription": {
         "choose_file": "Choose audio or video file",
@@ -183,7 +183,7 @@ strings = {
     "alerts": {
         "permissions_required": {
             "title": "Permissions Required",
-            "message": "vvrite needs the following permissions:\n\n{permissions}\n\nClick 'Grant' to open each permission dialog.",
+            "message": "Qdicta needs the following permissions:\n\n{permissions}\n\nClick 'Grant' to open each permission dialog.",
             "accessibility": "Accessibility (for global hotkey)",
             "microphone": "Microphone (for voice recording)",
         },
@@ -192,10 +192,10 @@ strings = {
         },
         "no_updates": {
             "title": "No Updates Available",
-            "message": "vvrite {version} is the latest version.",
+            "message": "Qdicta {version} is the latest version.",
         },
         "update_available": {
-            "title": "vvrite {version} is available",
+            "title": "Qdicta {version} is available",
             "message": "You are currently running {current_version}.",
         },
     },

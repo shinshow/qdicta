@@ -10,10 +10,10 @@ from vvrite import updater
 
 class TestRepositoryConfig(unittest.TestCase):
     def test_update_checker_uses_fork_repository(self):
-        self.assertEqual(updater.REPOSITORY_URL, "https://github.com/shinshow/vvrite")
+        self.assertEqual(updater.REPOSITORY_URL, "https://github.com/shinshow/qdicta")
         self.assertEqual(
             updater.GITHUB_API_URL,
-            "https://api.github.com/repos/shinshow/vvrite/releases/latest",
+            "https://api.github.com/repos/shinshow/qdicta/releases/latest",
         )
 
 
@@ -80,21 +80,21 @@ class TestFindDmgAsset(unittest.TestCase):
     def test_finds_dmg(self):
         release = {
             "assets": [
-                {"name": "vvrite-1.1.0.zip", "browser_download_url": "https://example.com/a.zip"},
-                {"name": "vvrite-1.1.0.dmg", "browser_download_url": "https://example.com/a.dmg"},
+                {"name": "Qdicta-1.2.0.zip", "browser_download_url": "https://example.com/a.zip"},
+                {"name": "Qdicta-1.2.0.dmg", "browser_download_url": "https://example.com/a.dmg"},
             ]
         }
         asset = updater.find_dmg_asset(release)
-        self.assertEqual(asset["name"], "vvrite-1.1.0.dmg")
+        self.assertEqual(asset["name"], "Qdicta-1.2.0.dmg")
 
     def test_falls_back_to_zip(self):
         release = {
             "assets": [
-                {"name": "vvrite-1.1.0.zip", "browser_download_url": "https://example.com/a.zip"},
+                {"name": "Qdicta-1.2.0.zip", "browser_download_url": "https://example.com/a.zip"},
             ]
         }
         asset = updater.find_dmg_asset(release)
-        self.assertEqual(asset["name"], "vvrite-1.1.0.zip")
+        self.assertEqual(asset["name"], "Qdicta-1.2.0.zip")
 
     def test_no_matching_asset(self):
         release = {
@@ -113,10 +113,10 @@ class TestFindDmgAsset(unittest.TestCase):
 
 class TestReleasePageUrl(unittest.TestCase):
     def test_uses_release_html_url(self):
-        release = {"html_url": "https://github.com/shinshow/vvrite/releases/tag/v1.2.3"}
+        release = {"html_url": "https://github.com/shinshow/qdicta/releases/tag/v1.2.3"}
         self.assertEqual(
             updater.release_page_url(release),
-            "https://github.com/shinshow/vvrite/releases/tag/v1.2.3",
+            "https://github.com/shinshow/qdicta/releases/tag/v1.2.3",
         )
 
     def test_falls_back_to_repo_when_missing(self):

@@ -1,4 +1,4 @@
-"""Hindi locale strings for vvrite."""
+"""Hindi locale strings for Qdicta."""
 
 strings = {
     "common": {
@@ -76,7 +76,7 @@ strings = {
             "title": "भाषा",
             "ui_language": "UI",
             "asr_language": "पहचान",
-            "restart_message": "भाषा परिवर्तन लागू करने के लिए vvrite पुनः आरंभ करें।",
+            "restart_message": "भाषा परिवर्तन लागू करने के लिए Qdicta पुनः आरंभ करें।",
             "restart_now": "अभी पुनः आरंभ करें",
         },
         "shortcut": {
@@ -100,13 +100,13 @@ strings = {
             "download": "चयनित मॉडल डाउनलोड करें",
             "delete": "चयनित मॉडल हटाएँ",
             "delete_confirm_title": "डाउनलोड किया गया मॉडल हटाएँ?",
-            "delete_confirm_message": "यह चयनित मॉडल को vvrite के Application Support फ़ोल्डर से हटाता है। आप इसे बाद में फिर से डाउनलोड कर सकते हैं।",
+            "delete_confirm_message": "यह चयनित मॉडल को Qdicta के Application Support फ़ोल्डर से हटाता है। आप इसे बाद में फिर से डाउनलोड कर सकते हैं।",
             "downloaded": "डाउनलोड हो गया",
             "not_downloaded": "डाउनलोड नहीं हुआ",
             "downloading_progress": "Downloading: {progress}",
             "download_failed": "Model download failed",
-            "delete_current_model_blocked": "वर्तमान में लोड मॉडल हटाने से पहले vvrite बंद करें या मॉडल बदलें।",
-            "translation_unsupported": "चुना गया मॉडल vvrite में अंग्रेज़ी अनुवाद का समर्थन नहीं करता।",
+            "delete_current_model_blocked": "वर्तमान में लोड मॉडल हटाने से पहले Qdicta बंद करें या मॉडल बदलें।",
+            "translation_unsupported": "चुना गया मॉडल Qdicta में अंग्रेज़ी अनुवाद का समर्थन नहीं करता।",
             "translation_supported": "ट्रांसक्रिप्शन और अंग्रेज़ी अनुवाद का समर्थन करता है।",
             "translation_unavailable": "केवल ट्रांसक्रिप्शन। इस मॉडल के लिए अंग्रेज़ी अनुवाद उपलब्ध नहीं है।",
             "translation_switched_to_transcribe": "यह मॉडल अंग्रेज़ी अनुवाद का समर्थन नहीं करता। ट्रांसक्रिप्शन पर स्विच किया गया।",
@@ -118,7 +118,7 @@ strings = {
         },
         "custom_words": {
             "title": "कस्टम शब्द",
-            "placeholder": "MLX, Qwen, vvrite",
+            "placeholder": "MLX, Qwen, Qdicta",
             "hint": "हर पंक्ति में एक शब्द डालें या अल्पविराम से अलग शब्द चिपकाएँ",
             "import": "आयात...",
             "export": "निर्यात...",
@@ -157,13 +157,13 @@ strings = {
         "hotkey": "हॉटकी: {hotkey}",
         "microphone": "माइक्रोफ़ोन: {microphone}",
         "settings": "सेटिंग्स...",
-        "about": "About vvrite...",
+        "about": "About Qdicta...",
         "check_updates": "अपडेट जाँचें...",
         "update_available": "अपडेट उपलब्ध ({version})",
         "transcribe_file": "ऑडियो/वीडियो फ़ाइल ट्रांसक्राइब करें...",
         "copy_last_dictation": "अंतिम डिक्टेशन कॉपी करें",
         "recent_dictations": "हाल के डिक्टेशन...",
-        "quit": "vvrite बंद करें",
+        "quit": "Qdicta बंद करें",
     },
     "file_transcription": {
         "choose_file": "ऑडियो या वीडियो फ़ाइल चुनें",
@@ -183,7 +183,7 @@ strings = {
     "alerts": {
         "permissions_required": {
             "title": "अनुमतियाँ आवश्यक",
-            "message": "vvrite को निम्नलिखित अनुमतियों की आवश्यकता है:\n\n{permissions}\n\nप्रत्येक अनुमति डायलॉग खोलने के लिए 'अनुमति दें' पर क्लिक करें।",
+            "message": "Qdicta को निम्नलिखित अनुमतियों की आवश्यकता है:\n\n{permissions}\n\nप्रत्येक अनुमति डायलॉग खोलने के लिए 'अनुमति दें' पर क्लिक करें।",
             "accessibility": "एक्सेसिबिलिटी (ग्लोबल हॉटकी के लिए)",
             "microphone": "माइक्रोफ़ोन (आवाज़ रिकॉर्डिंग के लिए)",
         },
@@ -192,10 +192,10 @@ strings = {
         },
         "no_updates": {
             "title": "कोई अपडेट उपलब्ध नहीं",
-            "message": "vvrite {version} नवीनतम संस्करण है।",
+            "message": "Qdicta {version} नवीनतम संस्करण है।",
         },
         "update_available": {
-            "title": "vvrite {version} उपलब्ध है",
+            "title": "Qdicta {version} उपलब्ध है",
             "message": "आप वर्तमान में {current_version} चला रहे हैं।",
         },
     },

@@ -4,11 +4,11 @@ set -euo pipefail
 # ── Configuration ──────────────────────────────────────────────
 IDENTITY="Developer ID Application: Saturn Studio (449B2G47F7)"
 BUILD_MODE="release"
-BUNDLE="dist/vvrite.app"
+BUNDLE="dist/Qdicta.app"
 ENTITLEMENTS="entitlements.plist"
 NOTARY_PROFILE="notarytool-profile"
-ZIP="dist/vvrite.zip"
-DMG="dist/vvrite.dmg"
+ZIP="dist/Qdicta.zip"
+DMG="dist/Qdicta.dmg"
 if [[ -z "${PYTHON:-}" && -x ".venv/bin/python" ]]; then
     PYTHON_BIN=".venv/bin/python"
 else
@@ -225,7 +225,7 @@ rm -f "$DMG"
 DMG_STAGE=$(mktemp -d)
 cp -R "$BUNDLE" "$DMG_STAGE/"
 ln -s /Applications "$DMG_STAGE/Applications"
-hdiutil create -volname "vvrite" -srcfolder "$DMG_STAGE" \
+hdiutil create -volname "Qdicta" -srcfolder "$DMG_STAGE" \
     -ov -format UDZO "$DMG"
 rm -rf "$DMG_STAGE"
 

@@ -1,4 +1,4 @@
-"""Japanese locale strings for vvrite."""
+"""Japanese locale strings for Qdicta."""
 
 strings = {
     "common": {
@@ -76,7 +76,7 @@ strings = {
             "title": "言語",
             "ui_language": "UI",
             "asr_language": "認識",
-            "restart_message": "言語の変更を適用するにはvvriteを再起動してください。",
+            "restart_message": "言語の変更を適用するにはQdictaを再起動してください。",
             "restart_now": "今すぐ再起動",
         },
         "shortcut": {
@@ -100,13 +100,13 @@ strings = {
             "download": "選択したモデルをダウンロード",
             "delete": "選択したモデルを削除",
             "delete_confirm_title": "ダウンロード済みモデルを削除しますか？",
-            "delete_confirm_message": "選択したモデルをvvriteのApplication Supportフォルダから削除します。後で再ダウンロードできます。",
+            "delete_confirm_message": "選択したモデルをQdictaのApplication Supportフォルダから削除します。後で再ダウンロードできます。",
             "downloaded": "ダウンロード済み",
             "not_downloaded": "未ダウンロード",
             "downloading_progress": "Downloading: {progress}",
             "download_failed": "Model download failed",
-            "delete_current_model_blocked": "現在読み込まれているモデルを削除する前に、vvriteを終了するかモデルを切り替えてください。",
-            "translation_unsupported": "選択したモデルは vvrite で英語翻訳をサポートしていません。",
+            "delete_current_model_blocked": "現在読み込まれているモデルを削除する前に、Qdictaを終了するかモデルを切り替えてください。",
+            "translation_unsupported": "選択したモデルは Qdicta で英語翻訳をサポートしていません。",
             "translation_supported": "文字起こしと英語翻訳をサポートします。",
             "translation_unavailable": "文字起こし専用です。このモデルでは英語翻訳を使用できません。",
             "translation_switched_to_transcribe": "このモデルは英語翻訳をサポートしていないため、文字起こしに切り替えました。",
@@ -118,7 +118,7 @@ strings = {
         },
         "custom_words": {
             "title": "カスタムワード",
-            "placeholder": "MLX, Qwen, vvrite",
+            "placeholder": "MLX, Qwen, Qdicta",
             "hint": "1行に1語ずつ入力するか、カンマ区切りの単語を貼り付けてください",
             "import": "読み込み...",
             "export": "書き出し...",
@@ -157,13 +157,13 @@ strings = {
         "hotkey": "ホットキー: {hotkey}",
         "microphone": "マイク: {microphone}",
         "settings": "設定...",
-        "about": "About vvrite...",
+        "about": "About Qdicta...",
         "check_updates": "アップデートを確認...",
         "update_available": "アップデートあり ({version})",
         "transcribe_file": "音声/動画ファイルを書き起こす...",
         "copy_last_dictation": "最後の書き起こしをコピー",
         "recent_dictations": "最近の書き起こし...",
-        "quit": "vvriteを終了",
+        "quit": "Qdictaを終了",
     },
     "file_transcription": {
         "choose_file": "音声または動画ファイルを選択",
@@ -183,7 +183,7 @@ strings = {
     "alerts": {
         "permissions_required": {
             "title": "権限が必要です",
-            "message": "vvriteには以下の権限が必要です:\n\n{permissions}\n\n「許可」をクリックして各権限ダイアログを開いてください。",
+            "message": "Qdictaには以下の権限が必要です:\n\n{permissions}\n\n「許可」をクリックして各権限ダイアログを開いてください。",
             "accessibility": "アクセシビリティ（グローバルホットキー用）",
             "microphone": "マイク（音声録音用）",
         },
@@ -192,10 +192,10 @@ strings = {
         },
         "no_updates": {
             "title": "利用可能なアップデートはありません",
-            "message": "vvrite {version}は最新バージョンです。",
+            "message": "Qdicta {version}は最新バージョンです。",
         },
         "update_available": {
-            "title": "vvrite {version}が利用可能です",
+            "title": "Qdicta {version}が利用可能です",
             "message": "現在{current_version}を実行中です。",
         },
     },

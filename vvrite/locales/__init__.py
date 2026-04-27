@@ -1,4 +1,4 @@
-"""Internationalization (i18n) core for vvrite."""
+"""Internationalization (i18n) core for Qdicta."""
 
 import importlib
 

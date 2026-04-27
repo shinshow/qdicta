@@ -36,7 +36,7 @@ from vvrite.locales import t, set_locale, SUPPORTED_LANGUAGES
 from vvrite.asr_models import ASR_MODELS, get_model
 from vvrite.download_progress import format_progress
 from vvrite.widgets import ShortcutField
-from vvrite import transcriber
+from vvrite import APP_NAME, transcriber
 
 # Window dimensions
 _WIDTH = 400
@@ -94,7 +94,7 @@ class OnboardingWindowController(NSObject):
             NSBackingStoreBuffered,
             False,
         )
-        self._window.setTitle_("vvrite")
+        self._window.setTitle_(APP_NAME)
         self._window.center()
         self._window.setDelegate_(self)
 
@@ -237,7 +237,7 @@ class OnboardingWindowController(NSObject):
         icon_view.setTranslatesAutoresizingMaskIntoConstraints_(False)
 
         # Title
-        title = NSTextField.labelWithString_("vvrite")
+        title = NSTextField.labelWithString_(APP_NAME)
         title.setFont_(NSFont.boldSystemFontOfSize_(22.0))
         title.setAlignment_(1)
         title.setTranslatesAutoresizingMaskIntoConstraints_(False)

@@ -1,4 +1,4 @@
-"""Spanish locale strings for vvrite."""
+"""Spanish locale strings for Qdicta."""
 
 strings = {
     "common": {
@@ -76,7 +76,7 @@ strings = {
             "title": "Idioma",
             "ui_language": "Interfaz",
             "asr_language": "Reconocimiento",
-            "restart_message": "Reinicia vvrite para aplicar los cambios de idioma.",
+            "restart_message": "Reinicia Qdicta para aplicar los cambios de idioma.",
             "restart_now": "Reiniciar ahora",
         },
         "shortcut": {
@@ -100,13 +100,13 @@ strings = {
             "download": "Descargar modelo seleccionado",
             "delete": "Eliminar modelo seleccionado",
             "delete_confirm_title": "¿Eliminar el modelo descargado?",
-            "delete_confirm_message": "Esto elimina el modelo seleccionado de la carpeta Application Support de vvrite. Puedes descargarlo de nuevo más tarde.",
+            "delete_confirm_message": "Esto elimina el modelo seleccionado de la carpeta Application Support de Qdicta. Puedes descargarlo de nuevo más tarde.",
             "downloaded": "Descargado",
             "not_downloaded": "No descargado",
             "downloading_progress": "Downloading: {progress}",
             "download_failed": "Model download failed",
-            "delete_current_model_blocked": "Cierra vvrite o cambia de modelo antes de eliminar el modelo cargado actualmente.",
-            "translation_unsupported": "El modelo seleccionado no admite traducción al inglés en vvrite.",
+            "delete_current_model_blocked": "Cierra Qdicta o cambia de modelo antes de eliminar el modelo cargado actualmente.",
+            "translation_unsupported": "El modelo seleccionado no admite traducción al inglés en Qdicta.",
             "translation_supported": "Admite transcripción y traducción al inglés.",
             "translation_unavailable": "Solo transcripción. La traducción al inglés no está disponible para este modelo.",
             "translation_switched_to_transcribe": "Este modelo no admite traducción al inglés. Se cambió a transcripción.",
@@ -118,7 +118,7 @@ strings = {
         },
         "custom_words": {
             "title": "Palabras personalizadas",
-            "placeholder": "MLX, Qwen, vvrite",
+            "placeholder": "MLX, Qwen, Qdicta",
             "hint": "Introduce una palabra por línea o pega palabras separadas por comas",
             "import": "Importar...",
             "export": "Exportar...",
@@ -157,13 +157,13 @@ strings = {
         "hotkey": "Atajo: {hotkey}",
         "microphone": "Micrófono: {microphone}",
         "settings": "Ajustes...",
-        "about": "About vvrite...",
+        "about": "About Qdicta...",
         "check_updates": "Buscar actualizaciones...",
         "update_available": "Actualización disponible ({version})",
         "transcribe_file": "Transcribir archivo de audio/video...",
         "copy_last_dictation": "Copiar último dictado",
         "recent_dictations": "Dictados recientes...",
-        "quit": "Salir de vvrite",
+        "quit": "Salir de Qdicta",
     },
     "file_transcription": {
         "choose_file": "Elegir archivo de audio o video",
@@ -183,7 +183,7 @@ strings = {
     "alerts": {
         "permissions_required": {
             "title": "Permisos requeridos",
-            "message": "vvrite necesita los siguientes permisos:\n\n{permissions}\n\nHaz clic en 'Conceder' para abrir cada diálogo de permisos.",
+            "message": "Qdicta necesita los siguientes permisos:\n\n{permissions}\n\nHaz clic en 'Conceder' para abrir cada diálogo de permisos.",
             "accessibility": "Accesibilidad (para tecla de acceso rápido global)",
             "microphone": "Micrófono (para grabación de voz)",
         },
@@ -192,10 +192,10 @@ strings = {
         },
         "no_updates": {
             "title": "No hay actualizaciones disponibles",
-            "message": "vvrite {version} es la última versión.",
+            "message": "Qdicta {version} es la última versión.",
         },
         "update_available": {
-            "title": "vvrite {version} está disponible",
+            "title": "Qdicta {version} está disponible",
             "message": "Actualmente estás ejecutando {current_version}.",
         },
     },

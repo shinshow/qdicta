@@ -138,6 +138,13 @@ class TestStatusBarMenuActions(unittest.TestCase):
 
         self.assertIs(items_by_action["openSettings:"].target, delegate)
         self.assertIs(items_by_action["showAbout:"].target, delegate)
+        self.assertEqual(items_by_action["showAbout:"].title, "About Qdicta...")
+        self.assertEqual(items_by_action["terminate:"].title, "Quit Qdicta")
+
+    def test_menu_header_uses_public_app_name(self):
+        controller, _status_bar, _delegate = self._build_controller()
+
+        self.assertEqual(controller._menu.items[0].title, "Qdicta")
 
     def test_menu_contains_recent_history_actions(self):
         controller, _status_bar, delegate = self._build_controller()

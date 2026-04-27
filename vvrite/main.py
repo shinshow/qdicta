@@ -1,4 +1,4 @@
-"""vvrite macOS app — entry point."""
+"""Qdicta macOS app — entry point."""
 
 import os
 import sys
@@ -31,7 +31,13 @@ from AppKit import NSTimer
 from Foundation import NSLog, NSURL
 import ApplicationServices
 
-from vvrite import __version__, APP_BUNDLE_IDENTIFIER
+from vvrite import (
+    APP_BUNDLE_IDENTIFIER,
+    APP_DESCRIPTION,
+    APP_NAME,
+    APP_TAGLINE,
+    __version__,
+)
 from vvrite.locales import t
 from vvrite.preferences import Preferences
 from vvrite.asr_models import model_short_name
@@ -49,15 +55,17 @@ from vvrite.modes import post_process_for_mode
 from vvrite.text_replacements import apply_replacements, parse_replacements_text
 
 
-FORK_REPOSITORY_URL = "https://github.com/shinshow/vvrite"
+FORK_REPOSITORY_URL = "https://github.com/shinshow/qdicta"
 ORIGINAL_REPOSITORY_URL = "https://github.com/shaircast/vvrite"
 START_CUE_MAX_WAIT_SECONDS = 0.35
 
 
 def _about_message() -> str:
     return (
+        f"{APP_NAME}\n"
+        f"{APP_TAGLINE}\n"
         f"Version {__version__}\n\n"
-        "A macOS menu bar app for on-device voice transcription. "
+        f"{APP_DESCRIPTION}. "
         "Audio stays on your Mac and is transcribed with local ASR models.\n\n"
         f"Fork repository:\n{FORK_REPOSITORY_URL}\n\n"
         f"Original repository:\n{ORIGINAL_REPOSITORY_URL}"
@@ -536,7 +544,7 @@ class AppDelegate(NSObject):
     def showAbout(self):
         """Called from menu bar item click."""
         alert = NSAlert.alloc().init()
-        alert.setMessageText_("vvrite")
+        alert.setMessageText_(APP_NAME)
         alert.setInformativeText_(_about_message())
         alert.addButtonWithTitle_(t("common.open"))
         alert.addButtonWithTitle_(t("common.dismiss"))

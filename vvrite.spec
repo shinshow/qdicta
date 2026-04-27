@@ -1,4 +1,4 @@
-"""PyInstaller spec for vvrite macOS app."""
+"""PyInstaller spec for Qdicta macOS app."""
 import importlib.util
 import os
 import sys
@@ -9,7 +9,7 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from PyInstaller.utils.hooks import collect_submodules
-from vvrite import APP_BUNDLE_IDENTIFIER
+from vvrite import APP_BUNDLE_IDENTIFIER, APP_NAME, __version__
 
 block_cipher = None
 
@@ -140,16 +140,17 @@ coll = COLLECT(
 
 app = BUNDLE(
     coll,
-    name="vvrite.app",
-    icon="assets/vvrite.icns",
+    name="Qdicta.app",
+    icon="assets/qdicta.icns",
     bundle_identifier=APP_BUNDLE_IDENTIFIER,
     info_plist={
-        "CFBundleName": "vvrite",
-        "CFBundleShortVersionString": "1.1.9",  # keep in sync with vvrite/__init__.__version__
-        "CFBundleVersion": "15",
+        "CFBundleName": APP_NAME,
+        "CFBundleDisplayName": APP_NAME,
+        "CFBundleShortVersionString": __version__,
+        "CFBundleVersion": "16",
         "LSUIElement": True,
         "NSMicrophoneUsageDescription": (
-            "vvrite needs microphone access to record and transcribe your speech."
+            f"{APP_NAME} needs microphone access to record and transcribe your speech."
         ),
         "NSHighResolutionCapable": True,
         "NSSupportsAutomaticTermination": False,

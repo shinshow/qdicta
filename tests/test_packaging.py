@@ -53,6 +53,17 @@ class TestPyInstallerSpec(unittest.TestCase):
         self.assertIn("Cleaning local intermediate app bundle", script)
         self.assertIn('rm -rf "$BUNDLE" "dist/vvrite"', script)
 
+    def test_public_bundle_branding_uses_qdicta(self):
+        spec = pathlib.Path("vvrite.spec").read_text(encoding="utf-8")
+        script = pathlib.Path("scripts/build.sh").read_text(encoding="utf-8")
+
+        self.assertIn('name="Qdicta.app"', spec)
+        self.assertIn('icon="assets/qdicta.icns"', spec)
+        self.assertIn('"CFBundleName": APP_NAME', spec)
+        self.assertIn('BUNDLE="dist/Qdicta.app"', script)
+        self.assertIn('DMG="dist/Qdicta.dmg"', script)
+        self.assertIn('hdiutil create -volname "Qdicta"', script)
+
 
 class TestDistributionDocs(unittest.TestCase):
     def test_only_english_and_korean_readmes_are_kept(self):
