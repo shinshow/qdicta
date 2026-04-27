@@ -322,6 +322,11 @@ class TestEnglishStringsCompleteness(unittest.TestCase):
             strings["file_transcription"],
             "Missing file_transcription.choose_file",
         )
+        self.assertIn(
+            "supported_formats",
+            strings["file_transcription"],
+            "Missing file_transcription.supported_formats",
+        )
 
     def test_history_keys(self):
         from vvrite.locales.en import strings

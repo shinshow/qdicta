@@ -160,13 +160,15 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "التحقق من التحديثات...",
         "update_available": "تحديث متاح ({version})",
-        "transcribe_file": "تفريغ ملف...",
+        "transcribe_file": "تفريغ ملف صوت/فيديو...",
         "copy_last_dictation": "نسخ آخر إملاء",
         "recent_dictations": "الإملاءات الأخيرة...",
         "quit": "إنهاء vvrite",
     },
     "file_transcription": {
         "choose_file": "اختر ملف صوت أو فيديو",
+        "supported_formats": "الصيغ المدعومة: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
+        "unsupported_file": "صيغ الصوت/الفيديو المدعومة: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
     },
     "modes": {
         "voice": {"title": "صوت", "description": "لصق التفريغ كما قيل."},

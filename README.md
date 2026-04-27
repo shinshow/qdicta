@@ -27,6 +27,8 @@
 3. Press the hotkey again to stop
 4. Your speech is transcribed locally and pasted into the active text field
 
+You can also transcribe an existing audio or video file from the menu bar. File transcription uses the same selected model and output settings, then pastes the result into the active text field.
+
 Everything runs on-device using [MLX](https://github.com/ml-explore/mlx). No audio leaves your Mac.
 The default Qwen3-ASR model and optional Whisper models support multilingual dictation, including Korean and English mixed in one recording.
 
@@ -41,6 +43,9 @@ The default Qwen3-ASR model and optional Whisper models support multilingual dic
 - **Recording overlay** — visual feedback with audio level bars and timer
 - **ESC to cancel** — press Escape during recording to dismiss without transcribing
 - **Auto-paste** — transcribed text is pasted directly into the active field
+- **Audio/video file transcription** — transcribe existing WAV, MP3, M4A, MP4, CAF, AIFF, or FLAC files from the menu bar
+- **Recent dictations** — copy the latest result or review recent results from the menu bar
+- **Output modes and replacements** — choose voice/message/note/email formatting, add custom words, and define automatic text replacements
 - **Guided onboarding** — first launch walks you through permissions and model download
 
 ## ASR Models
@@ -115,11 +120,44 @@ Local builds use ad-hoc signing by default and skip notarization, so they are no
 | Start / stop recording | `Option + Space` (configurable) |
 | Cancel recording | `Escape` |
 | Open settings | Click menu bar icon → Settings |
+| Transcribe an existing file | Click menu bar icon → Transcribe Audio/Video File... |
+| Copy the latest result | Click menu bar icon → Copy Last Dictation |
+| View recent results | Click menu bar icon → Recent Dictations... |
 
 On first launch, the onboarding wizard will guide you through:
 1. Granting microphone and accessibility permissions
 2. Setting your preferred hotkey
 3. Downloading the default ASR model
+
+### Live Dictation
+
+1. Put the cursor where you want the text to appear.
+2. Press the configured hotkey.
+3. Speak while the recording overlay is visible.
+4. Press the hotkey again to stop.
+5. vvrite transcribes locally, pastes the result into the active app, and stores it in recent dictations.
+
+If you press `Escape` while recording, vvrite cancels the recording and does not transcribe or paste anything.
+
+### File Transcription
+
+1. Put the cursor where you want the result to appear.
+2. Click the menu bar icon and choose **Transcribe Audio/Video File...**.
+3. Select a supported file: `WAV`, `MP3`, `M4A`, `MP4`, `CAF`, `AIFF`, or `FLAC`.
+4. vvrite copies the selected file to a temporary working file, transcribes it locally with the currently selected model, pastes the result into the active app, and stores it in recent dictations.
+
+File transcription does not open a separate results window. If the active app is not ready for text input, use **Copy Last Dictation** or **Recent Dictations...** from the menu bar to recover the result.
+
+### Settings
+
+Open **Settings** from the menu bar to configure:
+
+- **General** — UI language, recognition language, launch at login, and automatic update checks
+- **Recording** — global hotkey, microphone, and permission status
+- **Model** — ASR model, model download/delete, and transcription vs English translation output
+- **Output** — voice/message/note/email mode, custom words, and automatic replacements
+- **Sound** — recording start/stop sounds and volume
+- **Advanced** — optional delete-by-keystroke shortcut for retracting the most recently pasted result
 
 ## Tech Stack
 

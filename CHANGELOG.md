@@ -4,6 +4,18 @@ All notable changes to this fork are documented here.
 
 ## Unreleased
 
+## [1.1.9] - 2026-04-27
+
+### Changed
+
+- Clarified that file transcription accepts audio/video files by renaming the menu item and showing supported formats in the file picker.
+- Updated README usage docs and privacy notes to match file transcription, recent dictation history, output modes, and current settings.
+
+### Fixed
+
+- Show a supported-format error instead of starting transcription when an unsupported file reaches file transcription.
+- Bumped app version from `1.1.8` to `1.1.9`.
+
 ## [1.1.8] - 2026-04-26
 
 ### Changed

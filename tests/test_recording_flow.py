@@ -175,6 +175,9 @@ class TestRecordingFlow(unittest.TestCase):
         with patch.object(main.threading, "Thread") as mock_thread:
             delegate.transcribeFile_(None)
 
+        panel.setMessage_.assert_called_once_with(
+            "Supported formats: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC"
+        )
         mock_prepare.assert_called_once_with("/tmp/source.wav")
         delegate._status_bar.setStatus_.assert_called_once_with("transcribing")
         delegate._overlay.showTranscribing.assert_called_once_with()
@@ -184,6 +187,33 @@ class TestRecordingFlow(unittest.TestCase):
             daemon=True,
         )
         mock_thread.return_value.start.assert_called_once_with()
+
+    @patch("vvrite.main.NSModalResponseOK", 1)
+    @patch(
+        "vvrite.main.prepare_transcription_input",
+        side_effect=ValueError("Unsupported media file: /tmp/note.txt"),
+    )
+    @patch("vvrite.main.NSOpenPanel")
+    def test_transcribe_file_shows_error_for_unsupported_file(
+        self, mock_open_panel, _mock_prepare
+    ):
+        delegate = self._delegate()
+        panel = MagicMock()
+        url = MagicMock()
+        url.path.return_value = "/tmp/note.txt"
+        panel.URL.return_value = url
+        panel.runModal.return_value = 1
+        mock_open_panel.openPanel.return_value = panel
+
+        with patch.object(main.threading, "Thread") as mock_thread, patch.object(
+            delegate, "showErrorUI_"
+        ) as mock_show_error:
+            delegate.transcribeFile_(None)
+
+        mock_show_error.assert_called_once_with(
+            "Supported audio/video formats: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC"
+        )
+        mock_thread.assert_not_called()
 
 
 if __name__ == "__main__":

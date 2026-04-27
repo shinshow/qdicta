@@ -160,13 +160,15 @@ strings = {
         "about": "이 앱에 대하여...",
         "check_updates": "업데이트 확인...",
         "update_available": "업데이트 사용 가능 ({version})",
-        "transcribe_file": "파일 전사...",
+        "transcribe_file": "오디오/비디오 파일 전사...",
         "copy_last_dictation": "마지막 받아쓰기 복사",
         "recent_dictations": "최근 받아쓰기...",
         "quit": "vvrite 종료",
     },
     "file_transcription": {
         "choose_file": "오디오 또는 비디오 파일 선택",
+        "supported_formats": "지원 형식: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
+        "unsupported_file": "지원되는 오디오/비디오 형식: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
     },
     "modes": {
         "voice": {"title": "음성", "description": "말한 그대로 전사를 붙여넣습니다."},

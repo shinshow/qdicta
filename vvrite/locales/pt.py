@@ -160,13 +160,15 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "Verificar atualizações...",
         "update_available": "Atualização disponível ({version})",
-        "transcribe_file": "Transcrever arquivo...",
+        "transcribe_file": "Transcrever arquivo de áudio/vídeo...",
         "copy_last_dictation": "Copiar último ditado",
         "recent_dictations": "Ditados recentes...",
         "quit": "Sair do vvrite",
     },
     "file_transcription": {
         "choose_file": "Escolher arquivo de áudio ou vídeo",
+        "supported_formats": "Formatos compatíveis: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
+        "unsupported_file": "Formatos de áudio/vídeo compatíveis: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
     },
     "modes": {
         "voice": {"title": "Voz", "description": "Colar transcrição como falada."},

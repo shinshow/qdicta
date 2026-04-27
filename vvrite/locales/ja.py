@@ -160,13 +160,15 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "アップデートを確認...",
         "update_available": "アップデートあり ({version})",
-        "transcribe_file": "ファイルを書き起こす...",
+        "transcribe_file": "音声/動画ファイルを書き起こす...",
         "copy_last_dictation": "最後の書き起こしをコピー",
         "recent_dictations": "最近の書き起こし...",
         "quit": "vvriteを終了",
     },
     "file_transcription": {
         "choose_file": "音声または動画ファイルを選択",
+        "supported_formats": "対応形式: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
+        "unsupported_file": "対応する音声/動画形式: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
     },
     "modes": {
         "voice": {"title": "音声", "description": "話した内容のまま貼り付けます。"},

@@ -164,7 +164,7 @@ class TestStatusBarMenuActions(unittest.TestCase):
             if getattr(item, "action", None)
         }
 
-        self.assertIn("Transcribe File...", titles)
+        self.assertIn("Transcribe Audio/Video File...", titles)
         self.assertIs(items_by_action["transcribeFile:"].target, delegate)
 
     def test_status_item_uses_fixed_visible_icon_slot_on_launch(self):

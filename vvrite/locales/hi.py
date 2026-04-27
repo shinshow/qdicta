@@ -160,13 +160,15 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "अपडेट जाँचें...",
         "update_available": "अपडेट उपलब्ध ({version})",
-        "transcribe_file": "फ़ाइल ट्रांसक्राइब करें...",
+        "transcribe_file": "ऑडियो/वीडियो फ़ाइल ट्रांसक्राइब करें...",
         "copy_last_dictation": "अंतिम डिक्टेशन कॉपी करें",
         "recent_dictations": "हाल के डिक्टेशन...",
         "quit": "vvrite बंद करें",
     },
     "file_transcription": {
         "choose_file": "ऑडियो या वीडियो फ़ाइल चुनें",
+        "supported_formats": "समर्थित फ़ॉर्मेट: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
+        "unsupported_file": "समर्थित ऑडियो/वीडियो फ़ॉर्मेट: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
     },
     "modes": {
         "voice": {"title": "आवाज़", "description": "बोले गए रूप में ट्रांसक्रिप्शन चिपकाएँ."},

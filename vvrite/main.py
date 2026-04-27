@@ -511,13 +511,18 @@ class AppDelegate(NSObject):
         panel.setCanChooseDirectories_(False)
         panel.setAllowsMultipleSelection_(False)
         panel.setTitle_(t("file_transcription.choose_file"))
+        panel.setMessage_(t("file_transcription.supported_formats"))
 
         response = panel.runModal()
         if response != NSModalResponseOK:
             return
 
         source_path = str(panel.URL().path())
-        prepared_path = prepare_transcription_input(source_path)
+        try:
+            prepared_path = prepare_transcription_input(source_path)
+        except ValueError:
+            self.showErrorUI_(t("file_transcription.unsupported_file"))
+            return
         self._status_bar.setStatus_("transcribing")
         self._overlay.showTranscribing()
         threading.Thread(

@@ -160,13 +160,15 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "Проверить обновления...",
         "update_available": "Доступно обновление ({version})",
-        "transcribe_file": "Транскрибировать файл...",
+        "transcribe_file": "Транскрибировать аудио-/видеофайл...",
         "copy_last_dictation": "Скопировать последнюю диктовку",
         "recent_dictations": "Недавние диктовки...",
         "quit": "Завершить vvrite",
     },
     "file_transcription": {
         "choose_file": "Выбрать аудио- или видеофайл",
+        "supported_formats": "Поддерживаемые форматы: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
+        "unsupported_file": "Поддерживаемые аудио-/видеоформаты: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
     },
     "modes": {
         "voice": {"title": "Голос", "description": "Вставить транскрипцию как произнесено."},

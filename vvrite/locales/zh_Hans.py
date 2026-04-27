@@ -160,13 +160,15 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "检查更新...",
         "update_available": "有可用更新 ({version})",
-        "transcribe_file": "转录文件...",
+        "transcribe_file": "转录音频/视频文件...",
         "copy_last_dictation": "复制上一次听写",
         "recent_dictations": "最近听写...",
         "quit": "退出 vvrite",
     },
     "file_transcription": {
         "choose_file": "选择音频或视频文件",
+        "supported_formats": "支持的格式：WAV、MP3、M4A、MP4、CAF、AIFF、FLAC",
+        "unsupported_file": "支持的音频/视频格式：WAV、MP3、M4A、MP4、CAF、AIFF、FLAC",
     },
     "modes": {
         "voice": {"title": "语音", "description": "按说话内容粘贴转录。"},

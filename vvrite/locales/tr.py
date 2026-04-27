@@ -160,13 +160,15 @@ strings = {
         "about": "About vvrite...",
         "check_updates": "Güncellemeleri Kontrol Et...",
         "update_available": "Güncelleme Mevcut ({version})",
-        "transcribe_file": "Dosya Yazıya Dök...",
+        "transcribe_file": "Ses/Video Dosyasını Yazıya Dök...",
         "copy_last_dictation": "Son Dikteyi Kopyala",
         "recent_dictations": "Son Dikteler...",
         "quit": "vvrite'dan Çık",
     },
     "file_transcription": {
         "choose_file": "Ses veya video dosyası seç",
+        "supported_formats": "Desteklenen biçimler: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
+        "unsupported_file": "Desteklenen ses/video biçimleri: WAV, MP3, M4A, MP4, CAF, AIFF, FLAC",
     },
     "modes": {
         "voice": {"title": "Ses", "description": "Konuşmayı söylendiği gibi yapıştır."},

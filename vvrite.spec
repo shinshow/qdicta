@@ -145,7 +145,7 @@ app = BUNDLE(
     bundle_identifier=APP_BUNDLE_IDENTIFIER,
     info_plist={
         "CFBundleName": "vvrite",
-        "CFBundleShortVersionString": "1.1.8",  # keep in sync with vvrite/__init__.__version__
+        "CFBundleShortVersionString": "1.1.9",  # keep in sync with vvrite/__init__.__version__
         "CFBundleVersion": "15",
         "LSUIElement": True,
         "NSMicrophoneUsageDescription": (
